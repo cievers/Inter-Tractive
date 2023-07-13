@@ -140,3 +140,22 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
+# Unity collaborate defaults
+/ignore.conf
+*.private
+*.private.meta
+^*.private.[0-9]+$
+^*.private.[0-9]+.meta$
+**/Assets/AssetStoreTools
+**/assets/assetstoretools
+/Assets/Plugins/PlasticSCM*
+/assets/plugins/PlasticSCM*
+.collabignore
+crashlytics-build.properties
+**/Assets/AddressableAssetsData/*/*.bin*
+**/assets/addressableassetsdata/*/*.bin*
+**/Assets/StreamingAssets/aa.meta
+**/assets/streamingassets/*/aa/*
+.DS_Store*
+Thumbs.db
+Desktop.ini

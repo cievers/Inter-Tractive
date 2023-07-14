@@ -29,12 +29,14 @@ namespace Interface {
 			slice.Initialize(colorGrid, map.Grid.Size, map.Grid.Boundaries);
 		}
 		public void Remove(Source source) {
-			foreach (var slice in slices[source]) {
-				Destroy(projections[slice].gameObject);
-				Destroy(slice.gameObject);
-				projections.Remove(slice);
+			if (slices.ContainsKey(source)) {
+				foreach (var slice in slices[source]) {
+					Destroy(projections[slice].gameObject);
+					Destroy(slice.gameObject);
+					projections.Remove(slice);
+				}
+				slices.Remove(source);
 			}
-			slices.Remove(source);
 		}
 	}
 }

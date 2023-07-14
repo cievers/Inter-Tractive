@@ -16,18 +16,20 @@ namespace Interface {
 			Add();
 		}
 		public void Add() {
-			var instance = Instantiate(template, transform);
-			var source = instance.GetComponent<Source>();
+			try {
+				var instance = Instantiate(template, transform);
+				var source = instance.GetComponent<Source>();
 
-			if (source.Loaded()) {
 				sources.Add(source);
 				if (sources.Count == 1) {
 					camera.Target(source.Focus());
 				}
-			
+
 				source.Sliced += slices.Slice;
 				source.Closed += x => sources.Remove(x);
 				source.Closed += x => slices.Remove(x);
+			} catch (UnityException) {
+				
 			}
 		}
 	}

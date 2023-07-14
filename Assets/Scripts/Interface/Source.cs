@@ -36,8 +36,8 @@ namespace Interface {
 			Browse();
 			
 			// If the file selection was abandoned, remove the UI panel that was already created
-			if (!Loaded()) {
-				Destroy(gameObject);
+			if (path == null) {
+				DestroyImmediate(gameObject);
 			}
 		}
 		private void Browse() {
@@ -61,10 +61,6 @@ namespace Interface {
 			text.text = Prominence();
 		}
 
-		public bool Loaded() {
-			return path != null;
-		}
-		
 		private string Prominence() {
 			for (var i = 1; i < Significance(); i++) {
 				var display = Significance(i);

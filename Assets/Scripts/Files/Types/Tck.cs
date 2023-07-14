@@ -26,11 +26,10 @@ namespace Files.Types {
 			this.boundaries = boundaries;
 		}
 		
-		private const int VOXEL_SIZE = 10;
 		private const int VECTOR_SIZE = sizeof(float) * 3;
 		private static readonly byte[] READ_BUFFER = new byte[VECTOR_SIZE * 10000];
 
-		public static Tck Load(string path) {
+		public static Tck Load(string path, float interpolate=float.MaxValue) {
 			if (!BitConverter.IsLittleEndian) {
 				throw new Exception("No support yet for big endian architectures");
 			}
@@ -46,9 +45,6 @@ namespace Files.Types {
 			}
 			
 			// Prepare constants and container variables for reading the vertex data
-			const float maxDistance = VOXEL_SIZE * .98f; // TODO: This looks like a hack, and what does VOXEL_SIZE have to do with loading tracts in the first place?
-			const float maxDistanceSqrt = maxDistance * maxDistance;
-			
 			var points = new List<Vector3>();
 			var lines = new List<Tract>();
 			var boundsMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
@@ -62,42 +58,38 @@ namespace Files.Types {
 			// lines.EnsureCapacity((int)filePointCount); // TODO: If we get some capacity/out of bounds errors, look here
 
 
-			for (var v = 0; v < filePointCount - 1;) {
+			for (var read = 0; read < filePointCount - 1;) {
 				var readLength = filestream.Read(READ_BUFFER, 0, READ_BUFFER.Length);
 
-				for (var i = 0; i < readLength / VECTOR_SIZE; i++) {
-					if (v >= filePointCount - 1) {
+				for (var buffered = 0; buffered < readLength / VECTOR_SIZE; buffered++) {
+					if (read >= filePointCount - 1) {
 						break;
 					}
 
-					Vector3 point = GetVectorInBuffer(i);
+					Vector3 point = GetVectorInBuffer(buffered);
 
 					if (float.IsNaN(point.x) && float.IsNaN(point.y) && float.IsNaN(point.z)) {
-						Vector3[] pointsArray = points.ToArray();
-						Vector3 averageDirection = Vector3.Normalize(points[^1] - points[0]);
-						lines.Add(new Tract(pointsArray, (uint)lines.Count, averageDirection, (uint)v));
+						// If we hit the NaN, NaN, NaN marker for the end of a tract, save this tract
+						lines.Add(new Tract(points.ToArray(), (uint) lines.Count, Vector3.Normalize(points[^1] - points[0]), (uint) read));
 						points.Clear();
 					} else {
+						// If not, continue expanding the current tract
 						UpdateBounds(ref boundsMin, ref boundsMax, point);
 
-						if (points.Count >= 2 && (points[^1] - point).sqrMagnitude > maxDistanceSqrt) {
-							var distance = Vector3.Distance(points[^1], point);
-							var interpolationPointCount = (int) MathF.Ceiling(distance / maxDistance);
-							for (var j = 0; j < interpolationPointCount; j++) {
-								//start and endpoints are real points not interpolated.
-								if (j != interpolationPointCount && j != 0) {
-									points.Add(Vector3.Lerp(points[^1], point, j / interpolationPointCount));
-								}
-							}
+						// With an optional parameter, check if line segments need to be sub-sampled with interpolated points depending on this given maximum separation
+						if (points.Count >= 2 && (points[^1] - point).magnitude > interpolate) {
+							points.AddRange(Interpolate(points[^1], point, interpolate));
 						}
+						
+						// And always add the original point
 						points.Add(point);
 					}
-					v++;
+					read++;
 				}
 			}
 			// Check last point is the correct separator.
 			// if (GetVectorInBuffer(v) != new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity))
-			//     throw new Exception("Something went wrong during reading. Final point is not (inf,inf,inf).");
+			//     throw new FileLoadException("Something went wrong during reading. Final point is not (inf,inf,inf).");
 
 			if (filestream.Position != filestream.Length) {
 				throw new FileLoadException("Something went wrong during reading. End of file has not been reached.");
@@ -128,6 +120,20 @@ namespace Files.Types {
 		}
 		private static string LoadMetaLine(TextReader reader) {
 			return reader.ReadLine() ?? throw new FileLoadException("Incorrect metadata format");
+		}
+		private static IEnumerable<Vector3> Interpolate(Vector3 start, Vector3 end, float maximum) {
+			var distance = Vector3.Distance(start, end);
+			var interpolationPointCount = (int) MathF.Ceiling(distance / maximum);
+			var result = new Vector3[interpolationPointCount];
+							
+			for (var i = 0; i < interpolationPointCount; i++) {
+				// Start and endpoints are real points not interpolated.
+				if (i != 0 && i != interpolationPointCount) {
+					result[i - 1] = Vector3.Lerp(start, end, i / interpolationPointCount);
+				}
+			}
+
+			return result;
 		}
 
 		private static Vector3 GetVectorInBuffer(int i) {

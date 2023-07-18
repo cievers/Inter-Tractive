@@ -25,9 +25,7 @@ namespace Objects {
 		public MeshFilter gridMesh;
 
 		private Tractogram tractogram;
-		private ArrayGrid grid;
 		private Dictionary<Cell, IEnumerable<Tract>> voxels;
-		private Dictionary<Cell, float> measurements; // TODO: Replace with an n-dimensional, unit based, measurement per voxel
 		private Focus focus;
 		private Map map;
 
@@ -36,8 +34,6 @@ namespace Objects {
 
 			UpdateTracts();
 			UpdateVoxels(10);
-			UpdateMeasurement();
-			UpdateMap();
 
 			// var gridBoundaries = grid.Boundaries;
 			// var nifti = new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
@@ -48,25 +44,23 @@ namespace Objects {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
 		}
 		private void UpdateVoxels(float resolution) {
-			grid = new ArrayIntersectionGrid(tractogram, resolution);
+			var grid = new ArrayIntersectionGrid(tractogram, resolution);
 			voxels = grid.Quantize(tractogram);
 			focus = new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f);
 			
 			// TODO: Propagate an update to all the slices
 			
-			UpdateMeasurement();
-			UpdateMap();
+			UpdateMap(grid);
 		}
-		private void UpdateMap() {
+		private void UpdateMap(ArrayGrid grid) {
+			// var measurements = new Density().Measure(voxels);
+			var measurements = new Length().Measure(voxels);
+			
 			var colors = Colorize(measurements);
 			gridMesh.mesh = grid.Render(colors);
 			
 			// TODO: Propagate an update to all the slices
 			map = new Map(grid, colors);
-		}
-		private void UpdateMeasurement() {
-			// var measurement = new Density().Measure(map);
-			measurements = new Length().Measure(voxels);
 		}
 
 		public override Focus Focus() {

@@ -33,7 +33,7 @@ namespace Objects {
 			tractogram = Tck.Load(path);
 
 			UpdateTracts();
-			UpdateVoxels(10);
+			UpdateVoxels(1);
 
 			// var gridBoundaries = grid.Boundaries;
 			// var nifti = new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));

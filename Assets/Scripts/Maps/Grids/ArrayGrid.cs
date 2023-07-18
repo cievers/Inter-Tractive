@@ -14,8 +14,7 @@ namespace Maps.Grids {
 		private readonly Cuboid?[] cells;
 
 		public ArrayGrid(Tractogram tractogram, float resolution) {
-			cellSize = tractogram.Slack / resolution; // TODO: Some assertion that resolution is in the interval 0,1, 0 excluded
-			
+			cellSize = resolution;
 			var boundaries = tractogram.Boundaries;
 			gridAnchor = new Index3(boundaries.Min, cellSize);
 			gridSize = new Index3(boundaries.Max, cellSize) + new Index3(1, 1, 1) - gridAnchor;

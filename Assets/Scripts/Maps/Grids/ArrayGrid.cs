@@ -11,7 +11,7 @@ namespace Maps.Grids {
 		private readonly Index3 gridAnchor;
 		private readonly Index3 gridSize;
 		private readonly float cellSize;
-		private readonly Cuboid?[] cells;
+		protected readonly Cuboid?[] cells;
 
 		public ArrayGrid(Tractogram tractogram, float resolution) {
 			cellSize = resolution;

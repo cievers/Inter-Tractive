@@ -44,7 +44,7 @@ namespace Objects {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
 		}
 		private void UpdateVoxels(float resolution) {
-			var grid = new ArrayIntersectionGrid(tractogram, resolution);
+			var grid = new IntersectionLattice(tractogram, resolution);
 			voxels = grid.Quantize(tractogram);
 			focus = new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f);
 			
@@ -52,7 +52,7 @@ namespace Objects {
 			
 			UpdateMap(grid);
 		}
-		private void UpdateMap(ArrayGrid grid) {
+		private void UpdateMap(Voxels grid) {
 			// var measurements = new Density().Measure(voxels);
 			var measurements = new Length().Measure(voxels);
 			

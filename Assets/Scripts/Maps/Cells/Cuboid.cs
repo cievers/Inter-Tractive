@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Geometry;
 using Geometry.Tracts;
+using Maps.Grids;
 using UnityEngine;
 using UnityEngine.TextCore;
 
@@ -37,6 +38,19 @@ namespace Maps.Cells {
 				new Vector3(anchor.x + size, anchor.y + size, anchor.z + size),
 			};
 		}
+		public Cuboid(Lattice lattice, int x, int y, int z) {
+			points = new[] {
+				lattice[x, y, z],
+				lattice[x+1, y, z],
+				lattice[x, y+1, z],
+				lattice[x, y, z+1],
+				lattice[x+1, y+1, z],
+				lattice[x, y+1, z+1],
+				lattice[x+1, y, z+1],
+				lattice[x+1, y+1, z+1],
+			};
+		}
+		public Cuboid(Lattice lattice, Index3 index) : this(lattice, index.x, index.y, index.z) {}
 
 		public IEnumerable<Vector3> Vertices => points;
 		public IEnumerable<int> Indices => new[] {

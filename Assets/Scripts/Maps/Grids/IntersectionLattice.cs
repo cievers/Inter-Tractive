@@ -1,18 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Geometry;
 using Geometry.Tracts;
 using Maps.Cells;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
+using UnityEngine.Rendering;
 
 namespace Maps.Grids {
-	public class ArrayIntersectionGrid : ArrayGrid, Voxels {
-		public ArrayIntersectionGrid(Tractogram tractogram, float resolution) : base(tractogram, resolution) {}
+	public class IntersectionLattice : Voxels {
+		public float CellSize {get;}
+		private Lattice Lattice {get;}
+		public Cuboid?[] Cells {get;}
+
+		public IntersectionLattice(Tractogram tractogram, float resolution) {
+			var anchor = new Index3(tractogram.Boundaries.Min, resolution);
+			var size = new Index3(tractogram.Boundaries.Max, resolution) + new Index3(1, 1, 1) - anchor;
+			CellSize = resolution;
+			Lattice = new Lattice(anchor, size, resolution);
+			Cells = new Cuboid?[size.x * size.y * size.z];
+
+			Debug.Log("Set step size for grid to " + resolution);
+			Debug.Log("And initialized a grid with size " + Lattice.Size);
+			Debug.Log("And offset " + Lattice.Anchor);
+		}
 		
-		public override Dictionary<Cell, IEnumerable<Tract>> Quantize(Tractogram tractogram) {
+		public Index3 Anchor => new(Lattice.Anchor, CellSize);
+		public Index3 Size => Lattice.Size;
+		public Boundaries Boundaries => new((Vector3) Anchor * CellSize, (Vector3) (Anchor + Size) * CellSize);
+		
+		
+		protected Index3 Index(Vector3 vector) {
+			return new Index3(vector, CellSize) - Anchor;
+		}
+		private Cuboid? Get(Index3 index) {
+			return Cells[index.x + index.y * Size.x + index.z * Size.x * Size.y];
+		}
+		private void Set(Index3 index, Cuboid cell) {
+			Cells[index.x + index.y * Size.x + index.z * Size.x * Size.y] = cell;
+		}
+		public Cuboid Quantize(Vector3 vector) {
+			return Quantize(Index(vector));
+		}
+		protected Cuboid Quantize(Index3 index) {
+			var cell = Get(index);
+			if (cell == null) {
+				cell = new Cuboid(Lattice, index);
+				Set(index, (Cuboid) cell);
+				// throw new IndexOutOfRangeException("There is no cell defined at this position");
+			}
+			return (Cuboid) cell;
+		}
+		
+		public Dictionary<Cell, IEnumerable<Tract>> Quantize(Tractogram tractogram) {
 			var result = new Dictionary<Index3, HashSet<Tract>>();
 
 			// var segments = new Dictionary<Segment, Tract>();
@@ -65,12 +105,13 @@ namespace Maps.Grids {
 				var current = Index(pair.Segment.Start);
 				var end = Index(pair.Segment.End);
 				// var steps = 0;
+				// var limit = (end - current).Length;
 				try {
 					// Iteratively move to neighbouring cells as determined by intersections with the segment to find the total list of cells
 					while (current != end) {
 						// steps++;
 						var directions = current.Directions(end).ToArray();
-						
+
 						// If there is only one direction, we know we must go that way
 						if (directions.Length == 1) {
 							var next = current + directions[0];
@@ -117,16 +158,44 @@ namespace Maps.Grids {
 							throw new ArithmeticException("Segment " + pair.Segment + " did not intersect with any neighbouring cells towards the goal");
 						}
 						// TODO: It should be possible to place a bound on the number of steps through knowing the cell size and maximum separation of points in a tract
-						// if (steps >= 10) {
+						// if (steps >= limit) {
 						// 	throw new ArithmeticException("Exceeded maximum amount of steps to quantize a line segment");
 						// }
 					}
-				} catch (ArithmeticException) {
+				} catch (ArithmeticException error) {
 					Debug.Log("An error occurred finding corresponding voxels for a line segment from "+pair.Segment.Start+" to "+pair.Segment.End+", and this tract might thus be missing representation in some voxels");
+					Debug.Log(error);
+					throw;
 				}
 			}
 
 			return result.ToDictionary(pair => (Cell) Quantize(pair.Key), pair => pair.Value.AsEnumerable());
+		}
+		
+		public Mesh Render(Dictionary<Cell, Color32> map) {
+			var vertices = new List<Vector3>();
+			var normals = new List<Vector3>(); // TODO: Normals aren't used in rendering yet
+			var colors = new List<Color32>();
+			var indices = new List<int>();
+
+			foreach (var cell in Cells) {
+				if (cell != null && map.ContainsKey(cell)) {
+					var value = (Cuboid) cell;
+					indices.AddRange(value.Indices.Select(index => index + vertices.Count));
+					vertices.AddRange(value.Vertices);
+					colors.AddRange(value.Vertices.Select(_ => map[cell]));
+				}
+			}
+
+			var shape = new Mesh {indexFormat = IndexFormat.UInt32};
+
+			shape.Clear();
+			shape.SetVertices(vertices);
+			shape.SetColors(colors);
+			shape.SetTriangles(indices, 0);
+			shape.RecalculateNormals();
+
+			return shape;
 		}
 		
 		private record DistancedSegment(Segment Segment, Tract Tract) {

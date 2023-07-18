@@ -12,7 +12,7 @@ namespace Maps.Grids {
 	public class ArrayIntersectionGrid : ArrayGrid {
 		public ArrayIntersectionGrid(Tractogram tractogram, float resolution) : base(tractogram, resolution) {}
 		
-		public new Dictionary<Cell, IEnumerable<Tract>> Quantize(Tractogram tractogram) {
+		public override Dictionary<Cell, IEnumerable<Tract>> Quantize(Tractogram tractogram) {
 			var result = new Dictionary<Index3, HashSet<Tract>>();
 
 			// var segments = new Dictionary<Segment, Tract>();

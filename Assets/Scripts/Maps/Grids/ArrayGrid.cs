@@ -75,7 +75,7 @@ namespace Maps.Grids {
 			}
 			return (Cuboid) cell;
 		}
-		public Dictionary<Cell, IEnumerable<Tract>> Quantize(Tractogram tractogram) {
+		public virtual Dictionary<Cell, IEnumerable<Tract>> Quantize(Tractogram tractogram) {
 			var result = new Dictionary<Cuboid, HashSet<Tract>>();
 
 			foreach (var tract in tractogram.Tracts) {

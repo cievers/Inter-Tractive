@@ -46,7 +46,13 @@ namespace Interface {
 		}
 		private void Load(string path) {
 			this.path = path.Replace("\\", "/");
-			instance = templates[Extension()].Construct(path);
+			try {
+				instance = templates[Extension()].Construct(path);
+			} catch (Exception exception) {
+				Debug.Log("Exception during loading of tck instance");
+				Debug.LogException(exception);
+				DestroyImmediate(gameObject);
+			}
 			
 			UpdateName();
 

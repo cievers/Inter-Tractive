@@ -5,6 +5,7 @@ using Camera;
 using Files;
 using Files.Types;
 using Geometry.Generators;
+using Geometry.Tracts;
 using Interface.Data;
 using JetBrains.Annotations;
 using Maps;
@@ -23,35 +24,49 @@ namespace Objects {
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
 
+		private Tractogram tractogram;
+		private ArrayGrid grid;
+		private Dictionary<Cell, IEnumerable<Tract>> voxels;
+		private Dictionary<Cell, float> measurements; // TODO: Replace with an n-dimensional, unit based, measurement per voxel
 		private Focus focus;
 		private Map map;
 
 		protected override void New(string path) {
-			var tractogram = Tck.Load(path);
-			var boundaries = tractogram.Boundaries;
-			Debug.Log(boundaries.Min);
-			Debug.Log(boundaries.Max);
+			tractogram = Tck.Load(path);
 
-			var grid = new ArrayIntersectionGrid(tractogram, 10);
-			var voxels = grid.Quantize(tractogram);
-			// var measurement = new Density().Measure(map);
-			var measurement = new Length().Measure(voxels);
-			var colors = Colorize(measurement);
-
-			// var lengths = new Histogram<int>(tractogram.Tracts.Select(tract => tract.Points.Length));
-			// foreach (var line in lengths.Log()) {
-			// 	Debug.Log(line);
-			// }
-
-			focus = new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f);
-			map = new Map(grid, colors);
-			
-			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
-			gridMesh.mesh = grid.Render(colors);
+			UpdateTracts();
+			UpdateVoxels(10);
+			UpdateMeasurement();
+			UpdateMap();
 
 			// var gridBoundaries = grid.Boundaries;
 			// var nifti = new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
 			// nifti.Write();
+		}
+
+		private void UpdateTracts() {
+			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
+		}
+		private void UpdateVoxels(float resolution) {
+			grid = new ArrayIntersectionGrid(tractogram, resolution);
+			voxels = grid.Quantize(tractogram);
+			focus = new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f);
+			
+			// TODO: Propagate an update to all the slices
+			
+			UpdateMeasurement();
+			UpdateMap();
+		}
+		private void UpdateMap() {
+			var colors = Colorize(measurements);
+			gridMesh.mesh = grid.Render(colors);
+			
+			// TODO: Propagate an update to all the slices
+			map = new Map(grid, colors);
+		}
+		private void UpdateMeasurement() {
+			// var measurement = new Density().Measure(map);
+			measurements = new Length().Measure(voxels);
 		}
 
 		public override Focus Focus() {

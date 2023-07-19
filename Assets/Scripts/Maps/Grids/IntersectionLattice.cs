@@ -25,7 +25,7 @@ namespace Maps.Grids {
 			Debug.Log("And offset " + Lattice.Anchor);
 		}
 		
-		public Index3 Anchor => new(Lattice.Anchor, CellSize);
+		public Index3 Anchor => Lattice.Anchor;
 		public Index3 Size => Lattice.Size;
 		public Boundaries Boundaries => new((Vector3) Anchor * CellSize, (Vector3) (Anchor + Size) * CellSize);
 		
@@ -82,18 +82,7 @@ namespace Maps.Grids {
 
 						// If the manhattan distance between the current and previous indices is larger than one, they are connected diagonally (or worse), and we need to check the line segment for intersections
 						if ((index - previous).Length > 1) {
-							try {
-								segments.Add(new DistancedSegment(new Segment(tract.Points[i - 1], tract.Points[i]), tract));
-							} catch (ArgumentException error) {
-								Debug.Log(error);
-								Debug.Log(segments.Count);
-								foreach (var segment in segments) {
-									Debug.Log(segment);
-								}
-								Debug.Log("----");
-								Debug.Log(new Segment(tract.Points[i - 1], tract.Points[i]));
-								throw;
-							}
+							segments.Add(new DistancedSegment(new Segment(tract.Points[i - 1], tract.Points[i]), tract));
 						}
 					}
 					previous = index;

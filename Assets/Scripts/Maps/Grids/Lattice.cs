@@ -15,7 +15,7 @@ namespace Maps.Grids {
 			for (var x = 0; x <= size.x; x++) {
 				for (var y = 0; y <= size.y; y++) {
 					for (var z = 0; z <= size.z; z++) {
-						result[x, y, z] = new Vector3(x * cell.x + anchor.x, y * cell.y + anchor.y, z * cell.z + anchor.z);
+						result[x, y, z] = new Vector3((x + anchor.x) * cell.x, (y + anchor.y) * cell.y, (z + anchor.z) * cell.z);
 					}
 				}
 			}

@@ -50,8 +50,9 @@ namespace Interface {
 				instance = templates[Extension()].Construct(path);
 			} catch (Exception exception) {
 				Debug.Log("Exception during loading of tck instance");
-				Debug.LogException(exception);
+				Debug.Log(exception);
 				DestroyImmediate(gameObject);
+				return;
 			}
 			
 			UpdateName();

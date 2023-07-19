@@ -771,7 +771,7 @@ MonoBehaviour:
   pitchMinimum: -90
   pitchMaximum: 90
   zoomMinimum: 5
-  zoomMaximum: 160
+  zoomMaximum: 300
   zoomSpeed: 8
   interpolationSpeed: 0.05
 --- !u!1 &1039685984

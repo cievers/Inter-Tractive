@@ -48,8 +48,6 @@ namespace Objects {
 			voxels = grid.Quantize(tractogram);
 			focus = new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f);
 			
-			// TODO: Propagate an update to all the slices
-			
 			UpdateMap(grid);
 		}
 		private void UpdateMap(Voxels grid) {
@@ -59,7 +57,7 @@ namespace Objects {
 			var colors = Colorize(measurements);
 			gridMesh.mesh = grid.Render(colors);
 			
-			// TODO: Propagate an update to all the slices
+			Configure(grid.Cells, colors, grid.Size, grid.Boundaries);
 			map = new Map(grid, colors);
 		}
 

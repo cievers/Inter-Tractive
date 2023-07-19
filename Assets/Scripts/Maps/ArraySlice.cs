@@ -5,6 +5,7 @@ using Geometry.Generators;
 using Maps.Cells;
 using Maps.Grids;
 using UnityEngine;
+using Utility;
 using Grid = Maps.Grids.Grid;
 
 namespace Maps {
@@ -62,7 +63,10 @@ namespace Maps {
 		private void UpdateScale() {
 			transform.localScale = boundaries.Size;
 		}
-
+		
+		public void Initialize(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries) {
+			Initialize(Enumeration.ToArray(cells, values, new Color32(0, 0, 0, 0)), resolution, boundaries);
+		}
 		public void Initialize(Color32[] colors, Index3 resolution, Boundaries boundaries) {
 			this.colors = colors;
 			this.resolution = resolution;

@@ -23,8 +23,10 @@ namespace Interface {
 			slices[source].Add(slice);
 			projections.Add(slice, image);
 			image.Update += slice.Update;
+			source.Configured += slice.Initialize;
 			slice.Draw += image.Project;
 			
+			// TODO: Unify with the later updating of a map to slice through
 			var colorGrid = Enumeration.ToArray(map.Grid.Cells, map.Colors, new Color32(0, 0, 0, 0));
 			slice.Initialize(colorGrid, map.Grid.Size, map.Grid.Boundaries);
 		}

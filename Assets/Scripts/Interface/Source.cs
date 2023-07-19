@@ -10,6 +10,8 @@ using TMPro;
 using UnityEngine;
 
 using AnotherFileBrowser.Windows;
+using Geometry;
+using Maps.Cells;
 
 namespace Interface {
 	public class Source : MonoBehaviour {
@@ -54,7 +56,8 @@ namespace Interface {
 				DestroyImmediate(gameObject);
 				return;
 			}
-			
+
+			instance.Configured += (cells, values, resolution, boundaries) => Configured?.Invoke(cells, values, resolution, boundaries);
 			UpdateName();
 
 			foreach (var data in instance.Controls()) {
@@ -100,6 +103,9 @@ namespace Interface {
 		public void ConfigureResolution(float value) {
 			instance.ConfigureResolution(value);
 		}
+		
+		public delegate void SourceConfiguredEvent(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries);
+		public event SourceConfiguredEvent Configured;
 
 		public delegate void SourceSlicedEvent(Source source, Map map);
 		public event SourceSlicedEvent Sliced;

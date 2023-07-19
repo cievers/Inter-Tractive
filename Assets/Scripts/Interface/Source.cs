@@ -95,6 +95,10 @@ namespace Interface {
 		public Focus Focus() {
 			return instance.Focus();
 		}
+		
+		public void ConfigureResolution(float value) {
+			instance.ConfigureResolution(value);
+		}
 
 		public delegate void SourceSlicedEvent(Source source, Map map);
 		public event SourceSlicedEvent Sliced;

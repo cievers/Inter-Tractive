@@ -18,5 +18,6 @@ namespace Objects.Sources {
 		public abstract Map Map();
 
 		public abstract IEnumerable<Toggle> Controls();
+		public abstract void ConfigureResolution(float value);
 	}
 }

@@ -101,5 +101,8 @@ namespace Objects {
 				new Toggle("Map", true, gridMesh.gameObject.SetActive)
 			};
 		}
+		public override void ConfigureResolution(float value) {
+			UpdateVoxels(value);
+		}
 	}
 }

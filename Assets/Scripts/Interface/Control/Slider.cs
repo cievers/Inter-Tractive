@@ -19,7 +19,7 @@ namespace Interface.Control {
 			component.slider.minValue = slider.Minimum;
 			component.slider.maxValue = slider.Maximum;
 			component.slider.value = slider.Default;
-			component.slider.onValueChanged.AddListener(UpdateValue);
+			component.slider.onValueChanged.AddListener(component.UpdateValue);
 			component.UpdateDisplay(slider.Default);
 			
 			return component;

@@ -17,7 +17,7 @@ namespace Interface.Control {
 			component.slider.minValue = slider.Minimum;
 			component.slider.maxValue = slider.Maximum;
 			component.slider.value = slider.Default;
-			component.slider.onValueChanged.AddListener(UpdateWaiting);
+			component.slider.onValueChanged.AddListener(component.UpdateWaiting);
 			component.UpdateDisplay(slider.Default);
 			
 			return component;
@@ -33,6 +33,7 @@ namespace Interface.Control {
 			}
 		}
 		private void UpdateWaiting(float value) {
+			UpdateDisplay(value);
 			delayed = value;
 			waited = 0;
 			waiting = true;

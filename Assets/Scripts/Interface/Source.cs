@@ -69,10 +69,10 @@ namespace Interface {
 						toggle.Construct(controls.transform, toggleData);
 						break;
 					case Control.Data.DelayedSlider delayedSliderData:
-						slider.Construct(controls.transform, delayedSliderData);
+						delayedSlider.Construct(controls.transform, delayedSliderData);
 						break;
 					case Control.Data.Slider sliderData:
-						delayedSlider.Construct(controls.transform, sliderData);
+						slider.Construct(controls.transform, sliderData);
 						break;
 				}
 			}

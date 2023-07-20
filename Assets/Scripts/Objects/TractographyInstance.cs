@@ -94,9 +94,10 @@ namespace Objects {
 		}
 
 		public override IEnumerable<Configuration> Controls() {
-			return new[] {
+			return new Configuration[] {
 				new Toggle("Tracts", true, tractogramMesh.gameObject.SetActive),
-				new Toggle("Map", true, gridMesh.gameObject.SetActive)
+				new Toggle("Map", true, gridMesh.gameObject.SetActive),
+				new DelayedSlider("Resolution", 1, 0.1f, 10, 1, UpdateVoxels)
 			};
 		}
 		public override void ConfigureResolution(float value) {

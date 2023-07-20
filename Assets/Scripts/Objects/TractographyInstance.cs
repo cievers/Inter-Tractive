@@ -6,7 +6,7 @@ using Files;
 using Files.Types;
 using Geometry.Generators;
 using Geometry.Tracts;
-using Interface.Data;
+using Interface.Control.Data;
 using JetBrains.Annotations;
 using Maps;
 using Maps.Cells;
@@ -93,7 +93,7 @@ namespace Objects {
 			return result;
 		}
 
-		public override IEnumerable<Toggle> Controls() {
+		public override IEnumerable<Configuration> Controls() {
 			return new[] {
 				new Toggle("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new Toggle("Map", true, gridMesh.gameObject.SetActive)

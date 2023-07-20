@@ -1,4 +1,4 @@
-﻿namespace Interface.Data {
+﻿namespace Interface.Control.Data {
 	public interface Configuration {
 		
 	}

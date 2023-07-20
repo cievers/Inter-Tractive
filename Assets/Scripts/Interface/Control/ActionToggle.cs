@@ -1,9 +1,9 @@
 ﻿using System;
-using Interface.Data;
+using Interface.Control.Data;
 using TMPro;
 using UnityEngine;
 
-namespace Interface {
+namespace Interface.Control {
 	public class ActionToggle : MonoBehaviour {
 		public bool state;
 		public GameObject displayTrue;

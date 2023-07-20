@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Interface {
+namespace Interface.Control {
 	public class ObjectToggle : MonoBehaviour {
 		public bool state;
 		public GameObject subject;

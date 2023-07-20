@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Interface.Data {
+namespace Interface.Control.Data {
 	public record Toggle(string Name, bool State, Action<bool> Action) : Configuration {
 		public string Name {get; private set;} = Name;
 		public bool State {get; private set;} = State;

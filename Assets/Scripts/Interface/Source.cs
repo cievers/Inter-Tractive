@@ -11,6 +11,7 @@ using UnityEngine;
 
 using AnotherFileBrowser.Windows;
 using Geometry;
+using Interface.Control;
 using Maps.Cells;
 
 namespace Interface {
@@ -19,6 +20,8 @@ namespace Interface {
 		public GameObject controls;
 		public Type[] types;
 		public ActionToggle toggle;
+		public Slider slider;
+		public DelayedSlider delayedSlider;
 		
 		[Serializable]
 		public struct Type {
@@ -61,7 +64,17 @@ namespace Interface {
 			UpdateName();
 
 			foreach (var data in instance.Controls()) {
-				var control = toggle.Construct(controls.transform, data);
+				switch (data) {
+					case Control.Data.Toggle toggleData:
+						toggle.Construct(controls.transform, toggleData);
+						break;
+					case Control.Data.DelayedSlider delayedSliderData:
+						slider.Construct(controls.transform, delayedSliderData);
+						break;
+					case Control.Data.Slider sliderData:
+						delayedSlider.Construct(controls.transform, sliderData);
+						break;
+				}
 			}
 		}
 		public void UpdateContext(Source source) {

@@ -144,13 +144,13 @@ namespace Maps.Cells {
 		}
 		public bool Intersects(Vector3 point) {
 			// Special case only for axis aligned rectangle-boxes:
-			// return 
-			// 	point.x >= Anchor.x && 
-			// 	point.y >= Anchor.y && 
-			// 	point.z >= Anchor.z && 
-			// 	point.x <= Anchor.x + Size.x && 
-			// 	point.y <= Anchor.y + Size.y && 
-			// 	point.z <= Anchor.z + Size.z;
+			return 
+				point.x >= Anchor.x && 
+				point.y >= Anchor.y && 
+				point.z >= Anchor.z && 
+				point.x <= Anchor.x + Size.x && 
+				point.y <= Anchor.y + Size.y && 
+				point.z <= Anchor.z + Size.z;
 			
 			var u = points[1] - Anchor;
 			var v = points[2] - Anchor;

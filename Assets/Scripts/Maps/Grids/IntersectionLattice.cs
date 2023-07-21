@@ -116,6 +116,9 @@ namespace Maps.Grids {
 						// Also keep track of whether an intersection is found to prevent infinite loops
 						var intersected = false;
 						foreach (
+							// var next in directions
+							// 	.Select(direction => current + direction)
+							// 	.Where(step => Quantize(step).Intersects(pair.Segment))
 							var next in directions
 								.ToDictionary(direction => direction, direction => Quantize(current).Face(direction))
 								.Where(step => step.Value.Any(triangle => triangle.Intersects(pair.Segment)))

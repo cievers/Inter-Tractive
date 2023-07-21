@@ -140,7 +140,32 @@ namespace Maps.Cells {
 			return tract.Segments.Any(Intersects);
 		}
 		public bool Intersects(Segment segment) {
-			return Intersects(segment.Start) || Intersects(segment.End) || Triangles.Any(triangle => triangle.Intersects(segment));
+			if (Intersects(segment.Start) || Intersects(segment.End)) {
+				return true;
+			}
+
+			var size = segment.Size;
+			var x = new Geometry.Range((Anchor.x - segment.Start.x) / size.x, (Extent.x - segment.Start.x) / size.x);
+			var y = new Geometry.Range((Anchor.y - segment.Start.y) / size.y, (Extent.y - segment.Start.y) / size.y);
+			var z = new Geometry.Range((Anchor.z - segment.Start.z) / size.z, (Extent.z - segment.Start.z) / size.z);
+			var min = Math.Min(1, Math.Min(x.Maximum, Math.Min(y.Maximum, z.Maximum)));
+			var max = Math.Max(0, Math.Max(x.Minimum, Math.Max(y.Minimum, z.Minimum)));
+			
+			// Debug.Log("Doing segment intersection");
+			// Debug.Log(Anchor);
+			// Debug.Log(Extent);
+			// Debug.Log(segment.Start);
+			// Debug.Log(segment.End);
+			// Debug.Log("----");
+			// Debug.Log(x.Minimum);
+			// Debug.Log(y.Minimum);
+			// Debug.Log(z.Minimum);
+			// Debug.Log(x.Maximum);
+			// Debug.Log(y.Maximum);
+			// Debug.Log(z.Maximum);
+			// Debug.Log("----");
+
+			return max <= min;
 		}
 		public bool Intersects(Vector3 point) {
 			// Special case only for axis aligned rectangle-boxes:

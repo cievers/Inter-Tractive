@@ -2,10 +2,11 @@
 using UnityEngine;
 
 namespace Geometry {
-	public struct Segment {
+	public readonly struct Segment {
 		public Vector3 Start {get;}
 		public Vector3 End {get;}
 		public Vector3 Size => End - Start;
+		public Vector3[] Points => new[] {Start, End};
 
 		public Segment(Vector3 start, Vector3 end) {
 			Start = start;

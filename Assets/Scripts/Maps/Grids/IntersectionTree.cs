@@ -56,41 +56,61 @@ namespace Maps.Grids {
 			var result = new Dictionary<Index3, HashSet<Tract>>();
 
 			// var segments = new Dictionary<Segment, Tract>();
-			var segments = new List<RepresentativeSegment>();
+			var distanced = new List<RepresentativeSegment>();
 
 			// First get all cells from tract points which is much easier
-			foreach (var tract in tractogram.Tracts) {
-				// Initialize the index of the first point, to avoid having to deal with nulls
-				Index3 previous = Index(tract.Points[0]);
-				// If it's the first time at this index, make sure an entry exists in the dictionary
-				if (!result.ContainsKey(previous)) {
-					result.Add(previous, new HashSet<Tract>());
-				}
-				result[previous].Add(tract);
+			// foreach (var tract in tractogram.Tracts) {
+			// 	// Initialize the index of the first point, to avoid having to deal with nulls
+			// 	Index3 previous = Index(tract.Points[0]);
+			// 	// If it's the first time at this index, make sure an entry exists in the dictionary
+			// 	if (!result.ContainsKey(previous)) {
+			// 		result.Add(previous, new HashSet<Tract>());
+			// 	}
+			// 	result[previous].Add(tract);
+			//
+			// 	for (var i = 1; i < tract.Points.Length; i++) {
+			// 		// Get the index of the cell this point is in
+			// 		var index = Index(tract.Points[i]);
+			// 		
+			// 		// If we're at the same index, no further checks needed
+			// 		if (index != previous) {
+			// 			// If it's the first time at this index, make sure an entry exists in the dictionary
+			// 			if (!result.ContainsKey(index)) {
+			// 				result.Add(index, new HashSet<Tract>());
+			// 			}
+			// 			result[index].Add(tract);
+			//
+			// 			// If the manhattan distance between the current and previous indices is larger than one, they are connected diagonally (or worse), and we need to check the line segment for intersections
+			// 			if ((index - previous).Length > 1) {
+			// 				distanced.Add(new RepresentativeSegment(new Segment(tract.Points[i - 1], tract.Points[i]), tract));
+			// 			}
+			// 		}
+			// 		previous = index;
+			// 	}
+			// }
 
-				for (var i = 1; i < tract.Points.Length; i++) {
-					// Get the index of the cell this point is in
-					var index = Index(tract.Points[i]);
-					
-					// If we're at the same index, no further checks needed
-					if (index != previous) {
+			// TODO: Without adjustments in/in the use of the resulting voxels, voxels with a point from a tract are represented by both segments, and the tract would thus be measured twice
+			// First get all cells from tract points which is much easier
+			// Because we later want to scale we need to know the exact intersections with each voxel, so for each point add both segments
+			foreach (var tract in tractogram.Tracts) {
+				foreach (var segment in tract.Segments) {
+					foreach (var point in segment.Points) {
+						var index = Index(point);
 						// If it's the first time at this index, make sure an entry exists in the dictionary
 						if (!result.ContainsKey(index)) {
 							result.Add(index, new HashSet<Tract>());
 						}
-						result[index].Add(tract);
-
-						// If the manhattan distance between the current and previous indices is larger than one, they are connected diagonally (or worse), and we need to check the line segment for intersections
-						if ((index - previous).Length > 1) {
-							segments.Add(new RepresentativeSegment(new Segment(tract.Points[i - 1], tract.Points[i]), tract));
-						}
+						result[index].Add(new RepresentativeSegment(segment, tract));
 					}
-					previous = index;
+					// If the manhattan distance between the current and previous indices is larger than one, they are connected diagonally (or worse), and we need to check the line segment for intersections
+					if ((Index(segment.Start) - Index(segment.End)).Length > 1) {
+						distanced.Add(new RepresentativeSegment(segment, tract));
+					}
 				}
 			}
 
 			// And for the marked segments get more accurate cells through 3D intersections
-			foreach (var pair in segments) {
+			foreach (var pair in distanced) {
 				var current = Index(pair.Segment.Start);
 				var end = Index(pair.Segment.End);
 				// var steps = 0;
@@ -107,7 +127,7 @@ namespace Maps.Grids {
 							if (!result.ContainsKey(next)) {
 								result.Add(next, new HashSet<Tract>());
 							}
-							result[next].Add(pair.Tract);
+							result[next].Add(pair);
 							current = next;
 							continue;
 						}
@@ -127,7 +147,7 @@ namespace Maps.Grids {
 							if (!result.ContainsKey(next)) {
 								result.Add(next, new HashSet<Tract>());
 							}
-							result[next].Add(pair.Tract);
+							result[next].Add(pair);
 							current = next;
 							intersected = true;
 							break;

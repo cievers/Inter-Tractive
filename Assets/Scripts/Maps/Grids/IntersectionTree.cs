@@ -56,7 +56,7 @@ namespace Maps.Grids {
 			var result = new Dictionary<Index3, HashSet<Tract>>();
 
 			// var segments = new Dictionary<Segment, Tract>();
-			var segments = new List<DistancedSegment>();
+			var segments = new List<RepresentativeSegment>();
 
 			// First get all cells from tract points which is much easier
 			foreach (var tract in tractogram.Tracts) {
@@ -82,7 +82,7 @@ namespace Maps.Grids {
 
 						// If the manhattan distance between the current and previous indices is larger than one, they are connected diagonally (or worse), and we need to check the line segment for intersections
 						if ((index - previous).Length > 1) {
-							segments.Add(new DistancedSegment(new Segment(tract.Points[i - 1], tract.Points[i]), tract));
+							segments.Add(new RepresentativeSegment(new Segment(tract.Points[i - 1], tract.Points[i]), tract));
 						}
 					}
 					previous = index;
@@ -188,9 +188,15 @@ namespace Maps.Grids {
 			return shape;
 		}
 		
-		private record DistancedSegment(Segment Segment, Tract Tract) {
+		private record RepresentativeSegment(Segment Segment, Tract Tract) : Tract {
 			public Segment Segment {get; private set;} = Segment;
 			public Tract Tract {get; private set;} = Tract;
+
+			public IEnumerable<Segment> Segments => Tract.Segments;
+			public Vector3[] Points => Tract.Points;
+			public Boundaries Boundaries => Tract.Boundaries;
+			public float Resolution => Tract.Resolution;
+			public float Slack => Tract.Slack;
 		}
 	}
 }

@@ -70,7 +70,7 @@ namespace Files.Types {
 
 					if (float.IsNaN(point.x) && float.IsNaN(point.y) && float.IsNaN(point.z)) {
 						// If we hit the NaN, NaN, NaN marker for the end of a tract, save this tract
-						lines.Add(new Tract(points.ToArray(), (uint) lines.Count, Vector3.Normalize(points[^1] - points[0]), (uint) read));
+						lines.Add(new ArrayTract(points.ToArray(), (uint) lines.Count, Vector3.Normalize(points[^1] - points[0]), (uint) read));
 						points.Clear();
 					} else {
 						// If not, continue expanding the current tract

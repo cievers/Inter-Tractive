@@ -22,6 +22,7 @@ namespace Interface {
 		public ActionToggle toggle;
 		public Slider slider;
 		public DelayedSlider delayedSlider;
+		public Stepper stepper;
 		
 		[Serializable]
 		public struct Type {
@@ -73,6 +74,9 @@ namespace Interface {
 						break;
 					case Control.Data.Slider sliderData:
 						slider.Construct(controls.transform, sliderData);
+						break;
+					case Control.Data.Stepper stepperData:
+						stepper.Construct(controls.transform, stepperData);
 						break;
 				}
 			}

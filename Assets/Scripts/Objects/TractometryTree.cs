@@ -18,7 +18,7 @@ using UnityEditor;
 using UnityEngine;
 
 namespace Objects {
-	public class TractographyInstance : SourceInstance {
+	public class TractometryTree : SourceInstance {
 		private const byte COLORIZE_TRANSPARENCY = 200;
 		
 		public MeshFilter tractogramMesh;
@@ -43,8 +43,11 @@ namespace Objects {
 		private void UpdateTracts() {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
 		}
+		private void UpdateScale(float resolution) {
+			Debug.Log("Stepping to resolution "+resolution);
+		}
 		private void UpdateVoxels(float resolution) {
-			var grid = new IntersectionLattice(tractogram, resolution);
+			var grid = new IntersectionTree(tractogram, resolution);
 			voxels = grid.Quantize(tractogram);
 			focus = new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f);
 			
@@ -97,7 +100,7 @@ namespace Objects {
 			return new Configuration[] {
 				new Toggle("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new Toggle("Map", true, gridMesh.gameObject.SetActive),
-				new DelayedSlider("Resolution", 1, 0.1f, 10, 1, UpdateVoxels)
+				new Stepper("Resolution", 1, 1, 1, 10, UpdateScale)
 			};
 		}
 		public override void ConfigureResolution(float value) {

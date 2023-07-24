@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5780583547768591010}
-  - component: {fileID: 5780583547768591012}
+  - component: {fileID: 1315030099964359529}
   m_Layer: 0
-  m_Name: VisualizationInstance
+  m_Name: Tree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,7 +34,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5780583547768591012
+--- !u!114 &1315030099964359529
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -43,12 +43,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5780583547768591013}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7795f2db331b43eba75e2ff3783311d0, type: 3}
+  m_Script: {fileID: 11500000, guid: e32176df5f1f4a7086cd654d8a5080fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tractogramMesh: {fileID: 5780583548504175820}
   gridMesh: {fileID: 5780583548942394891}
-  slices: []
 --- !u!1 &5780583548504175821
 GameObject:
   m_ObjectHideFlags: 0

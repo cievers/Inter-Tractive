@@ -108,8 +108,8 @@ namespace Objects {
 			return new Configuration[] {
 				new Toggle("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new Toggle("Map", true, gridMesh.gameObject.SetActive),
-				new Stepper("Resolution", 1, 0, 0, 10, UpdateScale)
-				// new DelayedSlider("Resolution", 0, 0, 10, 1, UpdateScale)
+				// new Stepper("Resolution", 1, 0, 0, 10, UpdateScale)
+				new DelayedSlider("Resolution", 0, 0, 10, 1, UpdateScale)
 			};
 		}
 	}

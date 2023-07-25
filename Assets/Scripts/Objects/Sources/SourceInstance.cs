@@ -20,7 +20,6 @@ namespace Objects.Sources {
 		public abstract Map Map();
 
 		public abstract IEnumerable<Configuration> Controls();
-		public abstract void ConfigureResolution(float value);
 		
 		public delegate void SourceConfiguredEvent(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries);
 		public event SourceConfiguredEvent Configured;

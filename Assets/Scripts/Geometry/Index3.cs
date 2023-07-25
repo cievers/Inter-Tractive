@@ -68,6 +68,7 @@ namespace Geometry {
 		public static Index3 operator +(Index3 a, Directions b) => a + b.Index();
 		public static Index3 operator -(Index3 a, Index3 b) => new(a.x - b.x, a.y - b.y, a.z - b.z);
 		public static Index3 operator -(Index3 a, Directions b) => a - b.Index();
+		public static Index3 operator *(Index3 a, int b) => new(a.x * b, a.y * b, a.z * b);
 		
 		public override int GetHashCode() {
 			return HashCode.Combine(x, y, z);

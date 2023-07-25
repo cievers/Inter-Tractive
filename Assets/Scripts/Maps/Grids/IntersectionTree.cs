@@ -10,28 +10,65 @@ using UnityEngine.Rendering;
 namespace Maps.Grids {
 	public class IntersectionTree : Voxels {
 		public float CellSize {get;}
-		private Lattice Lattice {get;}
+		public Lattice Lattice {get;}
 		public Cuboid?[] Cells {get;}
 
-		public IntersectionTree(Tractogram tractogram, float resolution) {
-			var anchor = new Index3(tractogram.Boundaries.Min, resolution);
-			var size = new Index3(tractogram.Boundaries.Max, resolution) + new Index3(1, 1, 1) - anchor;
-			CellSize = resolution;
-			Lattice = new Lattice(anchor, size, resolution);
+		private Dictionary<Index3, IEnumerable<Tract>> quantization;
+
+		public IntersectionTree(Tractogram tractogram, int depth, float padding) {
+			Debug.Log("Initializing a root level of an intersection-based quantization tree");
+			Debug.Log(tractogram.Boundaries.Min);
+			Debug.Log(tractogram.Boundaries.Max);
+			Debug.Log(tractogram.Boundaries.Size);
+			var resolution = (new[] {
+				Math.Abs(tractogram.Boundaries.Size.x),
+				Math.Abs(tractogram.Boundaries.Size.y),
+				Math.Abs(tractogram.Boundaries.Size.z)
+			}.Max() + padding) / (depth + 1);
+			// var size = new Index3(tractogram.Boundaries.Max, resolution) + new Index3(1, 1, 1) - anchor;
+			var size = new Index3(depth + 1, depth + 1, depth + 1);
+			Lattice = new Lattice(tractogram.Boundaries.Min, new Index3(0, 0, 0), size, resolution);
 			Cells = new Cuboid?[size.x * size.y * size.z];
+			CellSize = resolution;
 
 			Debug.Log("Set step size for grid to " + resolution);
 			Debug.Log("And initialized a grid with size " + Lattice.Size);
-			Debug.Log("And offset " + Lattice.Anchor);
+			Debug.Log("And index offset " + Lattice.Anchor);
+			Debug.Log("And spatial offset: " + Lattice.Origin);
+
+			quantization = Quantize(tractogram);
+		}
+		public IntersectionTree(Lattice lattice, Dictionary<Index3, IEnumerable<Tract>> cells) {
+			Lattice = lattice;
+			Cells = new Cuboid?[lattice.Size.x * lattice.Size.y * lattice.Size.z];
+			CellSize = lattice.Cell.x; // TODO: This is a horrible assumption. Somehow unify that this thing uses universal cell size in all dimensions, and Lattices can deal with size differences
+			quantization = cells;
 		}
 		
 		public Index3 Anchor => Lattice.Anchor;
 		public Index3 Size => Lattice.Size;
 		public Boundaries Boundaries => new((Vector3) Anchor * CellSize, (Vector3) (Anchor + Size) * CellSize);
-		
+
+		public Dictionary<Index3, IEnumerable<Tract>> Quantization => quantization;
+		public Dictionary<Cell, IEnumerable<Tract>> Voxels => Voxelize(quantization);
 		
 		protected Index3 Index(Vector3 vector) {
-			return new Index3(vector, CellSize) - Anchor;
+			var result = new Index3(vector - Lattice.Origin, CellSize) - Anchor;
+			// if (result != new Index3(0, 0, 0)) {
+			// 	// TODO: This is mathematically expected, as we set the total grid boundaries to match exactly the
+			// 	// boundaries of the tractogram, but then expect the points on that exact upper boundary to still
+			// 	// somehow round down to an index inside the grid.
+			// 	Debug.Log("Error when getting index for vector");
+			// 	Debug.Log(vector);
+			// 	Debug.Log(vector - Lattice.Origin);
+			// 	Debug.Log(Lattice.Origin);
+			// 	Debug.Log(Lattice.Anchor);
+			// 	Debug.Log(Lattice.Cell);
+			// 	Debug.Log(CellSize);
+			// 	Debug.Log(result);
+			// 	throw new ArithmeticException();
+			// }
+			return result;
 		}
 		private Cuboid? Get(Index3 index) {
 			return Cells[index.x + index.y * Size.x + index.z * Size.x * Size.y];
@@ -39,10 +76,10 @@ namespace Maps.Grids {
 		private void Set(Index3 index, Cuboid cell) {
 			Cells[index.x + index.y * Size.x + index.z * Size.x * Size.y] = cell;
 		}
-		public Cuboid Quantize(Vector3 vector) {
-			return Quantize(Index(vector));
+		public Cuboid Voxelize(Vector3 vector) {
+			return Voxelize(Index(vector));
 		}
-		protected Cuboid Quantize(Index3 index) {
+		protected Cuboid Voxelize(Index3 index) {
 			var cell = Get(index);
 			if (cell == null) {
 				cell = new Cuboid(Lattice, index);
@@ -52,7 +89,13 @@ namespace Maps.Grids {
 			return (Cuboid) cell;
 		}
 		
-		public Dictionary<Cell, IEnumerable<Tract>> Quantize(Tractogram tractogram) {
+		public Dictionary<Cell, IEnumerable<Tract>> Voxelize(Tractogram tractogram) {
+			return Voxelize(Quantize(tractogram));
+		}
+		public Dictionary<Cell, IEnumerable<Tract>> Voxelize(Dictionary<Index3, IEnumerable<Tract>> quantization) {
+			return quantization.ToDictionary(pair => (Cell) Voxelize(pair.Key), pair => pair.Value.AsEnumerable());
+		}
+		public Dictionary<Index3, IEnumerable<Tract>> Quantize(Tractogram tractogram) {
 			var result = new Dictionary<Index3, HashSet<Tract>>();
 
 			// var segments = new Dictionary<Segment, Tract>();
@@ -140,7 +183,7 @@ namespace Maps.Grids {
 							// 	.Select(direction => current + direction)
 							// 	.Where(step => Quantize(step).Intersects(pair.Segment))
 							var next in directions
-								.ToDictionary(direction => direction, direction => Quantize(current).Face(direction))
+								.ToDictionary(direction => direction, direction => Voxelize(current).Face(direction))
 								.Where(step => step.Value.Any(triangle => triangle.Intersects(pair.Segment)))
 								.Select(step => current + step.Key)
 						) {
@@ -181,7 +224,40 @@ namespace Maps.Grids {
 				}
 			}
 
-			return result.ToDictionary(pair => (Cell) Quantize(pair.Key), pair => pair.Value.AsEnumerable());
+			return result.ToDictionary(pair => pair.Key, pair => pair.Value.AsEnumerable());
+		}
+		public static IntersectionTree Divide(Dictionary<Index3, IEnumerable<Tract>> voxels, Lattice lattice) {
+			var points = lattice.Divide();
+			var result = new Dictionary<Index3, HashSet<Tract>>();
+
+			foreach (var voxel in voxels) {
+				var divisions = new[] {
+					voxel.Key * 2,
+					voxel.Key * 2 + new Index3(1, 0, 0),
+					voxel.Key * 2 + new Index3(0, 1, 0),
+					voxel.Key * 2 + new Index3(0, 0, 1),
+					voxel.Key * 2 + new Index3(1, 1, 0),
+					voxel.Key * 2 + new Index3(0, 1, 1),
+					voxel.Key * 2 + new Index3(1, 0, 1),
+					voxel.Key * 2 + new Index3(1, 1, 1)
+				};
+				foreach (var tract in voxel.Value) {
+					var representation = (RepresentativeSegment) tract;
+					foreach (var division in divisions) {
+						if (new Cuboid(points, division).Intersects(representation.Segment)) {
+							if (!result.ContainsKey(division)) {
+								result.Add(division, new HashSet<Tract>());
+							}
+							result[division].Add(representation);
+						}
+					}
+				}
+			}
+			
+			return new IntersectionTree(points, result.ToDictionary(pair => pair.Key, pair => pair.Value.AsEnumerable()));
+		}
+		public IntersectionTree Divide() {
+			return Divide(quantization, Lattice);
 		}
 		
 		public Mesh Render(Dictionary<Cell, Color32> map) {

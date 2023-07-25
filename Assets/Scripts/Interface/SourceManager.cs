@@ -32,11 +32,5 @@ namespace Interface {
 				
 			}
 		}
-
-		public void ConfigureResolution(float value) {
-			foreach (var source in sources) {
-				source.ConfigureResolution(value);
-			}
-		}
 	}
 }

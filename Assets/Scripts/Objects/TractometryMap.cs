@@ -100,8 +100,5 @@ namespace Objects {
 				new DelayedSlider("Resolution", 1, 0.1f, 10, 1, UpdateVoxels)
 			};
 		}
-		public override void ConfigureResolution(float value) {
-			UpdateVoxels(value);
-		}
 	}
 }

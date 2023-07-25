@@ -4,6 +4,7 @@ using System.Linq;
 using Camera;
 using Files;
 using Files.Types;
+using Geometry;
 using Geometry.Generators;
 using Geometry.Tracts;
 using Interface.Control.Data;
@@ -25,15 +26,21 @@ namespace Objects {
 		public MeshFilter gridMesh;
 
 		private Tractogram tractogram;
-		private Dictionary<Cell, IEnumerable<Tract>> voxels;
+		private Dictionary<Index3, IEnumerable<Tract>> voxels;
 		private Focus focus;
 		private Map map;
+
+		private List<IntersectionTree> layers;
+		private int depth;
 
 		protected override void New(string path) {
 			tractogram = Tck.Load(path);
 
+			layers = new List<IntersectionTree> {new(tractogram, 0, 0.01f)};
+			depth = 1;
+
 			UpdateTracts();
-			UpdateVoxels(1);
+			UpdateVoxels();
 
 			// var gridBoundaries = grid.Boundaries;
 			// var nifti = new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
@@ -45,17 +52,22 @@ namespace Objects {
 		}
 		private void UpdateScale(float resolution) {
 			Debug.Log("Stepping to resolution "+resolution);
+			depth += 1;
+			UpdateVoxels();
 		}
-		private void UpdateVoxels(float resolution) {
-			var grid = new IntersectionTree(tractogram, resolution);
-			voxels = grid.Quantize(tractogram);
-			focus = new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f);
+		private void UpdateVoxels() {
+			while (depth >= layers.Count) {
+				var grid = layers[^1].Divide();
+				focus = new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f);
+				layers.Add(grid);
+			}
 			
-			UpdateMap(grid);
+			UpdateMap(depth);
 		}
-		private void UpdateMap(Voxels grid) {
+		private void UpdateMap(int depth) {
+			var grid = layers[depth];
 			// var measurements = new Density().Measure(voxels);
-			var measurements = new Length().Measure(voxels);
+			var measurements = new Length().Measure(grid.Voxels);
 			
 			var colors = Colorize(measurements);
 			gridMesh.mesh = grid.Render(colors);
@@ -102,9 +114,6 @@ namespace Objects {
 				new Toggle("Map", true, gridMesh.gameObject.SetActive),
 				new Stepper("Resolution", 1, 1, 1, 10, UpdateScale)
 			};
-		}
-		public override void ConfigureResolution(float value) {
-			UpdateVoxels(value);
 		}
 	}
 }

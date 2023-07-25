@@ -117,9 +117,6 @@ namespace Interface {
 			return instance.Focus();
 		}
 		
-		public void ConfigureResolution(float value) {
-			instance.ConfigureResolution(value);
-		}
 		
 		public delegate void SourceConfiguredEvent(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries);
 		public event SourceConfiguredEvent Configured;

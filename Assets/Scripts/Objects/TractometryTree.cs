@@ -41,6 +41,7 @@ namespace Objects {
 
 			UpdateTracts();
 			UpdateVoxels();
+			Focus(new Focus(layers[depth].Boundaries.Center, layers[depth].Boundaries.Size.magnitude / 2 * 1.5f));
 
 			// var gridBoundaries = grid.Boundaries;
 			// var nifti = new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
@@ -57,9 +58,7 @@ namespace Objects {
 		}
 		private void UpdateVoxels() {
 			while (depth >= layers.Count) {
-				var grid = layers[^1].Divide();
-				focus = new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f);
-				layers.Add(grid);
+				layers.Add(layers[^1].Divide());
 			}
 			
 			UpdateMap(depth);
@@ -75,10 +74,7 @@ namespace Objects {
 			Configure(grid.Cells, colors, grid.Size, grid.Boundaries);
 			map = new Map(grid, colors);
 		}
-
-		public override Focus Focus() {
-			return focus;
-		}
+		
 		public override Map Map() {
 			return map;
 		}

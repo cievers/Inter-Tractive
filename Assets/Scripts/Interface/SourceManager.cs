@@ -21,13 +21,15 @@ namespace Interface {
 				var source = instance.GetComponent<Source>();
 
 				sources.Add(source);
-				if (sources.Count == 1) {
-					camera.Target(source.Focus());
-				}
 
+				source.Focused += camera.Target;
 				source.Sliced += slices.Slice;
 				source.Closed += x => sources.Remove(x);
 				source.Closed += x => slices.Remove(x);
+				
+				if (sources.Count == 1) {
+					source.Focus();
+				}
 			} catch (UnityException) {
 				
 			}

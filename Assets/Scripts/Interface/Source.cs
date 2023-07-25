@@ -61,6 +61,7 @@ namespace Interface {
 				return;
 			}
 
+			instance.Focused += focus => Focused?.Invoke(focus);
 			instance.Configured += (cells, values, resolution, boundaries) => Configured?.Invoke(cells, values, resolution, boundaries);
 			UpdateName();
 
@@ -113,10 +114,12 @@ namespace Interface {
 			return path.Split(".")[^1];
 		}
 
-		public Focus Focus() {
-			return instance.Focus();
-		}
+		public delegate void SourceFocusedEvent(Focus focus);
+		public event SourceFocusedEvent Focused;
 		
+		public void Focus() {
+			instance.Focus();
+		}
 		
 		public delegate void SourceConfiguredEvent(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries);
 		public event SourceConfiguredEvent Configured;

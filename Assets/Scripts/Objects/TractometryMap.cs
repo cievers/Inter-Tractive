@@ -26,7 +26,6 @@ namespace Objects {
 
 		private Tractogram tractogram;
 		private Dictionary<Cell, IEnumerable<Tract>> voxels;
-		private Focus focus;
 		private Map map;
 
 		protected override void New(string path) {
@@ -46,8 +45,8 @@ namespace Objects {
 		private void UpdateVoxels(float resolution) {
 			var grid = new IntersectionLattice(tractogram, resolution);
 			voxels = grid.Quantize(tractogram);
-			focus = new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f);
 			
+			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
 			UpdateMap(grid);
 		}
 		private void UpdateMap(Voxels grid) {
@@ -60,10 +59,7 @@ namespace Objects {
 			Configure(grid.Cells, colors, grid.Size, grid.Boundaries);
 			map = new Map(grid, colors);
 		}
-
-		public override Focus Focus() {
-			return focus;
-		}
+		
 		public override Map Map() {
 			return map;
 		}

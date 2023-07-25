@@ -8,6 +8,8 @@ using UnityEngine;
 
 namespace Objects.Sources {
 	public abstract class SourceInstance : MonoBehaviour {
+		private Focus focus;
+		
 		public SourceInstance Construct(string path) {
 			var instance = Instantiate(gameObject);
 			var source = instance.GetComponent<SourceInstance>();
@@ -16,13 +18,24 @@ namespace Objects.Sources {
 		}
 		protected abstract void New(string path);
 
-		public abstract Focus Focus();
 		public abstract Map Map();
 
 		public abstract IEnumerable<Configuration> Controls();
 		
+		public delegate void SourceFocusedEvent(Focus focus);
+		public event SourceFocusedEvent Focused;
+		
+		public void Focus(Focus focus) {
+			this.focus = focus;
+			Focus();
+		}
+		public void Focus() {
+			Focused?.Invoke(focus);
+		}
+		
 		public delegate void SourceConfiguredEvent(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries);
 		public event SourceConfiguredEvent Configured;
+		
 		public void Configure(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries) {
 			Configured?.Invoke(cells, values, resolution, boundaries);
 		}

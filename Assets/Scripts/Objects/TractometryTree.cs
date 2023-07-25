@@ -37,7 +37,7 @@ namespace Objects {
 			tractogram = Tck.Load(path);
 
 			layers = new List<IntersectionTree> {new(tractogram, 0, 0.01f)};
-			depth = 1;
+			depth = 0;
 
 			UpdateTracts();
 			UpdateVoxels();
@@ -52,7 +52,7 @@ namespace Objects {
 		}
 		private void UpdateScale(float resolution) {
 			Debug.Log("Stepping to resolution "+resolution);
-			depth += 1;
+			depth = (int) Math.Round(resolution);
 			UpdateVoxels();
 		}
 		private void UpdateVoxels() {
@@ -112,7 +112,7 @@ namespace Objects {
 			return new Configuration[] {
 				new Toggle("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new Toggle("Map", true, gridMesh.gameObject.SetActive),
-				new Stepper("Resolution", 1, 1, 1, 10, UpdateScale)
+				new Stepper("Resolution", 1, 0, 0, 10, UpdateScale)
 			};
 		}
 	}

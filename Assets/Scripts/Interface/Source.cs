@@ -22,7 +22,7 @@ namespace Interface {
 		public ActionToggle toggle;
 		public Slider slider;
 		public DelayedSlider delayedSlider;
-		public Stepper stepper;
+		public SmoothStepper stepper;
 		
 		[Serializable]
 		public struct Type {

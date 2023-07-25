@@ -47,7 +47,7 @@ namespace Maps.Grids {
 		
 		public Index3 Anchor => Lattice.Anchor;
 		public Index3 Size => Lattice.Size;
-		public Boundaries Boundaries => new((Vector3) Anchor * CellSize, (Vector3) (Anchor + Size) * CellSize);
+		public Boundaries Boundaries => new((Vector3) Anchor * CellSize + Lattice.Origin, (Vector3) (Anchor + Size) * CellSize + Lattice.Origin);
 
 		public Dictionary<Index3, IEnumerable<Tract>> Quantization => quantization;
 		public Dictionary<Cell, IEnumerable<Tract>> Voxels => Voxelize(quantization);

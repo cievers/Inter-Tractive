@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
+using Geometry;
 using Maps.Cells;
 using Maps.Grids;
 using UnityEngine;
 
 namespace Objects {
-	public struct Map {
-		public Voxels Grid {get; private set;}
-		public Dictionary<Cell, Color32> Colors {get; private set;}
-
-		public Map(Voxels grid, Dictionary<Cell, Color32> colors) {
-			Grid = grid;
-			Colors = colors;
-		}
+	public record Map(Dictionary<Cell, Color32> Colors, Cuboid?[] Cells, Index3 Size, Boundaries Boundaries) {
+		public Dictionary<Cell, Color32> Colors {get; private set;} = Colors;
+		public Cuboid?[] Cells {get;} = Cells;
+		public Boundaries Boundaries {get;} = Boundaries;
+		public Index3 Size {get;} = Size;
 	}
 }

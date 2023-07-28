@@ -27,8 +27,8 @@ namespace Interface {
 			slice.Draw += image.Project;
 			
 			// TODO: Unify with the later updating of a map to slice through
-			var colorGrid = Enumeration.ToArray(map.Grid.Cells, map.Colors, new Color32(0, 0, 0, 0));
-			slice.Initialize(colorGrid, map.Grid.Size, map.Grid.Boundaries);
+			var colorGrid = Enumeration.ToArray(map.Cells, map.Colors, new Color32(0, 0, 0, 0));
+			slice.Initialize(colorGrid, map.Size, map.Boundaries);
 		}
 		public void Remove(Source source) {
 			if (slices.ContainsKey(source)) {

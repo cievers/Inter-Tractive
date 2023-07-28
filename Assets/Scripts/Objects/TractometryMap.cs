@@ -57,7 +57,7 @@ namespace Objects {
 			gridMesh.mesh = grid.Render(colors);
 			
 			Configure(grid.Cells, colors, grid.Size, grid.Boundaries);
-			map = new Map(grid, colors);
+			map = new Map(colors, grid.Cells, grid.Size, grid.Boundaries);
 		}
 		
 		public override Map Map() {

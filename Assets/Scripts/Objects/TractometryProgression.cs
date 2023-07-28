@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Camera;
 using Files;
 using Files.Types;
-using Geometry;
 using Geometry.Generators;
 using Geometry.Tracts;
 using Interface.Control.Data;
@@ -19,60 +20,66 @@ using UnityEditor;
 using UnityEngine;
 
 namespace Objects {
-	public class TractometryTree : SourceInstance {
+	public class TractometryProgression : SourceInstance {
 		private const byte COLORIZE_TRANSPARENCY = 200;
 		
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
 
 		private Tractogram tractogram;
-		private Dictionary<Index3, IEnumerable<Tract>> voxels;
-		private Focus focus;
+		private ThreadedLattice grid;
+		private ConcurrentBag<Tuple<Cell, Tract>> bag;
+		private Dictionary<Cell, HashSet<Tract>> voxels;
+		private List<Cell> voxelDelta;
 		private Map map;
-
-		private List<IntersectionTree> layers;
-		private int depth;
 
 		protected override void New(string path) {
 			tractogram = Tck.Load(path);
+			bag = new ConcurrentBag<Tuple<Cell, Tract>>();
+			grid = new ThreadedLattice(tractogram, 5, bag);
+			voxels = new Dictionary<Cell, HashSet<Tract>>();
 
-			layers = new List<IntersectionTree> {new(tractogram, 0, 0.01f)};
-			depth = 0;
-
+			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
 			UpdateTracts();
-			UpdateVoxels();
-			Focus(new Focus(layers[depth].Boundaries.Center, layers[depth].Boundaries.Size.magnitude / 2 * 1.5f));
+			new Thread(grid.Start).Start();
 
 			// var gridBoundaries = grid.Boundaries;
 			// var nifti = new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
 			// nifti.Write();
 		}
 
+		private void Update() {
+			voxelDelta = new List<Cell>();
+			for (var i = 0; i < 10 && !bag.IsEmpty; i++) {
+				if (bag.TryTake(out var result)) {
+					// If it's the first tract for this cell, make sure an entry exists in the dictionary
+					if (!voxels.ContainsKey(result.Item1)) {
+						voxels.Add(result.Item1, new HashSet<Tract>());
+					}
+					voxels[result.Item1].Add(result.Item2);
+					voxelDelta.Add(result.Item1);
+				}
+			}
+			UpdateMap();
+		}
 		private void UpdateTracts() {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
 		}
-		private void UpdateScale(float resolution) {
-			Debug.Log("Stepping to resolution "+resolution);
-			depth = (int) Math.Round(resolution);
-			UpdateVoxels();
-		}
-		private void UpdateVoxels() {
-			while (depth >= layers.Count) {
-				layers.Add(layers[^1].Divide());
-			}
-			
-			UpdateMap(depth);
-		}
-		private void UpdateMap(int depth) {
-			var grid = layers[depth];
+		private void UpdateMap() {
 			// var measurements = new Density().Measure(voxels);
-			var measurements = new Length().Measure(grid.Voxels);
+			var measurements = new Length().Measure(voxels.ToDictionary(pair => pair.Key, pair => pair.Value.AsEnumerable()));
+
+			if (measurements.Count > 0) {
+				var colors = Colorize(measurements);
+				gridMesh.mesh = grid.Render(colors);
 			
-			var colors = Colorize(measurements);
-			gridMesh.mesh = grid.Render(colors);
-			
-			Configure(grid.Cells, colors, grid.Size, grid.Boundaries);
-			map = new Map(colors, grid.Cells, grid.Size, grid.Boundaries);
+				Configure(grid.Cells, colors, grid.Size, grid.Boundaries);
+				map = new Map(colors, grid.Cells, grid.Size, grid.Boundaries);
+			} else {
+				// Debug.Log("Still no cells with a measurement");
+				// Debug.Log(measurements.Count);
+				// Debug.Log(voxels.Count);
+			}
 		}
 		
 		public override Map Map() {
@@ -108,8 +115,7 @@ namespace Objects {
 			return new Configuration[] {
 				new Toggle("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new Toggle("Map", true, gridMesh.gameObject.SetActive),
-				// new Stepper("Resolution", 1, 0, 0, 10, UpdateScale)
-				new DelayedSlider("Resolution", 0, 0, 10, 1, UpdateScale)
+				// new DelayedSlider("Resolution", 1, 0.1f, 10, 1, UpdateVoxels)
 			};
 		}
 	}

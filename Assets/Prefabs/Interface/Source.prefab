@@ -444,7 +444,7 @@ MonoBehaviour:
   controls: {fileID: 1958336656647079853}
   types:
   - extension: tck
-    template: {fileID: 5780583547768591012, guid: e6a1210f60f20004abe243a037f940e3, type: 3}
+    template: {fileID: 6787547898181110352, guid: 80283614397615845affdf61588042ca, type: 3}
   toggle: {fileID: 6920744148939201583, guid: 8cec65452a016914c8f9d61dffad6cee, type: 3}
   slider: {fileID: 9100611682966551760, guid: e80ccac4fadf60643a1e40944bc06f36, type: 3}
   delayedSlider: {fileID: -2421445197905774487, guid: 8ab597472a20272459a2c0e0139cd93e, type: 3}

@@ -50,7 +50,11 @@ namespace Objects {
 
 		private void Update() {
 			voxelDelta = new List<Cell>();
-			for (var i = 0; i < 10 && !bag.IsEmpty; i++) {
+			if (!bag.IsEmpty) {
+				Debug.Log(bag.Count);
+			}
+			// for (var i = 0; i < 1000 && !bag.IsEmpty; i++) {
+			while (!bag.IsEmpty) {
 				if (bag.TryTake(out var result)) {
 					// If it's the first tract for this cell, make sure an entry exists in the dictionary
 					if (!voxels.ContainsKey(result.Item1)) {
@@ -60,7 +64,9 @@ namespace Objects {
 					voxelDelta.Add(result.Item1);
 				}
 			}
-			UpdateMap();
+			if (voxelDelta.Count > 0) {
+				UpdateMap();
+			}
 		}
 		private void UpdateTracts() {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);

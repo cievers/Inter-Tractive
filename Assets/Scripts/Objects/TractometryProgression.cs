@@ -36,7 +36,7 @@ namespace Objects {
 		protected override void New(string path) {
 			tractogram = Tck.Load(path);
 			bag = new ConcurrentBag<Tuple<Cell, Tract>>();
-			grid = new ThreadedLattice(tractogram, 5, bag);
+			grid = new ThreadedLattice(tractogram, 1, bag);
 			voxels = new Dictionary<Cell, HashSet<Tract>>();
 
 			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
@@ -52,20 +52,20 @@ namespace Objects {
 			voxelDelta = new List<Cell>();
 			if (!bag.IsEmpty) {
 				Debug.Log(bag.Count);
-			}
-			// for (var i = 0; i < 1000 && !bag.IsEmpty; i++) {
-			while (!bag.IsEmpty) {
-				if (bag.TryTake(out var result)) {
-					// If it's the first tract for this cell, make sure an entry exists in the dictionary
-					if (!voxels.ContainsKey(result.Item1)) {
-						voxels.Add(result.Item1, new HashSet<Tract>());
+				// for (var i = 0; i < 1000 && !bag.IsEmpty; i++) {
+				while (!bag.IsEmpty) {
+					if (bag.TryTake(out var result)) {
+						// If it's the first tract for this cell, make sure an entry exists in the dictionary
+						if (!voxels.ContainsKey(result.Item1)) {
+							voxels.Add(result.Item1, new HashSet<Tract>());
+						}
+						voxels[result.Item1].Add(result.Item2);
+						voxelDelta.Add(result.Item1);
 					}
-					voxels[result.Item1].Add(result.Item2);
-					voxelDelta.Add(result.Item1);
 				}
-			}
-			if (voxelDelta.Count > 0) {
-				UpdateMap();
+				if (voxelDelta.Count > 0) {
+					UpdateMap();
+				}
 			}
 		}
 		private void UpdateTracts() {

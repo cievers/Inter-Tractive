@@ -17,7 +17,7 @@ namespace Maps.Grids {
 		public Cuboid?[] Cells {get;}
 		public Index3 Size => Lattice.Size;
 		public Boundaries Boundaries => new((Vector3) Lattice.Anchor * Resolution, (Vector3) (Lattice.Anchor + Lattice.Size) * Resolution);
-		
+
 		public ThreadedLattice(Tractogram tractogram, float resolution, ConcurrentBag<Tuple<Cell, Tract>> bag) {
 			var anchor = new Index3(tractogram.Boundaries.Min, resolution);
 			var size = new Index3(tractogram.Boundaries.Max, resolution) + new Index3(1, 1, 1) - anchor;
@@ -55,8 +55,6 @@ namespace Maps.Grids {
 		}
 		
 		public void Start() {
-			var result = new Dictionary<Index3, HashSet<Tract>>();
-
 			// var segments = new Dictionary<Segment, Tract>();
 			var segments = new List<DistancedSegment>();
 
@@ -98,10 +96,7 @@ namespace Maps.Grids {
 						// If there is only one direction, we know we must go that way
 						if (directions.Length == 1) {
 							var next = current + directions[0];
-							if (!result.ContainsKey(next)) {
-								result.Add(next, new HashSet<Tract>());
-							}
-							result[next].Add(pair.Tract);
+							Produce(next, pair.Tract);
 							current = next;
 							continue;
 						}

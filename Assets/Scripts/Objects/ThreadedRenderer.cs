@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Geometry;
 using Geometry.Tracts;
 using Maps.Cells;
 using Maps.Grids;
@@ -15,7 +16,7 @@ namespace Objects {
 		
 		private readonly ConcurrentPipe<Tuple<Cell, Tract>> input;
 		private readonly ConcurrentBag<Dictionary<Cell, Color32>> colors;
-		private readonly ConcurrentBag<Mesh> meshes;
+		private readonly ConcurrentBag<Model> models;
 		private readonly ThreadedLattice grid;
 		private readonly Length statistic;
 		
@@ -23,10 +24,10 @@ namespace Objects {
 		private Dictionary<Cell, HashSet<Tract>> voxels;
 		private Dictionary<Cell, float> measurements;
 		
-		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Mesh> meshes, ThreadedLattice grid, Length statistic) {
+		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, Length statistic) {
 			this.input = input;
 			this.colors = colors;
-			this.meshes = meshes;
+			this.models = models;
 			this.grid = grid;
 			this.statistic = statistic;
 			
@@ -34,7 +35,7 @@ namespace Objects {
 			measurements = new Dictionary<Cell, float>();
 		}
 		public void Render() {
-			while (!input.Completed) { // TODO: Build a proper concurrent pipeline with signal for being done
+			while (!input.IsEmpty || !input.IsCompleted) {
 				voxelDelta = new List<Cell>();
 				for (var i = 0; i < 1000 && !input.IsEmpty; i++) {
 					if (input.TryTake(out var result)) {
@@ -54,7 +55,7 @@ namespace Objects {
 					if (measurements.Count > 0) {
 						var measured = Colorize(measurements);
 						colors.Add(measured);
-						meshes.Add(grid.Render(measured));
+						models.Add(grid.Render(measured));
 					}
 				}
 			}

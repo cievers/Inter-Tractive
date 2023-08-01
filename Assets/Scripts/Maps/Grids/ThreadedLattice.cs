@@ -154,30 +154,19 @@ namespace Maps.Grids {
 			Bag.Add(new Tuple<Cell, Tract>(Quantize(index), tract));
 		}
 		
-		public Mesh Render(Dictionary<Cell, Color32> map) {
-			var vertices = new List<Vector3>();
-			var normals = new List<Vector3>(); // TODO: Normals aren't used in rendering yet
-			var colors = new List<Color32>();
-			var indices = new List<int>();
+		public Model Render(Dictionary<Cell, Color32> map) {
+			var model = new Model();
 
 			foreach (var cell in Cells) {
 				if (cell != null && map.ContainsKey(cell)) {
 					var value = (Cuboid) cell;
-					indices.AddRange(value.Indices.Select(index => index + vertices.Count));
-					vertices.AddRange(value.Vertices);
-					colors.AddRange(value.Vertices.Select(_ => map[cell]));
+					model.Indices.AddRange(value.Indices.Select(index => index + model.Vertices.Count));
+					model.Vertices.AddRange(value.Vertices);
+					model.Colors.AddRange(value.Vertices.Select(_ => map[cell]));
 				}
 			}
 
-			var shape = new Mesh {indexFormat = IndexFormat.UInt32};
-
-			shape.Clear();
-			shape.SetVertices(vertices);
-			shape.SetColors(colors);
-			shape.SetTriangles(indices, 0);
-			shape.RecalculateNormals();
-
-			return shape;
+			return model;
 		}
 		
 		private record DistancedSegment(Segment Segment, Tract Tract) {

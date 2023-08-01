@@ -7,6 +7,7 @@ using System.Threading;
 using Camera;
 using Files;
 using Files.Types;
+using Geometry;
 using Geometry.Generators;
 using Geometry.Tracts;
 using Interface.Control.Data;
@@ -34,7 +35,7 @@ namespace Objects {
 		private new ThreadedRenderer renderer;
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
-		private ConcurrentBag<Mesh> meshes;
+		private ConcurrentBag<Model> models;
 		
 		private Map map;
 		private Length statistic;
@@ -42,12 +43,12 @@ namespace Objects {
 		protected override void New(string path) {
 			voxels = new ConcurrentPipe<Tuple<Cell, Tract>>();
 			colors = new ConcurrentBag<Dictionary<Cell, Color32>>();
-			meshes = new ConcurrentBag<Mesh>();
+			models = new ConcurrentBag<Model>();
 			
 			tractogram = Tck.Load(path);
 			statistic = new Length();
 			grid = new ThreadedLattice(tractogram, 1, voxels);
-			renderer = new ThreadedRenderer(voxels, colors, meshes, grid, statistic);
+			renderer = new ThreadedRenderer(voxels, colors, models, grid, statistic);
 
 			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
 			UpdateTracts();
@@ -64,8 +65,8 @@ namespace Objects {
 				map = new Map(result, grid.Cells, grid.Size, grid.Boundaries);
 				Configure(grid.Cells, result, grid.Size, grid.Boundaries);
 			}
-			if (meshes.TryTake(out var mesh)) {
-				gridMesh.mesh = mesh;
+			if (models.TryTake(out var model)) {
+				gridMesh.mesh = model.Mesh();
 			}
 		}
 		private void UpdateTracts() {

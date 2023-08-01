@@ -2,13 +2,13 @@
 
 namespace Objects.Concurrent {
 	public class ConcurrentPipe<T> : ConcurrentBag<T> {
-		public bool Completed {get; private set;}
+		public bool IsCompleted {get; private set;}
 		
 		public void Restart() {
-			Completed = false;
+			IsCompleted = false;
 		}
 		public void Complete() {
-			Completed = true;
+			IsCompleted = true;
 		}
 	}
 }

@@ -5,20 +5,21 @@ using System.Linq;
 using Geometry;
 using Geometry.Tracts;
 using Maps.Cells;
+using Objects.Concurrent;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Maps.Grids {
 	public class ThreadedLattice {
 		private Tractogram Tractogram {get;}
-		private ConcurrentBag<Tuple<Cell, Tract>> Bag {get;}
+		private ConcurrentPipe<Tuple<Cell, Tract>> Bag {get;}
 		private float Resolution {get;}
 		private Lattice Lattice {get;}
 		public Cuboid?[] Cells {get;}
 		public Index3 Size => Lattice.Size;
 		public Boundaries Boundaries => new((Vector3) Lattice.Anchor * Resolution, (Vector3) (Lattice.Anchor + Lattice.Size) * Resolution);
 
-		public ThreadedLattice(Tractogram tractogram, float resolution, ConcurrentBag<Tuple<Cell, Tract>> bag) {
+		public ThreadedLattice(Tractogram tractogram, float resolution, ConcurrentPipe<Tuple<Cell, Tract>> bag) {
 			var anchor = new Index3(tractogram.Boundaries.Min, resolution);
 			var size = new Index3(tractogram.Boundaries.Max, resolution) + new Index3(1, 1, 1) - anchor;
 			Tractogram = tractogram;
@@ -146,6 +147,8 @@ namespace Maps.Grids {
 					throw;
 				}
 			}
+
+			Bag.Complete();
 		}
 		private void Produce(Index3 index, Tract tract) {
 			Bag.Add(new Tuple<Cell, Tract>(Quantize(index), tract));

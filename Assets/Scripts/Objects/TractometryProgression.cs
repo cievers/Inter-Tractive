@@ -14,6 +14,7 @@ using JetBrains.Annotations;
 using Maps;
 using Maps.Cells;
 using Maps.Grids;
+using Objects.Concurrent;
 using Objects.Sources;
 using Statistics;
 using Statistics.Geometric;
@@ -30,24 +31,28 @@ namespace Objects {
 
 		private Tractogram tractogram;
 		private ThreadedLattice grid;
-		private ConcurrentBag<Tuple<Cell, Tract>> bag;
-		private Dictionary<Cell, HashSet<Tract>> voxels;
-		private List<Cell> voxelDelta;
-		private Dictionary<Cell, float> measurements;
+		private new ThreadedRenderer renderer;
+		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
+		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
+		private ConcurrentBag<Mesh> meshes;
+		
 		private Map map;
 		private Length statistic;
 
 		protected override void New(string path) {
+			voxels = new ConcurrentPipe<Tuple<Cell, Tract>>();
+			colors = new ConcurrentBag<Dictionary<Cell, Color32>>();
+			meshes = new ConcurrentBag<Mesh>();
+			
 			tractogram = Tck.Load(path);
-			bag = new ConcurrentBag<Tuple<Cell, Tract>>();
-			grid = new ThreadedLattice(tractogram, 1, bag);
-			voxels = new Dictionary<Cell, HashSet<Tract>>();
-			measurements = new Dictionary<Cell, float>();
 			statistic = new Length();
+			grid = new ThreadedLattice(tractogram, 1, voxels);
+			renderer = new ThreadedRenderer(voxels, colors, meshes, grid, statistic);
 
 			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
 			UpdateTracts();
 			new Thread(grid.Start).Start();
+			new Thread(renderer.Render).Start();
 
 			// var gridBoundaries = grid.Boundaries;
 			// var nifti = new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
@@ -55,63 +60,18 @@ namespace Objects {
 		}
 
 		private void Update() {
-			voxelDelta = new List<Cell>();
-			if (!bag.IsEmpty) {
-				Debug.Log(bag.Count);
-				for (var i = 0; i < 1000 && !bag.IsEmpty; i++) {
-				// while (!bag.IsEmpty) {
-					if (bag.TryTake(out var result)) {
-						// If it's the first tract for this cell, make sure an entry exists in the dictionary
-						if (!voxels.ContainsKey(result.Item1)) {
-							voxels.Add(result.Item1, new HashSet<Tract>());
-						}
-						voxels[result.Item1].Add(result.Item2);
-						voxelDelta.Add(result.Item1);
-					}
-				}
-				if (voxelDelta.Count > 0) {
-					UpdateMap();
-				}
+			if (colors.TryTake(out var result)) {
+				map = new Map(result, grid.Cells, grid.Size, grid.Boundaries);
+				Configure(grid.Cells, result, grid.Size, grid.Boundaries);
+			}
+			if (meshes.TryTake(out var mesh)) {
+				gridMesh.mesh = mesh;
 			}
 		}
 		private void UpdateTracts() {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
 		}
-		private void UpdateMap() {
-			// var measurements = new Density().Measure(voxels);
-			Debug.Log("Making measurements");
-			var watch = new Stopwatch();
-			watch.Start();
-			foreach (var cell in voxelDelta) {
-				measurements[cell] = statistic.Measure(voxels[cell]);
-			}
-			// var measurements = statistic.Measure(voxels.ToDictionary(pair => pair.Key, pair => pair.Value.AsEnumerable()));
-			watch.Stop();
-			Debug.Log(watch.Elapsed);
 
-			if (measurements.Count > 0) {
-				Debug.Log("Coloring measurements");
-				watch = new Stopwatch();
-				watch.Start();
-				var colors = Colorize(measurements);
-				watch.Stop();
-				Debug.Log(watch.Elapsed);
-				Debug.Log("Making mesh");
-				watch = new Stopwatch();
-				watch.Start();
-				gridMesh.mesh = grid.Render(colors);
-				watch.Stop();
-				Debug.Log(watch.Elapsed);
-			
-				Configure(grid.Cells, colors, grid.Size, grid.Boundaries);
-				map = new Map(colors, grid.Cells, grid.Size, grid.Boundaries);
-			} else {
-				// Debug.Log("Still no cells with a measurement");
-				// Debug.Log(measurements.Count);
-				// Debug.Log(voxels.Count);
-			}
-		}
-		
 		public override Map Map() {
 			return map;
 		}

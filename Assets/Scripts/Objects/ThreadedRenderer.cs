@@ -19,17 +19,19 @@ namespace Objects {
 		private readonly ConcurrentBag<Model> models;
 		private readonly ThreadedLattice grid;
 		private readonly Length statistic;
+		private readonly int batch;
 		
 		private List<Cell> voxelDelta;
 		private Dictionary<Cell, HashSet<Tract>> voxels;
 		private Dictionary<Cell, float> measurements;
 		
-		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, Length statistic) {
+		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, Length statistic, int batch) {
 			this.input = input;
 			this.colors = colors;
 			this.models = models;
 			this.grid = grid;
 			this.statistic = statistic;
+			this.batch = batch;
 			
 			voxels = new Dictionary<Cell, HashSet<Tract>>();
 			measurements = new Dictionary<Cell, float>();
@@ -37,7 +39,7 @@ namespace Objects {
 		public void Render() {
 			while (!input.IsEmpty || !input.IsCompleted) {
 				voxelDelta = new List<Cell>();
-				for (var i = 0; i < 1000 && !input.IsEmpty; i++) {
+				for (var i = 0; i < batch && !input.IsEmpty; i++) {
 					if (input.TryTake(out var result)) {
 						// If it's the first tract for this cell, make sure an entry exists in the dictionary
 						if (!voxels.ContainsKey(result.Item1)) {

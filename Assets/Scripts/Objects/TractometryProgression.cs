@@ -36,6 +36,9 @@ namespace Objects {
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private ConcurrentBag<Model> models;
+
+		private Thread quantizeThread;
+		private Thread renderThread;
 		
 		private Map map;
 		private Length statistic;
@@ -47,13 +50,10 @@ namespace Objects {
 			
 			tractogram = Tck.Load(path);
 			statistic = new Length();
-			grid = new ThreadedLattice(tractogram, 1, voxels);
-			renderer = new ThreadedRenderer(voxels, colors, models, grid, statistic);
 
-			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
 			UpdateTracts();
-			new Thread(grid.Start).Start();
-			new Thread(renderer.Render).Start();
+			UpdateMap(1);
+			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
 
 			// var gridBoundaries = grid.Boundaries;
 			// var nifti = new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
@@ -71,6 +71,17 @@ namespace Objects {
 		}
 		private void UpdateTracts() {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
+		}
+		private void UpdateMap(float resolution) {
+			grid = new ThreadedLattice(tractogram, resolution, voxels);
+			renderer = new ThreadedRenderer(voxels, colors, models, grid, statistic, 4096);
+
+			quantizeThread?.Abort();
+			renderThread?.Abort();
+			quantizeThread = new Thread(grid.Start);
+			renderThread = new Thread(renderer.Render);
+			quantizeThread.Start();
+			renderThread.Start();
 		}
 
 		public override Map Map() {
@@ -106,7 +117,7 @@ namespace Objects {
 			return new Configuration[] {
 				new Toggle("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new Toggle("Map", true, gridMesh.gameObject.SetActive),
-				// new DelayedSlider("Resolution", 1, 0.1f, 10, 1, UpdateVoxels)
+				new DelayedSlider("Resolution", 1, 0.1f, 10, 0.1f, UpdateMap)
 			};
 		}
 	}

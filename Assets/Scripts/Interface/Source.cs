@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Camera;
-using Maps.Grids;
 using Objects;
 using Objects.Sources;
 using TMPro;
+using SFB;
 using UnityEngine;
 
-using AnotherFileBrowser.Windows;
 using Geometry;
 using Interface.Control;
 using Maps.Cells;
@@ -47,8 +45,9 @@ namespace Interface {
 			}
 		}
 		private void Browse() {
-			var properties = new BrowserProperties {filter = "Tract files (*.tck) | *.tck", filterIndex = 0};
-			new FileBrowser().OpenFileBrowser(properties, Load);
+			// var properties = new BrowserProperties {filter = "Tract files (*.tck) | *.tck", filterIndex = 0};
+			// new FileBrowser().OpenFileBrowser(properties, Load);
+			Load(StandaloneFileBrowser.OpenFilePanel("Tract files", "", "tck", false)[0]);
 		}
 		private void Load(string path) {
 			this.path = path.Replace("\\", "/");

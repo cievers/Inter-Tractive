@@ -82,7 +82,7 @@ namespace Interface {
 			}
 		}
 		public void Write() {
-			instance.Nifti().Write(StandaloneFileBrowser.SaveFilePanel("Save as NIFTI", "", "", "nii"));
+			instance.Nifti().Write(StandaloneFileBrowser.SaveFilePanel("Save as NIFTI", "", Name(), "nii"));
 		}
 		
 		public void UpdateContext(Source source) {
@@ -112,6 +112,9 @@ namespace Interface {
 				result = split[^(i+1)] + "/" + result;
 			}
 			return result.TrimEnd('/');
+		}
+		private string Name() {
+			return Significance(1).Split(".")[0];
 		}
 		private string Extension() {
 			return path.Split(".")[^1];

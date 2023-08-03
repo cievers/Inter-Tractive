@@ -1,27 +1,20 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Camera;
-using Files;
 using Files.Types;
 using Geometry;
 using Geometry.Generators;
 using Geometry.Tracts;
 using Interface.Control.Data;
-using JetBrains.Annotations;
-using Maps;
 using Maps.Cells;
 using Maps.Grids;
 using Objects.Concurrent;
 using Objects.Sources;
-using Statistics;
 using Statistics.Geometric;
-using UnityEditor;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace Objects {
 	public class TractometryProgression : SourceInstance {
@@ -34,6 +27,7 @@ namespace Objects {
 		private ThreadedLattice grid;
 		private new ThreadedRenderer renderer;
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
+		private ConcurrentBag<Dictionary<Cell, float>> measurements;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private ConcurrentBag<Model> models;
 
@@ -42,9 +36,11 @@ namespace Objects {
 		
 		private Map map;
 		private Length statistic;
+		private Dictionary<Cell, float> measurement;
 
 		protected override void New(string path) {
 			voxels = new ConcurrentPipe<Tuple<Cell, Tract>>();
+			measurements = new ConcurrentBag<Dictionary<Cell, float>>();
 			colors = new ConcurrentBag<Dictionary<Cell, Color32>>();
 			models = new ConcurrentBag<Model>();
 			
@@ -54,16 +50,15 @@ namespace Objects {
 			UpdateTracts();
 			UpdateMap(1);
 			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
-
-			// var gridBoundaries = grid.Boundaries;
-			// var nifti = new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
-			// nifti.Write();
 		}
 
 		private void Update() {
-			if (colors.TryTake(out var result)) {
-				map = new Map(result, grid.Cells, grid.Size, grid.Boundaries);
-				Configure(grid.Cells, result, grid.Size, grid.Boundaries);
+			if (measurements.TryTake(out var measured)) {
+				measurement = measured;
+			}
+			if (colors.TryTake(out var colored)) {
+				map = new Map(colored, grid.Cells, grid.Size, grid.Boundaries);
+				Configure(grid.Cells, colored, grid.Size, grid.Boundaries);
 			}
 			if (models.TryTake(out var model)) {
 				gridMesh.mesh = model.Mesh();
@@ -74,7 +69,7 @@ namespace Objects {
 		}
 		private void UpdateMap(float resolution) {
 			grid = new ThreadedLattice(tractogram, resolution, voxels);
-			renderer = new ThreadedRenderer(voxels, colors, models, grid, statistic, 4096);
+			renderer = new ThreadedRenderer(voxels, measurements, colors, models, grid, statistic, 4096);
 
 			quantizeThread?.Abort();
 			renderThread?.Abort();
@@ -86,6 +81,9 @@ namespace Objects {
 
 		public override Map Map() {
 			return map;
+		}
+		public override Nii<float> Nifti() {
+			return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, grid.Boundaries.Min + new Vector3(grid.Resolution / 2, grid.Resolution / 2, grid.Resolution / 2), new Vector3(grid.Resolution, grid.Resolution, grid.Resolution));
 		}
 
 		private Dictionary<Cell, Color32> Colorize(Dictionary<Cell,int> values) {

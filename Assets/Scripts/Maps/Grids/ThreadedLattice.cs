@@ -13,8 +13,8 @@ namespace Maps.Grids {
 	public class ThreadedLattice {
 		private Tractogram Tractogram {get;}
 		private ConcurrentPipe<Tuple<Cell, Tract>> Bag {get;}
-		private float Resolution {get;}
 		private Lattice Lattice {get;}
+		public float Resolution {get;}
 		public Cuboid?[] Cells {get;}
 		public Index3 Size => Lattice.Size;
 		public Boundaries Boundaries => new((Vector3) Lattice.Anchor * Resolution, (Vector3) (Lattice.Anchor + Lattice.Size) * Resolution);

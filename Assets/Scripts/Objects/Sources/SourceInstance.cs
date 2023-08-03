@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Camera;
+using Files.Types;
 using Geometry;
 using Interface.Control.Data;
 using Maps.Cells;
@@ -19,6 +20,7 @@ namespace Objects.Sources {
 		protected abstract void New(string path);
 
 		public abstract Map Map();
+		public abstract Nii<float> Nifti();
 
 		public abstract IEnumerable<Configuration> Controls();
 		

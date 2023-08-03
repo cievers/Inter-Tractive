@@ -15,6 +15,7 @@ namespace Objects {
 		private const byte COLORIZE_TRANSPARENCY = 200;
 		
 		private readonly ConcurrentPipe<Tuple<Cell, Tract>> input;
+		private readonly ConcurrentBag<Dictionary<Cell, float>> measurements;
 		private readonly ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private readonly ConcurrentBag<Model> models;
 		private readonly ThreadedLattice grid;
@@ -23,10 +24,11 @@ namespace Objects {
 		
 		private List<Cell> voxelDelta;
 		private Dictionary<Cell, HashSet<Tract>> voxels;
-		private Dictionary<Cell, float> measurements;
+		private Dictionary<Cell, float> statistics;
 		
-		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, Length statistic, int batch) {
+		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, float>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, Length statistic, int batch) {
 			this.input = input;
+			this.measurements = measurements;
 			this.colors = colors;
 			this.models = models;
 			this.grid = grid;
@@ -34,7 +36,7 @@ namespace Objects {
 			this.batch = batch;
 			
 			voxels = new Dictionary<Cell, HashSet<Tract>>();
-			measurements = new Dictionary<Cell, float>();
+			statistics = new Dictionary<Cell, float>();
 		}
 		public void Render() {
 			while (!input.IsEmpty || !input.IsCompleted) {
@@ -51,11 +53,12 @@ namespace Objects {
 				}
 				if (voxelDelta.Count > 0) {
 					foreach (var cell in voxelDelta) {
-						measurements[cell] = statistic.Measure(voxels[cell]);
+						statistics[cell] = statistic.Measure(voxels[cell]);
 					}
 
-					if (measurements.Count > 0) {
-						var measured = Colorize(measurements);
+					if (statistics.Count > 0) {
+						var measured = Colorize(statistics);
+						measurements.Add(statistics);
 						colors.Add(measured);
 						models.Add(grid.Render(measured));
 					}

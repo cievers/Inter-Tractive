@@ -24,8 +24,9 @@ namespace Files.Types {
 			this.size = size;
 		}
 
-		public void Write() {
-			using var stream = File.Open("Nifti.nii", FileMode.Create);
+		public void Write(string path) {
+			// using var stream = File.Open("Nifti.nii", FileMode.Create);
+			using var stream = File.Open(path, FileMode.Create);
 			using var writer = new BinaryWriter(stream, Encoding.UTF8, false);
 			writer.Write(Header().Concat(Padding()).Concat(Body()).ToArray());
 		}

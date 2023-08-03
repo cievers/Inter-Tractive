@@ -33,10 +33,6 @@ namespace Objects {
 
 			UpdateTracts();
 			UpdateVoxels(1);
-
-			// var gridBoundaries = grid.Boundaries;
-			// var nifti = new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
-			// nifti.Write();
 		}
 
 		private void UpdateTracts() {
@@ -62,6 +58,11 @@ namespace Objects {
 		
 		public override Map Map() {
 			return map;
+		}
+		public override Nii<float> Nifti() {
+			// var gridBoundaries = grid.Boundaries;
+			// return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
+			throw new NotImplementedException();
 		}
 
 		private Dictionary<Cell, Color32> Colorize(Dictionary<Cell,int> values) {

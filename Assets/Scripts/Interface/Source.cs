@@ -81,6 +81,10 @@ namespace Interface {
 				}
 			}
 		}
+		public void Write() {
+			instance.Nifti().Write(StandaloneFileBrowser.SaveFilePanel("Save as NIFTI", "", "", "nii"));
+		}
+		
 		public void UpdateContext(Source source) {
 			context.Add(source);
 		}

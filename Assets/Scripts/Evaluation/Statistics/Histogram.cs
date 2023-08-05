@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Statistics {
+namespace Evaluation.Statistics {
 	public class Histogram<T> {
 		private readonly Dictionary<T, int> frequencies;
 

@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Camera;
+using Evaluation;
+using Evaluation.Coloring;
+using Evaluation.Geometric;
 using Files.Types;
 using Geometry;
 using Geometry.Generators;
@@ -13,7 +16,6 @@ using Maps.Cells;
 using Maps.Grids;
 using Objects.Concurrent;
 using Objects.Sources;
-using Statistics.Geometric;
 using UnityEngine;
 
 namespace Objects {
@@ -27,7 +29,7 @@ namespace Objects {
 		private ThreadedLattice grid;
 		private new ThreadedRenderer renderer;
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
-		private ConcurrentBag<Dictionary<Cell, float>> measurements;
+		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private ConcurrentBag<Model> models;
 
@@ -35,17 +37,19 @@ namespace Objects {
 		private Thread renderThread;
 		
 		private Map map;
-		private Length statistic;
-		private Dictionary<Cell, float> measurement;
+		private TractMetric statistic;
+		private Coloring coloring;
+		private Dictionary<Cell, Vector> measurement;
 
 		protected override void New(string path) {
 			voxels = new ConcurrentPipe<Tuple<Cell, Tract>>();
-			measurements = new ConcurrentBag<Dictionary<Cell, float>>();
+			measurements = new ConcurrentBag<Dictionary<Cell, Vector>>();
 			colors = new ConcurrentBag<Dictionary<Cell, Color32>>();
 			models = new ConcurrentBag<Model>();
 			
 			tractogram = Tck.Load(path);
 			statistic = new Length();
+			coloring = new Grayscale();
 
 			UpdateTracts();
 			UpdateMap(1);
@@ -69,7 +73,7 @@ namespace Objects {
 		}
 		private void UpdateMap(float resolution) {
 			grid = new ThreadedLattice(tractogram, resolution, voxels);
-			renderer = new ThreadedRenderer(voxels, measurements, colors, models, grid, statistic, 4096);
+			renderer = new ThreadedRenderer(voxels, measurements, colors, models, grid, statistic, coloring, 4096);
 
 			quantizeThread?.Abort();
 			renderThread?.Abort();
@@ -86,19 +90,6 @@ namespace Objects {
 			return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, grid.Boundaries.Min + new Vector3(grid.Resolution / 2, grid.Resolution / 2, grid.Resolution / 2), new Vector3(grid.Resolution, grid.Resolution, grid.Resolution));
 		}
 
-		private Dictionary<Cell, Color32> Colorize(Dictionary<Cell,int> values) {
-			var limit = (float) values.Values.Max();
-			return values
-				.ToDictionary(pair => pair.Key, pair => (byte) (pair.Value / limit * 255))
-				.ToDictionary(pair => pair.Key, pair => new Color32(pair.Value, pair.Value, pair.Value, COLORIZE_TRANSPARENCY));
-		}
-		private Dictionary<Cell, Color32> Colorize(Dictionary<Cell,float> values) {
-			var limit = values.Values.Max();
-			return values
-				.ToDictionary(pair => pair.Key, pair => (byte) (pair.Value / limit * 255))
-				.ToDictionary(pair => pair.Key, pair => new Color32(pair.Value, pair.Value, pair.Value, COLORIZE_TRANSPARENCY));
-		}
-
 		private T[] ToArray<T>(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, T> values, T fill) {
 			var result = new T[cells.Count];
 			for (var i = 0; i < cells.Count; i++) {
@@ -106,6 +97,22 @@ namespace Objects {
 					result[i] = values[cells[i]];
 				} else {
 					result[i] = fill;
+				}
+			}
+			return result;
+		}
+		private float[] ToArray(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Vector> values, float fill) {
+			var dimensions = values.Values.Select(vector => vector.Dimensions).Min();
+			var result = new float[cells.Count * dimensions];
+			for (var i = 0; i < cells.Count; i++) {
+				if (cells[i] != null && values.ContainsKey(cells[i])) {
+					for (var j = 0; j < dimensions; j++) {
+						result[i * dimensions + j] = values[cells[i]][j];
+					}
+				} else {
+					for (var j = 0; j < dimensions; j++) {
+						result[i * dimensions + j] = fill;
+					}
 				}
 			}
 			return result;

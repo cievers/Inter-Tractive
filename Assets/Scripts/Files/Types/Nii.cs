@@ -8,17 +8,15 @@ using UnityEngine;
 
 namespace Files.Types {
 	public record Nii<T> {
-		private readonly T[][][] values3;
 		private readonly T[] values;
+		private readonly int measurements;
 		private readonly Index3 composition;
 		private readonly Vector3 offset;
 		private readonly Vector3 size;
 		
-		public Nii(T[][][] values3) {
-			this.values3 = values3;
-		}
-		public Nii(T[] values, Index3 composition, Vector3 offset, Vector3 size) {
+		public Nii(T[] values, Index3 composition, Vector3 offset, Vector3 size, int measurements=1) {
 			this.values = values;
+			this.measurements = measurements;
 			this.composition = composition;
 			this.offset = offset;
 			this.size = size;
@@ -55,7 +53,7 @@ namespace Files.Types {
 			dimensions = Fill(dimensions, Short(composition.x), 2);
 			dimensions = Fill(dimensions, Short(composition.y), 4);
 			dimensions = Fill(dimensions, Short(composition.z), 6);
-			dimensions = Fill(dimensions, Short(1), 8);
+			dimensions = Fill(dimensions, Short(measurements), 8);
 			dimensions = Fill(dimensions, Short(1), 10);
 			dimensions = Fill(dimensions, Short(1), 12);
 			dimensions = Fill(dimensions, Short(1), 14);

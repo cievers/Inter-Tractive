@@ -2,41 +2,43 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Evaluation;
+using Evaluation.Coloring;
+using Evaluation.Geometric;
 using Geometry;
 using Geometry.Tracts;
 using Maps.Cells;
 using Maps.Grids;
 using Objects.Concurrent;
-using Statistics.Geometric;
 using UnityEngine;
 
 namespace Objects {
 	public class ThreadedRenderer {
-		private const byte COLORIZE_TRANSPARENCY = 200;
-		
 		private readonly ConcurrentPipe<Tuple<Cell, Tract>> input;
-		private readonly ConcurrentBag<Dictionary<Cell, float>> measurements;
+		private readonly ConcurrentBag<Dictionary<Cell, Vector>> measurements;
 		private readonly ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private readonly ConcurrentBag<Model> models;
 		private readonly ThreadedLattice grid;
-		private readonly Length statistic;
+		private readonly TractMetric statistic;
+		private readonly Coloring coloring;
 		private readonly int batch;
 		
 		private List<Cell> voxelDelta;
 		private Dictionary<Cell, HashSet<Tract>> voxels;
-		private Dictionary<Cell, float> statistics;
+		private Dictionary<Cell, Vector> statistics;
 		
-		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, float>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, Length statistic, int batch) {
+		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Vector>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, TractMetric statistic, Coloring coloring, int batch) {
 			this.input = input;
 			this.measurements = measurements;
 			this.colors = colors;
 			this.models = models;
 			this.grid = grid;
 			this.statistic = statistic;
+			this.coloring = coloring;
 			this.batch = batch;
 			
 			voxels = new Dictionary<Cell, HashSet<Tract>>();
-			statistics = new Dictionary<Cell, float>();
+			statistics = new Dictionary<Cell, Vector>();
 		}
 		public void Render() {
 			while (!input.IsEmpty || !input.IsCompleted) {
@@ -57,26 +59,13 @@ namespace Objects {
 					}
 
 					if (statistics.Count > 0) {
-						var measured = Colorize(statistics);
+						var measured = coloring.Color(statistics);
 						measurements.Add(statistics);
 						colors.Add(measured);
 						models.Add(grid.Render(measured));
 					}
 				}
 			}
-		}
-		
-		private Dictionary<Cell, Color32> Colorize(Dictionary<Cell,int> values) {
-			var limit = (float) values.Values.Max();
-			return values
-				.ToDictionary(pair => pair.Key, pair => (byte) (pair.Value / limit * 255))
-				.ToDictionary(pair => pair.Key, pair => new Color32(pair.Value, pair.Value, pair.Value, COLORIZE_TRANSPARENCY));
-		}
-		private Dictionary<Cell, Color32> Colorize(Dictionary<Cell,float> values) {
-			var limit = values.Values.Max();
-			return values
-				.ToDictionary(pair => pair.Key, pair => (byte) (pair.Value / limit * 255))
-				.ToDictionary(pair => pair.Key, pair => new Color32(pair.Value, pair.Value, pair.Value, COLORIZE_TRANSPARENCY));
 		}
 
 		private T[] ToArray<T>(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, T> values, T fill) {

@@ -2,14 +2,17 @@
 using System.Linq;
 using Geometry.Tracts;
 
-namespace Statistics.Geometric {
-	public class Length : TractStatistic<float> {
+namespace Evaluation.Geometric {
+	public class Length : TractMetric {
 		private readonly Dictionary<Tract, float> cache;
+
+		public override int Dimensions => 1;
+		public override string[] Units => new[] {"mm"};
 
 		public Length() {
 			cache = new Dictionary<Tract, float>();
 		}
-		public override float Measure(IEnumerable<Tract> tracts) {
+		public override Vector Measure(IEnumerable<Tract> tracts) {
 			var array = tracts as Tract[] ?? tracts.ToArray();
 			var total = 0f;
 			foreach (var tract in array) {
@@ -19,7 +22,7 @@ namespace Statistics.Geometric {
 				}
 				total += length;
 			}
-			return total / array.Length;
+			return new Vector(total / array.Length);
 		}
 		protected float MeasureImmediate(IEnumerable<Tract> tracts) {
 			var array = tracts as Tract[] ?? tracts.ToArray();

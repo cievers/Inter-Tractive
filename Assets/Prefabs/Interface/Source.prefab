@@ -799,6 +799,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6737192425279279916, guid: 5aa0eedd8a30a264c932a7b16aab2720, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: f91d5a3c0ae02824bb9680506c3c628e, type: 3}
     m_RemovedComponents:
     - {fileID: 4765605799279390852, guid: 5aa0eedd8a30a264c932a7b16aab2720, type: 3}
     m_AddedGameObjects: []

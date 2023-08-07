@@ -6,6 +6,7 @@ using System.Threading;
 using Camera;
 using Evaluation;
 using Evaluation.Coloring;
+using Evaluation.Coloring.Gradients;
 using Evaluation.Geometric;
 using Files.Types;
 using Geometry;
@@ -20,8 +21,6 @@ using UnityEngine;
 
 namespace Objects {
 	public class TractometryProgression : SourceInstance {
-		private const byte COLORIZE_TRANSPARENCY = 200;
-		
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
 
@@ -49,7 +48,7 @@ namespace Objects {
 			
 			tractogram = Tck.Load(path);
 			statistic = new Length();
-			coloring = new Grayscale();
+			coloring = new Viridis();
 
 			UpdateTracts();
 			UpdateMap(1);

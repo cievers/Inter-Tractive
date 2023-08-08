@@ -17,7 +17,7 @@ namespace Evaluation.Coloring {
 			);
 		}
 		
-		public IEnumerable<Color32> Color<T>(IEnumerable<Vector> measurements) {
+		public IEnumerable<Color32> Color(IEnumerable<Vector> measurements) {
 			throw new NotImplementedException();
 		}
 		public Dictionary<T, Color32> Color<T>(Dictionary<T, Vector> measurements) {

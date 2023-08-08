@@ -19,22 +19,20 @@ namespace Objects {
 		private readonly ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private readonly ConcurrentBag<Model> models;
 		private readonly ThreadedLattice grid;
-		private readonly TractMetric statistic;
-		private readonly Coloring coloring;
+		private readonly Evaluation.Evaluation evaluation;
 		private readonly int batch;
 		
 		private List<Cell> voxelDelta;
 		private Dictionary<Cell, HashSet<Tract>> voxels;
 		private Dictionary<Cell, Vector> statistics;
 		
-		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Vector>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, TractMetric statistic, Coloring coloring, int batch) {
+		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Vector>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, Evaluation.Evaluation evaluation, int batch) {
 			this.input = input;
 			this.measurements = measurements;
 			this.colors = colors;
 			this.models = models;
 			this.grid = grid;
-			this.statistic = statistic;
-			this.coloring = coloring;
+			this.evaluation = evaluation;
 			this.batch = batch;
 			
 			voxels = new Dictionary<Cell, HashSet<Tract>>();
@@ -55,11 +53,11 @@ namespace Objects {
 				}
 				if (voxelDelta.Count > 0) {
 					foreach (var cell in voxelDelta) {
-						statistics[cell] = statistic.Measure(voxels[cell]);
+						statistics[cell] = evaluation.Measure(voxels[cell]);
 					}
 
 					if (statistics.Count > 0) {
-						var measured = coloring.Color(statistics);
+						var measured = evaluation.Color(statistics);
 						measurements.Add(statistics);
 						colors.Add(measured);
 						models.Add(grid.Render(measured));

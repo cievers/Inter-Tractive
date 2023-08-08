@@ -36,8 +36,7 @@ namespace Objects {
 		private Thread renderThread;
 		
 		private Map map;
-		private TractMetric statistic;
-		private Coloring coloring;
+		private Evaluation.Evaluation evaluation;
 		private Dictionary<Cell, Vector> measurement;
 
 		protected override void New(string path) {
@@ -47,8 +46,7 @@ namespace Objects {
 			models = new ConcurrentBag<Model>();
 			
 			tractogram = Tck.Load(path);
-			statistic = new CompoundMetric(new TractMetric[] {new Density(), new Length()});
-			coloring = new Viridis();
+			evaluation = new Evaluation.Evaluation(new CompoundMetric(new TractMetric[] {new Density(), new Length()}), new Viridis());
 
 			UpdateTracts();
 			UpdateMap(1);
@@ -72,7 +70,7 @@ namespace Objects {
 		}
 		private void UpdateMap(float resolution) {
 			grid = new ThreadedLattice(tractogram, resolution, voxels);
-			renderer = new ThreadedRenderer(voxels, measurements, colors, models, grid, statistic, coloring, 4096);
+			renderer = new ThreadedRenderer(voxels, measurements, colors, models, grid, evaluation, 4096);
 
 			quantizeThread?.Abort();
 			renderThread?.Abort();

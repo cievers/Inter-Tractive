@@ -47,7 +47,7 @@ namespace Objects {
 			models = new ConcurrentBag<Model>();
 			
 			tractogram = Tck.Load(path);
-			statistic = new Length();
+			statistic = new CompoundMetric(new TractMetric[] {new Density(), new Length()});
 			coloring = new Viridis();
 
 			UpdateTracts();

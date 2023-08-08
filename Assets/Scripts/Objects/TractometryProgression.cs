@@ -46,7 +46,7 @@ namespace Objects {
 			models = new ConcurrentBag<Model>();
 			
 			tractogram = Tck.Load(path);
-			evaluation = new Evaluation.Evaluation(new CompoundMetric(new TractMetric[] {new Density(), new Length()}), new Viridis());
+			evaluation = new Evaluation.Evaluation(new CompoundMetric(new TractMetric[] {new Density(), new Length()}), new Rgb());
 
 			UpdateTracts();
 			UpdateMap(1);

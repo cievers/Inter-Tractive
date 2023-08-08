@@ -9,7 +9,7 @@ namespace Evaluation.Geometric {
 		public abstract string[] Units {get;}
 
 		public abstract Vector Measure(IEnumerable<Tract> tracts);
-		public Dictionary<Cell, Vector> Measure(Dictionary<Cell, IEnumerable<Tract>> tractogram) {
+		public virtual Dictionary<Cell, Vector> Measure(Dictionary<Cell, IEnumerable<Tract>> tractogram) {
 			return tractogram.ToDictionary(pair => pair.Key, pair => Measure(pair.Value));
 		}
 	}

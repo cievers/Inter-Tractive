@@ -3,26 +3,12 @@ using System.Linq;
 using Geometry.Tracts;
 
 namespace Evaluation.Geometric {
-	public class Length : TractMetric {
-		private readonly Dictionary<Tract, float> cache;
-
+	public class Length : CachedMetric {
 		public override int Dimensions => 1;
 		public override string[] Units => new[] {"mm"};
-
-		public Length() {
-			cache = new Dictionary<Tract, float>();
-		}
-		public override Vector Measure(IEnumerable<Tract> tracts) {
-			var array = tracts as Tract[] ?? tracts.ToArray();
-			var total = 0f;
-			foreach (var tract in array) {
-				if (!cache.TryGetValue(tract, out var length)) {
-					length = tract.Segments.Sum(segment => segment.Size.magnitude);
-					cache[tract] = length;
-				}
-				total += length;
-			}
-			return new Vector(total / array.Length);
+		
+		public override float Measure(Tract tract) {
+			return tract.Segments.Sum(segment => segment.Size.magnitude);
 		}
 		protected float MeasureImmediate(IEnumerable<Tract> tracts) {
 			var array = tracts as Tract[] ?? tracts.ToArray();

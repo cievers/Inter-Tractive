@@ -19,14 +19,14 @@ namespace Objects {
 		private readonly ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private readonly ConcurrentBag<Model> models;
 		private readonly ThreadedLattice grid;
-		private readonly Evaluation.Evaluation evaluation;
+		private readonly TractEvaluation evaluation;
 		private readonly int batch;
 		
 		private List<Cell> voxelDelta;
 		private Dictionary<Cell, HashSet<Tract>> voxels;
 		private Dictionary<Cell, Vector> statistics;
 		
-		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Vector>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, Evaluation.Evaluation evaluation, int batch) {
+		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Vector>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, Evaluation.TractEvaluation evaluation, int batch) {
 			this.input = input;
 			this.measurements = measurements;
 			this.colors = colors;

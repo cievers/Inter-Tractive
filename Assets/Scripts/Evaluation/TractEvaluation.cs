@@ -6,11 +6,11 @@ using Maps.Cells;
 using UnityEngine;
 
 namespace Evaluation {
-	public class Evaluation {
+	public class TractEvaluation {
 		public TractMetric Metric {get;}
 		public Coloring.Coloring Coloring {get;}
 
-		public Evaluation(TractMetric metric, Coloring.Coloring coloring) {
+		public TractEvaluation(TractMetric metric, Coloring.Coloring coloring) {
 			if (coloring.Dimensions.Item1 <= metric.Dimensions && metric.Dimensions <= coloring.Dimensions.Item2) {
 				Metric = metric;
 				Coloring = coloring;

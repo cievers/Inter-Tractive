@@ -36,7 +36,7 @@ namespace Objects {
 		private Thread renderThread;
 		
 		private Map map;
-		private Evaluation.Evaluation evaluation;
+		private Evaluation.TractEvaluation evaluation;
 		private Dictionary<Cell, Vector> measurement;
 
 		protected override void New(string path) {
@@ -46,7 +46,7 @@ namespace Objects {
 			models = new ConcurrentBag<Model>();
 			
 			tractogram = Tck.Load(path);
-			evaluation = new Evaluation.Evaluation(new CompoundMetric(new TractMetric[] {new Density(), new Length()}), new TransparentGrayscale());
+			evaluation = new Evaluation.TractEvaluation(new CompoundMetric(new TractMetric[] {new Density(), new Length()}), new TransparentGrayscale());
 
 			UpdateTracts();
 			UpdateMap(1);

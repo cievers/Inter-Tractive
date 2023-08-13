@@ -3,13 +3,15 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace Interface.Construction {
 	public class DropdownStack : MonoBehaviour {
-		public Transform container;
+		public RectTransform container;
 		public Stackable wrapper;
 		public TMP_Dropdown dropdown;
 		public List<TMP_Dropdown.OptionData> options;
+		public List<RectTransform> forceUpdates;
 		private List<Stackable> entries;
 
 		private IEnumerable<TMP_Dropdown> Dropdowns => entries.Select(entry => entry.Contained.GetComponent<TMP_Dropdown>());
@@ -18,6 +20,7 @@ namespace Interface.Construction {
 
 		private void Start() {
 			entries = new List<Stackable>();
+			ForceUpdates();
 		}
 
 		public void Add() {
@@ -26,10 +29,18 @@ namespace Interface.Construction {
 			var instance = Instantiate(dropdown, wrap.container);
 			instance.options = options;
 			entries.Add(wrap);
+			ForceUpdates();
 		}
 		private void Remove(Stackable entry) {
 			entries.Remove(entry);
 			Destroy(entry.gameObject);
+		}
+
+		private void ForceUpdates() {
+			// I hate this hack, or the fact that something like it is even needed
+			foreach (var element in forceUpdates) {
+				LayoutRebuilder.ForceRebuildLayoutImmediate(element);
+			}
 		}
 	}
 }

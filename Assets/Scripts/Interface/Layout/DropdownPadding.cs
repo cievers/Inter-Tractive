@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace Interface {
+namespace Interface.Layout {
 	public class DropdownPadding : MonoBehaviour {
 		public float vertical;
 

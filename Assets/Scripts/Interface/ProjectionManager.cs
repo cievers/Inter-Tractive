@@ -5,7 +5,7 @@ using UnityEngine;
 using Utility;
 
 namespace Interface {
-	public class SliceManager : MonoBehaviour {
+	public class ProjectionManager : MonoBehaviour {
 		public GameObject templateSlice;
 		public GameObject templateProjection;
 		private readonly Dictionary<Source, List<ArraySlice>> slices = new();

@@ -7,9 +7,9 @@ namespace Interface.Control {
 		public TextMeshProUGUI displayName;
 
 		private float value;
-		private Data.Stepper configuration;
+		private Data configuration;
 
-		public Stepper Construct(Transform parent, Data.Stepper stepper) {
+		public Stepper Construct(Transform parent, Data stepper) {
 			var instance = Instantiate(gameObject, parent);
 			var component = instance.GetComponent<Stepper>();
 
@@ -35,6 +35,15 @@ namespace Interface.Control {
 		protected void UpdateValue() {
 			UpdateDisplay(value);
 			configuration.Action?.Invoke(value);
+		}
+		
+		public record Data(string Name, float Interval, float Default, float Minimum, float Maximum, Action<float> Action) : Controller {
+			public string Name {get; private set;} = Name;
+			public float Interval {get; private set;} = Interval;
+			public float Default {get; private set;} = Default;
+			public float Minimum {get; private set;} = Minimum;
+			public float Maximum {get; private set;} = Maximum;
+			public Action<float> Action {get; private set;} = Action;
 		}
 	}
 }

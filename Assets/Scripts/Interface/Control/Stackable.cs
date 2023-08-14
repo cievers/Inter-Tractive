@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Interface.Construction {
+namespace Interface.Control {
 	public class Stackable : MonoBehaviour {
 		public Transform container;
 		public GameObject Contained => container.GetChild(0).gameObject;

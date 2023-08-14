@@ -2,10 +2,9 @@
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace Interface.Construction {
+namespace Interface.Control {
 	public class DropdownStack : MonoBehaviour {
 		public RectTransform container;
 		public Stackable wrapper;

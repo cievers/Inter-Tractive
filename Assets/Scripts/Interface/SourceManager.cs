@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Interface {
 	public class SourceManager : MonoBehaviour {
 		public GameObject template;
-		public SliceManager slices;
+		public ProjectionManager slices;
 		public new OrbitingCamera camera;
 
 		private readonly List<Source> sources = new();

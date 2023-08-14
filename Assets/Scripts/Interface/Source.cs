@@ -9,29 +9,25 @@ using SFB;
 using UnityEngine;
 
 using Geometry;
-using Interface.Control;
 using Maps.Cells;
 
 namespace Interface {
 	public class Source : MonoBehaviour {
 		public TextMeshProUGUI text;
-		public GameObject controls;
 		public Type[] types;
-		public ActionToggle toggle;
-		public Slider slider;
-		public DelayedSlider delayedSlider;
-		public SmoothStepper stepper;
+		public GameObject controls;
+		public ControlStyles styles;
 		
 		[Serializable]
 		public struct Type {
 			public string extension;
-			public SourceInstance template;
+			public Voxels template;
 		}
 
 		private string path;
 		private readonly List<Source> context = new();
-		private readonly Dictionary<string, SourceInstance> templates = new();
-		private SourceInstance instance;
+		private readonly Dictionary<string, Voxels> templates = new();
+		private Voxels instance;
 		
 		public void Awake() {
 			foreach (var type in types) {
@@ -65,20 +61,7 @@ namespace Interface {
 			UpdateName();
 
 			foreach (var data in instance.Controls()) {
-				switch (data) {
-					case Control.Data.Toggle toggleData:
-						toggle.Construct(controls.transform, toggleData);
-						break;
-					case Control.Data.DelayedSlider delayedSliderData:
-						delayedSlider.Construct(controls.transform, delayedSliderData);
-						break;
-					case Control.Data.Slider sliderData:
-						slider.Construct(controls.transform, sliderData);
-						break;
-					case Control.Data.Stepper stepperData:
-						stepper.Construct(controls.transform, stepperData);
-						break;
-				}
+				styles.Construct(controls.transform, data);
 			}
 		}
 		public void Write() {

@@ -10,7 +10,7 @@ namespace Interface.Control {
 		protected new string name;
 		protected Action<float> action;
 
-		public Slider Construct(Transform parent, Data.Slider slider) {
+		public Slider Construct(Transform parent, Data slider) {
 			var instance = Instantiate(gameObject, parent);
 			var component = instance.GetComponent<Slider>();
 
@@ -31,6 +31,14 @@ namespace Interface.Control {
 		protected void UpdateValue(float value) {
 			UpdateDisplay(value);
 			action?.Invoke(value);
+		}
+		
+		public record Data(string Name, float Default, float Minimum, float Maximum, Action<float> Action) : Controller {
+			public string Name {get; private set;} = Name;
+			public float Default {get; private set;} = Default;
+			public float Minimum {get; private set;} = Minimum;
+			public float Maximum {get; private set;} = Maximum;
+			public Action<float> Action {get; private set;} = Action;
 		}
 	}
 }

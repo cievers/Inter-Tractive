@@ -7,9 +7,9 @@ namespace Interface.Control {
 		public TextMeshProUGUI displayName;
 		public UnityEngine.UI.Slider slider;
 
-		private Data.Stepper configuration;
+		private Stepper.Data configuration;
 
-		public SmoothStepper Construct(Transform parent, Data.Stepper stepper) {
+		public SmoothStepper Construct(Transform parent, Stepper.Data stepper) {
 			var instance = Instantiate(gameObject, parent);
 			var component = instance.GetComponent<SmoothStepper>();
 

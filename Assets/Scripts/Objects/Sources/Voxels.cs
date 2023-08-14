@@ -2,18 +2,18 @@
 using Camera;
 using Files.Types;
 using Geometry;
-using Interface.Control.Data;
+using Interface.Control;
 using Maps.Cells;
 using Maps.Grids;
 using UnityEngine;
 
 namespace Objects.Sources {
-	public abstract class SourceInstance : MonoBehaviour {
+	public abstract class Voxels : MonoBehaviour {
 		private Focus focus;
 		
-		public SourceInstance Construct(string path) {
+		public Voxels Construct(string path) {
 			var instance = Instantiate(gameObject);
-			var source = instance.GetComponent<SourceInstance>();
+			var source = instance.GetComponent<Voxels>();
 			source.New(path);
 			return source;
 		}
@@ -22,8 +22,8 @@ namespace Objects.Sources {
 		public abstract Map Map();
 		public abstract Nii<float> Nifti();
 
-		public abstract IEnumerable<Configuration> Controls();
-		
+		public virtual IEnumerable<Controller> Controls() => new List<Controller>();
+
 		public delegate void SourceFocusedEvent(Focus focus);
 		public event SourceFocusedEvent Focused;
 		

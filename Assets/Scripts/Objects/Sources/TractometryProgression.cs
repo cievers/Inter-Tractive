@@ -6,23 +6,22 @@ using System.Threading;
 using Camera;
 using Evaluation;
 using Evaluation.Coloring;
-using Evaluation.Coloring.Gradients;
 using Evaluation.Geometric;
 using Files.Types;
 using Geometry;
 using Geometry.Generators;
 using Geometry.Tracts;
-using Interface.Control.Data;
+using Interface.Control;
 using Maps.Cells;
 using Maps.Grids;
 using Objects.Concurrent;
-using Objects.Sources;
 using UnityEngine;
 
-namespace Objects {
-	public class TractometryProgression : SourceInstance {
+namespace Objects.Sources {
+	public class TractometryProgression : Voxels {
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
+		public Interface.Control.Evaluation evaluator;
 
 		private Tractogram tractogram;
 		private ThreadedLattice grid;
@@ -36,7 +35,7 @@ namespace Objects {
 		private Thread renderThread;
 		
 		private Map map;
-		private Evaluation.TractEvaluation evaluation;
+		private TractEvaluation evaluation;
 		private Dictionary<Cell, Vector> measurement;
 
 		protected override void New(string path) {
@@ -46,7 +45,7 @@ namespace Objects {
 			models = new ConcurrentBag<Model>();
 			
 			tractogram = Tck.Load(path);
-			evaluation = new Evaluation.TractEvaluation(new CompoundMetric(new TractMetric[] {new Density(), new Length()}), new TransparentGrayscale());
+			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Density(), new Length()}), new TransparentGrayscale());
 
 			UpdateTracts();
 			UpdateMap(1);
@@ -114,12 +113,12 @@ namespace Objects {
 			}
 			return result;
 		}
-
-		public override IEnumerable<Configuration> Controls() {
-			return new Configuration[] {
-				new Toggle("Tracts", true, tractogramMesh.gameObject.SetActive),
-				new Toggle("Map", true, gridMesh.gameObject.SetActive),
-				new DelayedSlider("Resolution", 1, 0.1f, 10, 0.1f, UpdateMap)
+		
+		public override IEnumerable<Controller> Controls() {
+			return new Controller[] {
+				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
+				new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
+				new DelayedSlider.Data("Resolution", 1, 0.1f, 10, 0.1f, UpdateMap)
 			};
 		}
 	}

@@ -1,5 +1,4 @@
 ﻿using System;
-using Interface.Control.Data;
 using TMPro;
 using UnityEngine;
 
@@ -23,7 +22,7 @@ namespace Interface.Control {
 			
 			return component;
 		}
-		public ActionToggle Construct(Transform parent, Toggle toggle) {
+		public ActionToggle Construct(Transform parent, Data toggle) {
 			return Construct(parent, toggle.Name, toggle.State, toggle.Action);
 		}
 
@@ -38,6 +37,12 @@ namespace Interface.Control {
 			action?.Invoke(state);
 			displayTrue.SetActive(state);
 			displayFalse.SetActive(!state);
+		}
+		
+		public record Data(string Name, bool State, Action<bool> Action) : Controller {
+			public string Name {get; private set;} = Name;
+			public bool State {get; private set;} = State;
+			public Action<bool> Action {get; private set;} = Action;
 		}
 	}
 }

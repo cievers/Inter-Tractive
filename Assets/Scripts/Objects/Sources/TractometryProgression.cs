@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+
 using Camera;
 using Evaluation;
 using Evaluation.Coloring;
@@ -21,7 +22,6 @@ namespace Objects.Sources {
 	public class TractometryProgression : Voxels {
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
-		public Interface.Control.Evaluation evaluator;
 
 		private Tractogram tractogram;
 		private ThreadedLattice grid;
@@ -118,7 +118,8 @@ namespace Objects.Sources {
 			return new Controller[] {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
-				new DelayedSlider.Data("Resolution", 1, 0.1f, 10, 0.1f, UpdateMap)
+				new DelayedSlider.Data("Resolution", 1, 0.1f, 10, 0.1f, UpdateMap),
+				new Interface.Control.Evaluation.Data()
 			};
 		}
 	}

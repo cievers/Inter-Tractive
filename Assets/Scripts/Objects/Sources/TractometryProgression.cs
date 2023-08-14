@@ -67,6 +67,10 @@ namespace Objects.Sources {
 		private void UpdateTracts() {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
 		}
+		private void UpdateEvaluation(TractEvaluation evaluation) {
+			this.evaluation = evaluation;
+			UpdateMap(grid.Resolution);
+		}
 		private void UpdateMap(float resolution) {
 			grid = new ThreadedLattice(tractogram, resolution, voxels);
 			renderer = new ThreadedRenderer(voxels, measurements, colors, models, grid, evaluation, 4096);
@@ -119,7 +123,7 @@ namespace Objects.Sources {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
 				new DelayedSlider.Data("Resolution", 1, 0.1f, 10, 0.1f, UpdateMap),
-				new Interface.Control.Evaluation.Data()
+				new Interface.Control.Evaluation.Data(UpdateEvaluation)
 			};
 		}
 	}

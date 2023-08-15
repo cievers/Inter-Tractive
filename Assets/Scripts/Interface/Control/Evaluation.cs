@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Evaluation;
 using Evaluation.Coloring;
+using Evaluation.Coloring.Gradients;
 using Evaluation.Geometric;
 using TMPro;
 using UnityEngine;
@@ -55,7 +56,10 @@ namespace Interface.Control {
 			public readonly Action<TractEvaluation> update;
 			public readonly Dictionary<string, Coloring> colorings = new() {
 				{"Grayscale", new Grayscale()},
-				{"Transparent grayscale", new TransparentGrayscale()},
+				{"Temperature", new Temperature()},
+				{"Plasma", new Plasma()},
+				{"Viridis", new Viridis()},
+				// {"Transparent grayscale", new TransparentGrayscale()},
 				{"RGB", new Rgb()}
 			};
 			public readonly Dictionary<string, Func<TractMetric>> measurements = new() {

@@ -34,6 +34,7 @@ namespace Interface.Control {
 		private void Remove(Stackable entry) {
 			entries.Remove(entry);
 			Destroy(entry.gameObject);
+			ForceUpdates();
 		}
 
 		private void Configure() {

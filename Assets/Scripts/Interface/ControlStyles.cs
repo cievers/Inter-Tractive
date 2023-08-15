@@ -11,7 +11,7 @@ namespace Interface {
 		public SmoothStepper stepper;
 		public Control.Evaluation evaluation;
 
-		public void Construct(Transform parent, Controller data) {
+		public void Construct(RectTransform parent, Controller data) {
 			switch (data) {
 				case ActionToggle.Data toggleData:
 					toggle.Construct(parent, toggleData);

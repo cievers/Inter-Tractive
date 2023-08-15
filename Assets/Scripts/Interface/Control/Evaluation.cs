@@ -14,7 +14,7 @@ namespace Interface.Control {
 
 		public Data data;
 
-		public Evaluation Construct(Transform parent, Data data) {
+		public Evaluation Construct(RectTransform parent, Data data) {
 			var instance = Instantiate(this, parent);
 
 			instance.data = data;
@@ -23,6 +23,7 @@ namespace Interface.Control {
 			
 			instance.coloring.onValueChanged.AddListener(_ => instance.Invoke());
 			instance.dimensions.Configured += _ => instance.Invoke();
+			instance.dimensions.forceUpdates.Add(parent);
 			
 			instance.dimensions.Add();
 			

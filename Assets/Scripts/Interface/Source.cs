@@ -15,7 +15,7 @@ namespace Interface {
 	public class Source : MonoBehaviour {
 		public TextMeshProUGUI text;
 		public Type[] types;
-		public GameObject controls;
+		public RectTransform controls;
 		public ControlStyles styles;
 		
 		[Serializable]
@@ -61,7 +61,7 @@ namespace Interface {
 			UpdateName();
 
 			foreach (var data in instance.Controls()) {
-				styles.Construct(controls.transform, data);
+				styles.Construct(controls, data);
 			}
 		}
 		public void Write() {

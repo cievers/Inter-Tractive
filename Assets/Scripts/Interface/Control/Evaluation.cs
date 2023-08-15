@@ -11,6 +11,7 @@ namespace Interface.Control {
 	public class Evaluation : MonoBehaviour {
 		public DropdownStack dimensions;
 		public TMP_Dropdown coloring;
+		public GameObject error;
 
 		public Data data;
 
@@ -31,7 +32,12 @@ namespace Interface.Control {
 		}
 
 		private void Invoke() {
-			data.update.Invoke(Evaluate());
+			try {
+				data.update.Invoke(Evaluate());
+				error.SetActive(false);
+			} catch (ArgumentOutOfRangeException) {
+				error.SetActive(true);
+			}
 		}
 		private TractEvaluation Evaluate() {
 			return new TractEvaluation(

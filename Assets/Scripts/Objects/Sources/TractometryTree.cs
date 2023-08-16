@@ -89,7 +89,7 @@ namespace Objects.Sources {
 			return result;
 		}
 
-		public override IEnumerable<Controller> Controls() {
+		public override IEnumerable<Interface.Component> Controls() {
 			return new Controller[] {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),

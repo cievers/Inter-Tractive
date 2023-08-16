@@ -2,9 +2,7 @@
 using Camera;
 using Files.Types;
 using Geometry;
-using Interface.Control;
 using Maps.Cells;
-using Maps.Grids;
 using UnityEngine;
 
 namespace Objects.Sources {
@@ -22,7 +20,7 @@ namespace Objects.Sources {
 		public abstract Map Map();
 		public abstract Nii<float> Nifti();
 
-		public virtual IEnumerable<Controller> Controls() => new List<Controller>();
+		public virtual IEnumerable<Interface.Component> Controls() => new List<Interface.Component>();
 
 		public delegate void SourceFocusedEvent(Focus focus);
 		public event SourceFocusedEvent Focused;

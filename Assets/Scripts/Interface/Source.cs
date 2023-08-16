@@ -16,7 +16,7 @@ namespace Interface {
 		public TextMeshProUGUI text;
 		public Type[] types;
 		public RectTransform controls;
-		public ControlStyles styles;
+		public Theming styles;
 		
 		[Serializable]
 		public struct Type {

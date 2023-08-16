@@ -44,6 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 584a23fa4eb7460482f2a4dcd7a4e851, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  description: {fileID: 0}
+  divider: {fileID: -5745153181373567781, guid: 22970256a129eae4cbef3d3b03899eb1, type: 3}
   toggle: {fileID: 6920744148939201583, guid: 8cec65452a016914c8f9d61dffad6cee, type: 3}
   slider: {fileID: 9100611682966551760, guid: e80ccac4fadf60643a1e40944bc06f36, type: 3}
   delayedSlider: {fileID: -2421445197905774487, guid: 8ab597472a20272459a2c0e0139cd93e, type: 3}

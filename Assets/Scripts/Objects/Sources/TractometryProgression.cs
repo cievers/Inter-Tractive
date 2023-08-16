@@ -12,6 +12,7 @@ using Files.Types;
 using Geometry;
 using Geometry.Generators;
 using Geometry.Tracts;
+using Interface.Content;
 using Interface.Control;
 using Maps.Cells;
 using Maps.Grids;
@@ -118,12 +119,15 @@ namespace Objects.Sources {
 			return result;
 		}
 		
-		public override IEnumerable<Controller> Controls() {
-			return new Controller[] {
+		public override IEnumerable<Interface.Component> Controls() {
+			return new Interface.Component[] {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
+				new Divider.Data(),
+				new Interface.Control.Evaluation.Data(UpdateEvaluation),
+				new Divider.Data(),
 				new DelayedSlider.Data("Resolution", 1, 0.1f, 10, 0.1f, UpdateMap),
-				new Interface.Control.Evaluation.Data(UpdateEvaluation)
+				new Divider.Data()
 			};
 		}
 	}

@@ -11,6 +11,7 @@ namespace Interface {
 		
 		public ActionToggle toggle;
 		public Slider slider;
+		public TransformedSlider transformedSlider;
 		public SmoothStepper stepper;
 		public Control.Evaluation evaluation;
 
@@ -24,6 +25,9 @@ namespace Interface {
 					break;
 				case ActionToggle.Data toggleData:
 					toggle.Construct(parent, toggleData);
+					break;
+				case TransformedSlider.Data sliderData:
+					transformedSlider.Construct(parent, sliderData);
 					break;
 				case Slider.Data sliderData:
 					slider.Construct(parent, sliderData);

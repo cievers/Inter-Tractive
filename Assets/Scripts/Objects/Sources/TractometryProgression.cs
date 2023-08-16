@@ -140,7 +140,7 @@ namespace Objects.Sources {
 				new Divider.Data(),
 				new Interface.Control.Evaluation.Data(UpdateEvaluation),
 				new Divider.Data(),
-				new Slider.Data("Resolution", resolution, 0.1f, 10, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
+				new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
 				// new Slider.Data("Batch size", batch, 10, 1000000, new ValueChangeBuffer<float>(0.1f, UpdateBatch).Request),
 				new Divider.Data()
 			};

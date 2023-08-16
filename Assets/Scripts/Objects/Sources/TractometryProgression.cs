@@ -34,9 +34,12 @@ namespace Objects.Sources {
 
 		private Thread quantizeThread;
 		private Thread renderThread;
+
+		private float resolution = 1;
+		private int batch = 4096;
+		private TractEvaluation evaluation;
 		
 		private Map map;
-		private TractEvaluation evaluation;
 		private Dictionary<Cell, Vector> measurement;
 
 		protected override void New(string path) {
@@ -46,10 +49,10 @@ namespace Objects.Sources {
 			models = new ConcurrentBag<Model>();
 			
 			tractogram = Tck.Load(path);
-			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Density(), new Length()}), new TransparentGrayscale());
+			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());
 
 			UpdateTracts();
-			UpdateMap(1);
+			UpdateMap();
 			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
 		}
 
@@ -70,11 +73,22 @@ namespace Objects.Sources {
 		}
 		private void UpdateEvaluation(TractEvaluation evaluation) {
 			this.evaluation = evaluation;
-			UpdateMap(grid.Resolution);
+			UpdateMap();
 		}
-		private void UpdateMap(float resolution) {
+		private void UpdateResolution(float resolution) {
+			this.resolution = resolution;
+			UpdateMap();
+		}
+		private void UpdateBatch(int batch) {
+			this.batch = batch;
+			UpdateMap();
+		}
+		private void UpdateBatch(float batch) {
+			UpdateBatch((int) Math.Round(batch));
+		}
+		private void UpdateMap() {
 			grid = new ThreadedLattice(tractogram, resolution, voxels);
-			renderer = new ThreadedRenderer(voxels, measurements, colors, models, grid, evaluation, 4096);
+			renderer = new ThreadedRenderer(voxels, measurements, colors, models, grid, evaluation, batch);
 
 			quantizeThread?.Abort();
 			renderThread?.Abort();
@@ -126,7 +140,8 @@ namespace Objects.Sources {
 				new Divider.Data(),
 				new Interface.Control.Evaluation.Data(UpdateEvaluation),
 				new Divider.Data(),
-				new DelayedSlider.Data("Resolution", 1, 0.1f, 10, 0.1f, UpdateMap),
+				new DelayedSlider.Data("Resolution", resolution, 0.1f, 10, 0.1f, UpdateResolution),
+				// new DelayedSlider.Data("Batch size", batch, 10, 1000000, 0.1f, UpdateBatch),
 				new Divider.Data()
 			};
 		}

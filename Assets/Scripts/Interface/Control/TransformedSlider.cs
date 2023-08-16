@@ -30,11 +30,11 @@ namespace Interface.Control {
 			public Func<float, float> Transformation {get;} = Transformation;
 		}
 		public record Exponential : Data {
-			public Exponential(string Name, int root, float Default, float Minimum, float Maximum, Action<float> Action) : base(
-				Name, 
-				(Default - Minimum) / (Maximum - Minimum), 
-				value => (float) Math.Pow(root, value * (Maximum - Minimum) + Minimum), 
-				Action
+			public Exponential(string name, int root, float @default, float minimum, float maximum, Action<float> action) : base(
+				name, 
+				(@default - minimum) / (maximum - minimum), 
+				value => (float) Math.Pow(root, value * (maximum - minimum) + minimum), 
+				action
 			) {}
 		}
 	}

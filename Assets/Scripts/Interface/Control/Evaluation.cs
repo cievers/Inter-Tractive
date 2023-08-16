@@ -66,7 +66,8 @@ namespace Interface.Control {
 				{"Density", () => new Density()}, 
 				{"Length", () => new Length()}, 
 				{"Span", () => new Span()},
-				{"Curl", () => new Curl()}
+				{"Curl", () => new Curl()},
+				{"Roughness", () => new Roughness()}
 			};
 
 			public Data(Action<TractEvaluation> update) {

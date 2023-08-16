@@ -6,8 +6,8 @@ using UnityEngine;
 namespace Evaluation.Coloring {
 	public class Rgb : Coloring {
 		private const byte COLORIZE_TRANSPARENCY = 200;
-		
-		private byte ChannelDefault {get;}
+
+		protected byte ChannelDefault {get;}
 		public override Tuple<int, int> Dimensions => new(1, 3);
 
 		public Rgb(byte channelDefault=0) {
@@ -18,22 +18,15 @@ namespace Evaluation.Coloring {
 			throw new NotImplementedException();
 		}
 		public override Dictionary<T, Color32> Color<T>(Dictionary<T, Vector> measurements) {
-			var r = ReadChannel(measurements, 0);
-			var g = ReadChannel(measurements, 1);
-			var b = ReadChannel(measurements, 2);
+			var r = ReadNormalized(measurements, 0, ChannelDefault);
+			var g = ReadNormalized(measurements, 1, ChannelDefault);
+			var b = ReadNormalized(measurements, 2, ChannelDefault);
 			return measurements.ToDictionary(pair => pair.Key, pair => new Color32(
 				r[pair.Key], 
 				g[pair.Key], 
 				b[pair.Key], 
 				COLORIZE_TRANSPARENCY
 			));
-		}
-		protected Dictionary<T, byte> ReadChannel<T>(Dictionary<T, Vector> measurements, int channel) {
-			try {
-				return ReadNormalized(measurements, channel);
-			} catch {
-				return measurements.ToDictionary(pair => pair.Key, _ => ChannelDefault);
-			}
 		}
 	}
 }

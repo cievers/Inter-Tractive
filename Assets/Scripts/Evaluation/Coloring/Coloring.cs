@@ -13,10 +13,24 @@ namespace Evaluation.Coloring {
 		protected virtual Dictionary<T, float> Read<T>(Dictionary<T, Vector> measurements, int dimension) {
 			return measurements.ToDictionary(measurement => measurement.Key, measurement => measurement.Value[dimension]);
 		}
+		protected virtual Dictionary<T, float> Read<T>(Dictionary<T, Vector> measurements, int dimension, float @default) {
+			try {
+				return Read(measurements, dimension);
+			} catch {
+				return measurements.ToDictionary(pair => pair.Key, _ => @default);
+			}
+		}
 		protected virtual Dictionary<T, byte> ReadNormalized<T>(Dictionary<T, Vector> measurements, int dimension) {
 			var floats = Read(measurements, dimension);
 			var limit = floats.Values.Max();
 			return floats.ToDictionary(pair => pair.Key, pair => (byte) (pair.Value / limit * 255));
+		}
+		protected virtual Dictionary<T, byte> ReadNormalized<T>(Dictionary<T, Vector> measurements, int dimension, byte @default) {
+			try {
+				return ReadNormalized(measurements, dimension);
+			} catch {
+				return measurements.ToDictionary(pair => pair.Key, _ => @default);
+			}
 		}
 	}
 }

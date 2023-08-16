@@ -77,7 +77,7 @@ namespace Objects.Sources {
 			return new Controller[] {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
-				new DelayedSlider.Data("Resolution", 1, 0.1f, 10, 1, UpdateVoxels)
+				new Slider.Data("Resolution", 1, 0.1f, 10, UpdateVoxels)
 			};
 		}
 	}

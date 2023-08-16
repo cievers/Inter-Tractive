@@ -140,8 +140,8 @@ namespace Objects.Sources {
 				new Divider.Data(),
 				new Interface.Control.Evaluation.Data(UpdateEvaluation),
 				new Divider.Data(),
-				new DelayedSlider.Data("Resolution", resolution, 0.1f, 10, 0.1f, UpdateResolution),
-				// new DelayedSlider.Data("Batch size", batch, 10, 1000000, 0.1f, UpdateBatch),
+				new Slider.Data("Resolution", resolution, 0.1f, 10, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
+				// new Slider.Data("Batch size", batch, 10, 1000000, new ValueChangeBuffer<float>(0.1f, UpdateBatch).Request),
 				new Divider.Data()
 			};
 		}

@@ -94,7 +94,7 @@ namespace Objects.Sources {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
 				// new Stepper.Data("Resolution", 1, 0, 0, 10, UpdateScale)
-				new DelayedSlider.Data("Resolution", 0, 0, 10, 1, UpdateScale)
+				new Slider.Data("Resolution", 0, 0, 10, UpdateScale)
 			};
 		}
 	}

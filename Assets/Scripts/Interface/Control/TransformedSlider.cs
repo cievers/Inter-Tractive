@@ -15,7 +15,7 @@ namespace Interface.Control {
 			instance.slider.maxValue = slider.Maximum;
 			instance.slider.value = slider.Default;
 			instance.slider.onValueChanged.AddListener(instance.UpdateValue);
-			instance.UpdateDisplay(slider.Default);
+			instance.UpdateDisplay(instance.transformation.Invoke(slider.Default));
 
 			return instance;
 		}

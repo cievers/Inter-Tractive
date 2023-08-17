@@ -149,7 +149,7 @@ namespace Objects.Sources {
 				new Interface.Control.Evaluation.Data(UpdateEvaluation),
 				new Divider.Data(),
 				new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
-				new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, new ValueChangeBuffer<float>(0.1f, UpdateBatch).Request),
+				new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, UpdateBatch),
 				new Divider.Data()
 			};
 		}

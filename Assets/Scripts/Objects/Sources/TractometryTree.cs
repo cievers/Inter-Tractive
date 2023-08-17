@@ -38,7 +38,7 @@ namespace Objects.Sources {
 			UpdateTracts();
 			UpdateVoxels();
 			Focus(new Focus(layers[depth].Boundaries.Center, layers[depth].Boundaries.Size.magnitude / 2 * 1.5f));
-
+			Loading(true);
 		}
 
 		private void UpdateTracts() {

@@ -13,8 +13,6 @@ using UnityEngine;
 
 namespace Objects.Sources {
 	public class TractometryMap : Voxels {
-		private const byte COLORIZE_TRANSPARENCY = 200;
-		
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
 
@@ -29,6 +27,7 @@ namespace Objects.Sources {
 
 			UpdateTracts();
 			UpdateVoxels(1);
+			Loading(true);
 		}
 
 		private void UpdateTracts() {

@@ -5,6 +5,7 @@ namespace Objects.Concurrent {
 		public bool IsCompleted {get; private set;}
 		
 		public void Restart() {
+			// This should probably clear out any remaining queue
 			IsCompleted = false;
 		}
 		public void Complete() {

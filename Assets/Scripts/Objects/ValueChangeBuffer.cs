@@ -14,6 +14,8 @@ namespace Objects {
 		}
 
 		private void Propagate(object source, ElapsedEventArgs e) {
+			// TODO: Errors that occur as a result of this call are silently ignored.
+			// Because this will always be called from a separate timer thread, all Unity game object interactions will fail
 			update.Invoke(buffer);
 		}
 		public void Request(T value) {

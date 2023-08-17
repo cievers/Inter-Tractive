@@ -15,6 +15,7 @@ namespace Interface {
 	public class Source : MonoBehaviour {
 		public TextMeshProUGUI text;
 		public Type[] types;
+		public GameObject loading;
 		public RectTransform controls;
 		public Theming styles;
 		
@@ -25,6 +26,7 @@ namespace Interface {
 		}
 
 		private string path;
+		private bool loaded;
 		private readonly List<Source> context = new();
 		private readonly Dictionary<string, Voxels> templates = new();
 		private Voxels instance;
@@ -39,6 +41,9 @@ namespace Interface {
 			if (path == null) {
 				DestroyImmediate(gameObject);
 			}
+		}
+		private void Update() {
+			loading.SetActive(!loaded);
 		}
 		private void Browse() {
 			// var properties = new BrowserProperties {filter = "Tract files (*.tck) | *.tck", filterIndex = 0};
@@ -57,6 +62,7 @@ namespace Interface {
 			}
 
 			instance.Focused += focus => Focused?.Invoke(focus);
+			instance.Loaded += loaded => this.loaded = loaded;
 			instance.Configured += (cells, values, resolution, boundaries) => Configured?.Invoke(cells, values, resolution, boundaries);
 			UpdateName();
 

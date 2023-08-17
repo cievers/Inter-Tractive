@@ -22,9 +22,14 @@ namespace Objects.Sources {
 
 		public virtual IEnumerable<Interface.Component> Controls() => new List<Interface.Component>();
 
+		public delegate void SourceLoadedEvent(bool loaded);
+		public event SourceLoadedEvent Loaded;
+		public void Loading(bool done) {
+			Loaded?.Invoke(done);
+		}
+
 		public delegate void SourceFocusedEvent(Focus focus);
 		public event SourceFocusedEvent Focused;
-		
 		public void Focus(Focus focus) {
 			this.focus = focus;
 			Focus();
@@ -35,7 +40,6 @@ namespace Objects.Sources {
 		
 		public delegate void SourceConfiguredEvent(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries);
 		public event SourceConfiguredEvent Configured;
-		
 		public void Configure(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries) {
 			Configured?.Invoke(cells, values, resolution, boundaries);
 		}

@@ -17,7 +17,7 @@ namespace Objects {
 		private readonly ConcurrentPipe<Tuple<Cell, Tract>> input;
 		private readonly ConcurrentBag<Dictionary<Cell, Vector>> measurements;
 		private readonly ConcurrentBag<Dictionary<Cell, Color32>> colors;
-		private readonly ConcurrentBag<Model> models;
+		private readonly ConcurrentPipe<Model> models;
 		private readonly ThreadedLattice grid;
 		private TractEvaluation evaluation;
 		private int batch;
@@ -26,7 +26,7 @@ namespace Objects {
 		private Dictionary<Cell, HashSet<Tract>> voxels;
 		private Dictionary<Cell, Vector> statistics;
 		
-		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Vector>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, TractEvaluation evaluation, int batch) {
+		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Vector>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentPipe<Model> models, ThreadedLattice grid, TractEvaluation evaluation, int batch) {
 			this.input = input;
 			this.measurements = measurements;
 			this.colors = colors;
@@ -54,6 +54,9 @@ namespace Objects {
 				if (voxelDelta.Count > 0) {
 					Measure(voxelDelta);
 					Publish();
+				}
+				if (input.IsCompleted) {
+					models.Complete();
 				}
 			}
 		}

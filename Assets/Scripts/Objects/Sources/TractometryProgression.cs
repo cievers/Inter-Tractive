@@ -30,7 +30,7 @@ namespace Objects.Sources {
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
-		private ConcurrentBag<Model> models;
+		private ConcurrentPipe<Model> models;
 
 		private Thread quantizeThread;
 		private Thread renderThread;
@@ -46,7 +46,7 @@ namespace Objects.Sources {
 			voxels = new ConcurrentPipe<Tuple<Cell, Tract>>();
 			measurements = new ConcurrentBag<Dictionary<Cell, Vector>>();
 			colors = new ConcurrentBag<Dictionary<Cell, Color32>>();
-			models = new ConcurrentBag<Model>();
+			models = new ConcurrentPipe<Model>();
 			
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());
@@ -66,6 +66,10 @@ namespace Objects.Sources {
 			}
 			if (models.TryTake(out var model)) {
 				gridMesh.mesh = model.Mesh();
+				
+				if (models.IsCompleted && models.IsEmpty) {
+					Loading(true);
+				}
 			}
 		}
 		private void UpdateTracts() {
@@ -88,6 +92,9 @@ namespace Objects.Sources {
 			UpdateBatch((int) Math.Round(batch));
 		}
 		private void UpdateMap() {
+			Loading(false);
+			voxels.Restart();
+			models.Restart();
 			grid = new ThreadedLattice(tractogram, resolution, voxels);
 			renderer = new ThreadedRenderer(voxels, measurements, colors, models, grid, evaluation, batch);
 
@@ -142,7 +149,7 @@ namespace Objects.Sources {
 				new Interface.Control.Evaluation.Data(UpdateEvaluation),
 				new Divider.Data(),
 				new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
-				new TransformedSlider.Exponential("Batch size", 2, 12, 1, 30, new ValueChangeBuffer<float>(0.1f, UpdateBatch).Request),
+				new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, new ValueChangeBuffer<float>(0.1f, UpdateBatch).Request),
 				new Divider.Data()
 			};
 		}

@@ -73,7 +73,8 @@ namespace Objects.Sources {
 		}
 		private void UpdateEvaluation(TractEvaluation evaluation) {
 			this.evaluation = evaluation;
-			UpdateMap();
+			// UpdateMap();
+			renderer.Evaluate(evaluation);
 		}
 		private void UpdateResolution(float resolution) {
 			this.resolution = resolution;
@@ -81,7 +82,7 @@ namespace Objects.Sources {
 		}
 		private void UpdateBatch(int batch) {
 			this.batch = batch;
-			UpdateMap();
+			renderer.Batch(batch);
 		}
 		private void UpdateBatch(float batch) {
 			UpdateBatch((int) Math.Round(batch));
@@ -141,7 +142,7 @@ namespace Objects.Sources {
 				new Interface.Control.Evaluation.Data(UpdateEvaluation),
 				new Divider.Data(),
 				new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
-				// new Slider.Data("Batch size", batch, 10, 1000000, new ValueChangeBuffer<float>(0.1f, UpdateBatch).Request),
+				new TransformedSlider.Exponential("Batch size", 2, 12, 1, 30, new ValueChangeBuffer<float>(0.1f, UpdateBatch).Request),
 				new Divider.Data()
 			};
 		}

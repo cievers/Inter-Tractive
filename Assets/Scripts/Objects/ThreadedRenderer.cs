@@ -19,14 +19,14 @@ namespace Objects {
 		private readonly ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private readonly ConcurrentBag<Model> models;
 		private readonly ThreadedLattice grid;
-		private readonly TractEvaluation evaluation;
-		private readonly int batch;
+		private TractEvaluation evaluation;
+		private int batch;
 		
 		private List<Cell> voxelDelta;
 		private Dictionary<Cell, HashSet<Tract>> voxels;
 		private Dictionary<Cell, Vector> statistics;
 		
-		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Vector>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, Evaluation.TractEvaluation evaluation, int batch) {
+		public ThreadedRenderer(ConcurrentPipe<Tuple<Cell, Tract>> input, ConcurrentBag<Dictionary<Cell, Vector>> measurements, ConcurrentBag<Dictionary<Cell, Color32>> colors, ConcurrentBag<Model> models, ThreadedLattice grid, TractEvaluation evaluation, int batch) {
 			this.input = input;
 			this.measurements = measurements;
 			this.colors = colors;
@@ -52,18 +52,35 @@ namespace Objects {
 					}
 				}
 				if (voxelDelta.Count > 0) {
-					foreach (var cell in voxelDelta) {
-						statistics[cell] = evaluation.Measure(voxels[cell]);
-					}
-
-					if (statistics.Count > 0) {
-						var measured = evaluation.Color(statistics);
-						measurements.Add(statistics);
-						colors.Add(measured);
-						models.Add(grid.Render(measured));
-					}
+					Measure(voxelDelta);
+					Publish();
 				}
 			}
+		}
+		private void Measure() {
+			Measure(voxels.Keys.ToList());
+		}
+		private void Measure(IEnumerable<Cell> delta) {
+			foreach (var cell in delta) {
+				statistics[cell] = evaluation.Measure(voxels[cell]);
+			}
+		}
+		private void Publish() {
+			if (statistics.Count > 0) {
+				var copy = new Dictionary<Cell, Vector>(statistics); // This publish call can run from the main thread when the evaluation was changed, but rendering is still running
+				var measured = evaluation.Color(copy);
+				measurements.Add(copy);
+				colors.Add(measured);
+				models.Add(grid.Render(measured));
+			}
+		}
+		public void Evaluate(TractEvaluation evaluation) {
+			this.evaluation = evaluation;
+			Measure();
+			Publish();
+		}
+		public void Batch(int batch) {
+			this.batch = batch;
 		}
 
 		private T[] ToArray<T>(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, T> values, T fill) {

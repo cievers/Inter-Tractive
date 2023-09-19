@@ -146,10 +146,14 @@ namespace Objects.Sources {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
 				new Divider.Data(),
-				new Interface.Control.Evaluation.Data(UpdateEvaluation),
+				new Folder.Data("Measuring & coloring", new List<Controller> {
+					new Interface.Control.Evaluation.Data(UpdateEvaluation),
+				}),
 				new Divider.Data(),
-				new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
-				new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, (_, transformed) => ((int) transformed).ToString(), UpdateBatch),
+				new Folder.Data("Rendering", new List<Controller> {
+					new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
+					new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, (_, transformed) => ((int) transformed).ToString(), UpdateBatch),
+				}),
 				new Divider.Data()
 			};
 		}

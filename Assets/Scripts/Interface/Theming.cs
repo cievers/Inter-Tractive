@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Interface {
 	// This sounds like something Unity's scriptable objects are the intended solution for, if I know how they worked
 	public class Theming : MonoBehaviour {
+		public Folder folder;
 		public Description description;
 		public Divider divider;
 		
@@ -17,6 +18,9 @@ namespace Interface {
 
 		public void Construct(RectTransform parent, Component data) {
 			switch (data) {
+				case Folder.Data folderData:
+					folder.Construct(parent, folderData, this);
+					break;
 				case Description.Data descriptionData:
 					description.Construct(parent, descriptionData);
 					break;

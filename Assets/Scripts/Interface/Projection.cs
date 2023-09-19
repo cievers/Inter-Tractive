@@ -38,8 +38,14 @@ namespace Interface {
 		private void Invoke() {
 			Update?.Invoke(axis, t);
 		}
+		public void Close() {
+			Closed?.Invoke();
+		}
 
 		public delegate void ProjectionUpdate(Axis axis, float t);
 		public event ProjectionUpdate Update;
+		
+		public delegate void ProjectionClose();
+		public event ProjectionClose Closed;
 	}
 }

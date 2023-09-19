@@ -23,6 +23,7 @@ namespace Interface {
 			slices[source].Add(slice);
 			projections.Add(slice, image);
 			image.Update += slice.Update;
+			image.Closed += () => Remove(source, slice);
 			source.Configured += slice.Initialize;
 			slice.Draw += image.Project;
 			
@@ -33,12 +34,19 @@ namespace Interface {
 		public void Remove(Source source) {
 			if (slices.ContainsKey(source)) {
 				foreach (var slice in slices[source]) {
-					Destroy(projections[slice].gameObject);
-					Destroy(slice.gameObject);
-					projections.Remove(slice);
+					// Destroy(projections[slice].gameObject);
+					// Destroy(slice.gameObject);
+					// projections.Remove(slice);
+					Remove(source, slice);
 				}
 				slices.Remove(source);
 			}
+		}
+		public void Remove(Source source, ArraySlice slice) {
+			Destroy(projections[slice].gameObject);
+			Destroy(slice.gameObject);
+			projections.Remove(slice);
+			source.Configured -= slice.Initialize;
 		}
 	}
 }

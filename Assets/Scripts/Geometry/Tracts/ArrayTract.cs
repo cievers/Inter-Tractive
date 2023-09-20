@@ -37,42 +37,18 @@ namespace Geometry.Tracts {
 			var segments = Segments.ToArray();
 			var length = segments.Sum(segment => segment.Size.magnitude);
 			var interval = length / (samples - 1);
-			
-			Debug.Log("Resampling tract from "+points.Length+" to "+samples+" points");
-			Debug.Log(length);
-			Debug.Log(interval);
-
-			// var traversed = 0.0;
-			// var sampled = 0;
-			// foreach (var segment in segments) {
-			// 	var size = segment.Size;
-			// 	while (sampled * interval <= traversed + size.magnitude) {
-			// 		result[sampled] = segment.Start + size * ((float) (sampled * interval - traversed) / size.magnitude);
-			// 		sampled++;
-			// 	}
-			// 	traversed += size.magnitude;
-			// }
-			// Debug.Log(sampled);
 
 			var traversed = 0f;
 			var segment = 0;
 			var size = segments[segment].Size;
 			for (var i = 0; i < samples; i++) {
-				Debug.Log("Finding sample "+i);
-				Debug.Log(traversed);
-				Debug.Log(i * interval);
 				while (i * interval > traversed + size.magnitude && segments.Length > segment + 1) {
 					traversed += size.magnitude;
 					segment++;
-					Debug.Log("Moving to segment "+segment);
-					Debug.Log(segments[segment]);
 					size = segments[segment].Size;
 				}
-				Debug.Log((float) (traversed - i * interval) / size.magnitude);
 				result[i] = segments[segment].Start + size * ((float) (i * interval - traversed) / size.magnitude);
-				Debug.Log(result[i]);
 			}
-			
 
 			return new ArrayTract(result, 0, Vector3.zero, 0);
 		}

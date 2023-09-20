@@ -293,6 +293,10 @@ namespace Maps.Grids {
 			public Boundaries Boundaries => Tract.Boundaries;
 			public float Resolution => Tract.Resolution;
 			public float Slack => Tract.Slack;
+			
+			public Tract Sample(int samples) {
+				return Tract.Sample(samples);
+			}
 		}
 	}
 }

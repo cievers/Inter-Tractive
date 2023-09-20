@@ -17,7 +17,8 @@ namespace Geometry.Tracts {
 		}
 		public IEnumerable<Segment> Segments {
 			get {
-				var result = new List<Segment> { new(points[0], points[1]) };
+				// var result = new List<Segment> { new(points[0], points[1]) };
+				var result = new List<Segment>();
 
 				for (var i = 1; i < points.Length; i++) {
 					result.Add(new Segment(points[i - 1], points[i]));
@@ -30,5 +31,50 @@ namespace Geometry.Tracts {
 		public Boundaries Boundaries => Boundaries.Join(Segments.Select(segment => segment.Boundaries));
 		public float Resolution => Segments.Select(segment => segment.Size.magnitude).Min();
 		public float Slack => Segments.Select(segment => segment.Size.magnitude).Max();
+
+		public Tract Sample(int samples) {
+			var result = new Vector3[samples];
+			var segments = Segments.ToArray();
+			var length = segments.Sum(segment => segment.Size.magnitude);
+			var interval = length / (samples - 1);
+			
+			Debug.Log("Resampling tract from "+points.Length+" to "+samples+" points");
+			Debug.Log(length);
+			Debug.Log(interval);
+
+			// var traversed = 0.0;
+			// var sampled = 0;
+			// foreach (var segment in segments) {
+			// 	var size = segment.Size;
+			// 	while (sampled * interval <= traversed + size.magnitude) {
+			// 		result[sampled] = segment.Start + size * ((float) (sampled * interval - traversed) / size.magnitude);
+			// 		sampled++;
+			// 	}
+			// 	traversed += size.magnitude;
+			// }
+			// Debug.Log(sampled);
+
+			var traversed = 0f;
+			var segment = 0;
+			var size = segments[segment].Size;
+			for (var i = 0; i < samples; i++) {
+				Debug.Log("Finding sample "+i);
+				Debug.Log(traversed);
+				Debug.Log(i * interval);
+				while (i * interval > traversed + size.magnitude && segments.Length > segment + 1) {
+					traversed += size.magnitude;
+					segment++;
+					Debug.Log("Moving to segment "+segment);
+					Debug.Log(segments[segment]);
+					size = segments[segment].Size;
+				}
+				Debug.Log((float) (traversed - i * interval) / size.magnitude);
+				result[i] = segments[segment].Start + size * ((float) (i * interval - traversed) / size.magnitude);
+				Debug.Log(result[i]);
+			}
+			
+
+			return new ArrayTract(result, 0, Vector3.zero, 0);
+		}
 	}
 }

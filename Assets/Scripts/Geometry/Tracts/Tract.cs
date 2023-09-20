@@ -8,5 +8,7 @@ namespace Geometry.Tracts {
 		public Boundaries Boundaries {get;}
 		public float Resolution {get;}
 		public float Slack {get;}
+
+		public Tract Sample(int samples);
 	}
 }

@@ -21,6 +21,7 @@ using UnityEngine;
 
 namespace Objects.Sources {
 	public class TractometryProgression : Voxels {
+		public MeshFilter tractMesh;
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
 
@@ -35,6 +36,7 @@ namespace Objects.Sources {
 		private Thread quantizeThread;
 		private Thread renderThread;
 
+		private int samples = 64;
 		private float resolution = 1;
 		private int batch = 4096;
 		private TractEvaluation evaluation;
@@ -51,6 +53,7 @@ namespace Objects.Sources {
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());
 
+			UpdateSummary();
 			UpdateTracts();
 			UpdateMap();
 			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
@@ -74,6 +77,11 @@ namespace Objects.Sources {
 		}
 		private void UpdateTracts() {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
+		}
+		private void UpdateSummary() {
+			var sampled = tractogram.Sample(samples);
+			var tract = new ArrayTract(sampled.Slices().Select(slice => slice as Vector3[] ?? slice.ToArray()).Select(array => array.Aggregate(Vector3.zero, (current, point) => current + point) / array.Length).ToArray());
+			tractMesh.mesh = new WireframeRenderer().Render(tract);
 		}
 		private void UpdateEvaluation(TractEvaluation evaluation) {
 			this.evaluation = evaluation;

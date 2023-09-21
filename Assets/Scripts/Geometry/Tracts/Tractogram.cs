@@ -8,5 +8,7 @@ namespace Geometry.Tracts {
 		Boundaries Boundaries {get;}
 		float Resolution {get;}
 		float Slack {get;}
+
+		public UniformTractogram Sample(int samples);
 	}
 }

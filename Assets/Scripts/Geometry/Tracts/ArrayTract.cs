@@ -15,6 +15,7 @@ namespace Geometry.Tracts {
 			AverageDirection = averageDirection;
 			GlobalLinePointIndexFirstPoint = globalLinePointIndexFirstPoint;
 		}
+		public ArrayTract(Vector3[] points) : this(points, 0, Vector3.zero, 0) {}
 		public IEnumerable<Segment> Segments {
 			get {
 				// var result = new List<Segment> { new(points[0], points[1]) };

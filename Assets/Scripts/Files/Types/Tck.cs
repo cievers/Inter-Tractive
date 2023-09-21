@@ -153,5 +153,9 @@ namespace Files.Types {
 			boundsMax.y = MathF.Max(boundsMax.y, point.y);
 			boundsMax.z = MathF.Max(boundsMax.z, point.z);
 		}
+		
+		public UniformTractogram Sample(int samples) {
+			return new ArrayTractogram(Tracts.Select(tract => tract.Sample(samples)));
+		}
 	}
 }

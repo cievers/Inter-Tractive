@@ -32,9 +32,11 @@ namespace Objects.Sources {
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private ConcurrentPipe<Model> models;
+		private ConcurrentBag<Tract> mean;
 
 		private Thread quantizeThread;
 		private Thread renderThread;
+		private Thread meanThread;
 
 		private int samples = 64;
 		private float resolution = 1;
@@ -49,6 +51,7 @@ namespace Objects.Sources {
 			measurements = new ConcurrentBag<Dictionary<Cell, Vector>>();
 			colors = new ConcurrentBag<Dictionary<Cell, Color32>>();
 			models = new ConcurrentPipe<Model>();
+			mean = new ConcurrentBag<Tract>();
 			
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());
@@ -74,14 +77,24 @@ namespace Objects.Sources {
 					Loading(true);
 				}
 			}
+			if (mean.TryTake(out var tract)) {
+				tractMesh.mesh = new WireframeRenderer().Render(tract);
+			}
 		}
 		private void UpdateTracts() {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
 		}
 		private void UpdateSummary() {
-			var sampled = tractogram.Sample(samples);
-			var tract = new ArrayTract(sampled.Slices().Select(slice => slice as Vector3[] ?? slice.ToArray()).Select(array => array.Aggregate(Vector3.zero, (current, point) => current + point) / array.Length).ToArray());
-			tractMesh.mesh = new WireframeRenderer().Render(tract);
+			meanThread?.Abort();
+			meanThread = new Thread(new ThreadedMean(tractogram, samples, mean).Start);
+			meanThread.Start();
+		}
+		private void UpdateSummary(int samples) {
+			this.samples = samples;
+			UpdateSummary();
+		}
+		private void UpdateSummary(float samples) {
+			UpdateSummary((int) Math.Round(samples));
 		}
 		private void UpdateEvaluation(TractEvaluation evaluation) {
 			this.evaluation = evaluation;
@@ -152,9 +165,14 @@ namespace Objects.Sources {
 		public override IEnumerable<Interface.Component> Controls() {
 			return new Interface.Component[] {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
-				new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
 				new Divider.Data(),
-				new Folder.Data("Measuring & coloring", new List<Controller> {
+				new Folder.Data("Global measuring", new List<Controller> {
+					new ActionToggle.Data("Mean", false, tractMesh.gameObject.SetActive),
+					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) transformed).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSummary).Request),
+				}),
+				new Divider.Data(),
+				new Folder.Data("Local measuring", new List<Controller> {
+					new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
 					new Interface.Control.Evaluation.Data(UpdateEvaluation),
 				}),
 				new Divider.Data(),

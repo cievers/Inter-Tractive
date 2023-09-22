@@ -60,7 +60,7 @@ namespace Interface.Control {
 				{"Plasma", new Plasma()},
 				{"Viridis", new Viridis()},
 				{"Hue", new HueSaturation()},
-				{"RGB", new Rgb()}
+				// {"RGB", new Rgb()}
 			};
 			public readonly Dictionary<string, Func<TractMetric>> measurements = new() {
 				{"Density", () => new Density()}, 

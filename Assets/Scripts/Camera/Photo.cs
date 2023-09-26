@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Linq;
 using Files.Types;
 using UnityEngine;
-using Utility;
 
 namespace Camera {
 	public class Photo : MonoBehaviour {
@@ -11,39 +10,17 @@ namespace Camera {
 		public int height = 1080;
 
 		private bool takeHiResShot;
-		private bool ready = true;
-		private string path;
-		private ConcurrentBag<Color32[,]> composite;
-
-		private void Start() {
-			composite = new ConcurrentBag<Color32[,]>();
-		}
-		private void Update() {
-			if (composite.TryTake(out var colors)) {
-				new Png(colors).Write(path);
-				ready = true;
-				Stored?.Invoke(path);
-			}
-		}
+		
 		private void LateUpdate() {
 			takeHiResShot |= Input.GetKeyDown("k");
 			if (takeHiResShot) {
-				Trigger();
+				Capture();
 				takeHiResShot = false;
 			}
 		}
-		public void Trigger() {
-			if (!ready) {
-				throw new TimeoutException("This photo camera is not ready to process another capture");
-			}
-			Capture();
-		}
-		private void Capture() {
-			// We're now busy processing a capture
-			ready = false;
-			path = PhotoStamp();
-			
+		public void Capture() {
 			// Set up camera for a transparent render
+			var path = PhotoStamp();
 			var frame = PhotoSize();
 			var filter = camera.clearFlags;
 			var background = camera.backgroundColor;
@@ -63,16 +40,19 @@ namespace Camera {
 			Destroy(buffer);
 
 			// Process the different backgrounds to find true alpha blending values of the subject against the background
-			var _ = new AlphaComposite(white, black, frame, composite);
+			var colors = new Color32[frame.Width * frame.Height];
+			for (var u = 0; u < frame.Width; u++) {
+				for (var v = 0; v < frame.Height; v++) {
+					colors[u + v * frame.Width] = ResolveColor(white.GetPixel(u, v), black.GetPixel(u, v));
+				}
+			}
+			var result = new Texture2D(frame.Width, frame.Height);
+			result.SetPixels32(colors);
+			result.Apply();
+			
+			// Write it as PNG
+			new Png(result).Write(path);
 			Captured?.Invoke(path);
-			//
-			// bytes = white.EncodeToPNG();
-			// filename = PhotoName(frame.Width, frame.Height+1);
-			// System.IO.File.WriteAllBytes(filename, bytes);
-			//
-			// bytes = black.EncodeToPNG();
-			// filename = PhotoName(frame.Width, frame.Height+2);
-			// System.IO.File.WriteAllBytes(filename, bytes);
 		}
 		private Texture2D Capture(RenderTexture buffer, Frame frame, Color background) {
 			camera.backgroundColor = background;
@@ -99,9 +79,45 @@ namespace Camera {
 		private static string PhotoStamp() {
 			return $"{Application.dataPath}/../Screenshots/{DateTime.Now:yyyy-MM-dd_HH-mm-ss.ms}.png";
 		}
+		private Color32 ResolveColor(Color white, Color black) {
+			if (white == Color.white && black == Color.black) {
+				return new Color32(0, 0, 0, 0);
+			}
+			if (white == black) {
+				return new Color32((byte) (white.r * 255), (byte) (white.g * 255), (byte) (white.b * 255), 255);
+			}
+			// white.r = r * a + 1 * (1-a)
+			// black.r = r * a + 0 * (1-a)
+			
+			// white.r = r * a + (1-a)
+			// black.r = r * a
+			
+			// white.r = r * a + (1-a)
+			// r = black.r/a
+			
+			// white.r = black.r/a * a + (1-a)
+			// white.r = black.r + (1-a)
+			// white.r - black.r = 1-a
+			// white.r - black.r - 1 = -a
+			// -white.r + black.r + 1 = a
 
-		public delegate void PhotoEvent(string name);
-		public event PhotoEvent Captured;
-		public event PhotoEvent Stored;
+			var alphas = new double[] {-white.r + black.r + 1, -white.g + black.g + 1, -white.b + black.b + 1};
+			var alpha = alphas.Average();
+			
+			// Debug.Log("Deciphering an in-between blended color");
+			// Debug.Log(white);
+			// Debug.Log(black);
+			// Debug.Log(alphas[0]);
+			// Debug.Log(alphas[1]);
+			// Debug.Log(alphas[2]);
+			// Debug.Log(alpha);
+			// Debug.Log(new Color((float) (black.r/alpha), (float) (black.r/alpha),(float) (black.r/alpha), (float) alpha));
+			// Debug.Log(new Color32((byte) (255*black.r/alpha), (byte) (255*black.r/alpha), (byte) (255*black.r/alpha), (byte) (255*alpha)));
+			
+			return new Color32((byte) (255*black.r/alpha), (byte) (255*black.g/alpha), (byte) (255*black.b/alpha), (byte) (255*alpha));
+		}
+
+		public delegate void PhotoCaptured(string name);
+		public event PhotoCaptured Captured;
 	}
 }

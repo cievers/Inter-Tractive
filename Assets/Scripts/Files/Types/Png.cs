@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Files.Types {
@@ -13,8 +14,19 @@ namespace Files.Types {
 			texture.SetPixels32(pixels.Cast<Color32>().ToArray());
 		}
 
+		public string Write() {
+			var stamp = Stamp();
+			Write(stamp);
+			return stamp;
+		}
 		public void Write(string path) {
 			System.IO.File.WriteAllBytes(path, texture.EncodeToPNG());
+		}
+		public static string Directory() {
+			return $"{Application.dataPath}/../Screenshots/";
+		}
+		public static string Stamp() {
+			return Directory() + $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss.ms}.png";
 		}
 	}
 }

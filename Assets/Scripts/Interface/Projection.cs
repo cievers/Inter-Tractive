@@ -1,4 +1,5 @@
 ﻿using System;
+using Files.Types;
 using Geometry;
 using TMPro;
 using UnityEngine;
@@ -21,6 +22,9 @@ namespace Interface {
 		public void Project(Texture texture) {
 			image.sprite = Sprite.Create(texture as Texture2D, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
 			fitter.aspectRatio = (float) texture.width / texture.height;
+		}
+		public void Capture() {
+			new Png(image.sprite.texture).Write();
 		}
 		private void Select(int option) {
 			axis = option switch {

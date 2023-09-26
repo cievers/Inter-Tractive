@@ -20,7 +20,6 @@ namespace Camera {
 		}
 		public void Capture() {
 			// Set up camera for a transparent render
-			var path = PhotoStamp();
 			var frame = PhotoSize();
 			var filter = camera.clearFlags;
 			var background = camera.backgroundColor;
@@ -51,8 +50,7 @@ namespace Camera {
 			result.Apply();
 			
 			// Write it as PNG
-			new Png(result).Write(path);
-			Captured?.Invoke(path);
+			Captured?.Invoke(new Png(result).Write());
 		}
 		private Texture2D Capture(RenderTexture buffer, Frame frame, Color background) {
 			camera.backgroundColor = background;
@@ -75,9 +73,6 @@ namespace Camera {
 			var scaleHeight = (double) height / currentHeight;
 			var scale = Math.Min(scaleWidth, scaleHeight);
 			return new Frame((int) (currentWidth * scale), (int) (currentHeight * scale));
-		}
-		private static string PhotoStamp() {
-			return $"{Application.dataPath}/../Screenshots/{DateTime.Now:yyyy-MM-dd_HH-mm-ss.ms}.png";
 		}
 		private Color32 ResolveColor(Color white, Color black) {
 			if (white == Color.white && black == Color.black) {

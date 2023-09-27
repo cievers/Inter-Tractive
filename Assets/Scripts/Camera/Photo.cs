@@ -8,16 +8,7 @@ namespace Camera {
 		public new UnityEngine.Camera camera;
 		public int width = 1920; 
 		public int height = 1080;
-
-		private bool takeHiResShot;
 		
-		private void LateUpdate() {
-			takeHiResShot |= Input.GetKeyDown("k");
-			if (takeHiResShot) {
-				Capture();
-				takeHiResShot = false;
-			}
-		}
 		public void Capture() {
 			// Set up camera for a transparent render
 			var frame = PhotoSize();

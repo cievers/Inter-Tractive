@@ -24,6 +24,7 @@ namespace Objects.Sources {
 		public MeshFilter tractMesh;
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
+		public GameObject dot;
 
 		private Tractogram tractogram;
 		private ThreadedLattice grid;
@@ -79,6 +80,17 @@ namespace Objects.Sources {
 			}
 			if (mean.TryTake(out var tract)) {
 				tractMesh.mesh = new WireframeRenderer().Render(tract);
+
+				var origin = tract.Points[1];
+				var normal = tract.Points[2] - tract.Points[0];
+				var points = new List<Vector3>();
+				var tracts = tractogram.Tracts.ToArray();
+				for (var i = 0; i < 100 ; i++) {
+					points.AddRange(Geometry.Plane.Intersections(tracts[i], origin, normal));
+				}
+				foreach (var point in points) {
+					Instantiate(dot, point, Quaternion.identity);
+				}
 			}
 		}
 		private void UpdateTracts() {

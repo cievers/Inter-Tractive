@@ -133,6 +133,7 @@ MonoBehaviour:
   tractMesh: {fileID: 4292670173105798205}
   tractogramMesh: {fileID: 5780583548504175820}
   gridMesh: {fileID: 5780583548942394891}
+  dot: {fileID: 1093370053926650151, guid: 06b9d1d4e72adf24c99a71d52cd62fab, type: 3}
 --- !u!1 &5780583548504175821
 GameObject:
   m_ObjectHideFlags: 0

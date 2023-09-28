@@ -18,12 +18,14 @@ using Maps.Cells;
 using Maps.Grids;
 using Objects.Concurrent;
 using UnityEngine;
+using Plane = UnityEngine.Plane;
 
 namespace Objects.Sources {
 	public class TractometryProgression : Voxels {
 		public MeshFilter tractMesh;
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
+		public MeshFilter volumeMesh;
 		public GameObject dot;
 
 		private Tractogram tractogram;
@@ -89,8 +91,17 @@ namespace Objects.Sources {
 					points.AddRange(Geometry.Plane.Intersections(tracts[i], origin, normal));
 				}
 				foreach (var point in points) {
-					Instantiate(dot, point, Quaternion.identity);
+					// Instantiate(dot, point, Quaternion.identity);
 				}
+				var projections = Geometry.Plane.Projections(tractogram.Sample(32).Slice(0), origin, normal).ToList();
+				foreach (var projection in projections) {
+					// Instantiate(dot, projection, Quaternion.identity);
+				}
+				var perimeter = new ConvexPolygon(projections, origin, normal);
+				foreach (var point in perimeter.Points) {
+					// Instantiate(dot, point, Quaternion.identity);
+				}
+				// volumeMesh.mesh = perimeter.Mesh();
 			}
 		}
 		private void UpdateTracts() {
@@ -100,6 +111,7 @@ namespace Objects.Sources {
 			meanThread?.Abort();
 			meanThread = new Thread(new ThreadedMean(tractogram, samples, mean).Start);
 			meanThread.Start();
+			volumeMesh.mesh = new ConvexPolyhedron(tractogram.Sample(32).Slice(0).ToList()).Mesh();
 		}
 		private void UpdateSummary(int samples) {
 			this.samples = samples;

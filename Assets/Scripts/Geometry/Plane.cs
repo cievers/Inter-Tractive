@@ -5,6 +5,13 @@ using UnityEngine;
 
 namespace Geometry {
 	public class Plane {
+		public static Vector3 Projection(Vector3 point, Vector3 origin, Vector3 normal) {
+			var normalized = normal.normalized;
+			return point - normalized * Vector3.Dot(normalized, point - origin);
+		}
+		public static IEnumerable<Vector3> Projections(IEnumerable<Vector3> points, Vector3 origin, Vector3 normal) {
+			return points.Select(point => Projection(point, origin, normal));
+		}
 		public static Vector3? Intersection(Segment segment, Vector3 origin, Vector3 normal) {
 			// origin & normal define the plane
 		    // origin Is a point on the plane

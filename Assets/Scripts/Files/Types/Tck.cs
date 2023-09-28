@@ -49,6 +49,9 @@ namespace Files.Types {
 			var lines = new List<Tract>();
 			var boundsMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
 			var boundsMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+			var coreStart = Vector3.zero;
+			var coreEnd = Vector3.zero;
+			var coreWeight = 0;
 			
 			// Set the file streamer position to the start of the vertex data
 			filestream.Position = int.Parse(meta["file"].Replace(".", ""));
@@ -70,7 +73,13 @@ namespace Files.Types {
 
 					if (float.IsNaN(point.x) && float.IsNaN(point.y) && float.IsNaN(point.z)) {
 						// If we hit the NaN, NaN, NaN marker for the end of a tract, save this tract
+						if (coreWeight > 0 && (points[0] - coreStart).magnitude + (points[^1] - coreEnd).magnitude > (points[0] - coreEnd).magnitude + (points[^1] - coreStart).magnitude) {
+							points.Reverse();
+						}
 						lines.Add(new ArrayTract(points.ToArray(), (uint) lines.Count, Vector3.Normalize(points[^1] - points[0]), (uint) read));
+						coreStart = (coreStart * coreWeight + points[0]) / (coreWeight + 1);
+						coreEnd = (coreEnd * coreWeight + points[^1]) / (coreWeight + 1);
+						coreWeight++;
 						points.Clear();
 					} else {
 						// If not, continue expanding the current tract

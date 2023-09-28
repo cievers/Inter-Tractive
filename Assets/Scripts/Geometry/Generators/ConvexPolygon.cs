@@ -1,66 +1,49 @@
-﻿/* This is taken from this blog post:
- * http://loyc-etc.blogspot.ca/2014/05/2d-convex-hull-in-c-45-lines-of-code.html
- *
- * All I have done is renamed "DList" to "CircularList" and then wrote a wrapper for the generic C# list.
- * The structure that is supposed to be used is *much* more efficient, but this works for my purposes.
- *
- * This can be dropped right into your Unity project and will work without any adjustments.
- *
- * Further copied and edited from https://gist.github.com/dLopreiato/7fd142d0b9728518552188794b8a750c#file-convexhull-cs-L4
- */
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Objects.Collection;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Utility;
 
 namespace Geometry.Generators {
 	public class ConvexPolygon {
-		// TODO: Modify this to have some option for Vector3 and a definition of the plane to create the polygon in
-		public IEnumerable<Vector2> Points {get;}
+		public IEnumerable<Vector3> Points {get;}
 		public IEnumerable<Triangle> Faces => throw new NotImplementedException();
+		public IEnumerable<int> Indices {
+			get {
+				var result = new List<int>();
+				for (var i = 0; i < Points.Count() - 2; i++) {
+					result.Add(0);
+					result.Add(i+1);
+					result.Add(i+2);
+				}
+				return result;
+			}
+		}
+		public IEnumerable<Vector3> Normals => Enumerable.Repeat(normal, Points.Count());
 
-		public ConvexPolygon(List<Vector2> points) {
-			Points = Compute(points);
+		private readonly Vector3 normal;
+
+		public ConvexPolygon(List<Vector3> points, Vector3 origin, Vector3 normal) {
+			var rotation = Quaternion.FromToRotation(normal, Vector3.forward);
+			var mapping = points
+				.ToDictionary(point => rotation * Plane.Projection(point, origin, normal), point => point)
+				.ToDictionary(projection => new Vector2(projection.Key.x, projection.Key.y), point => point.Value);
+			var perimeter = new ConvexPerimeter(mapping.Keys.ToList());
+			this.normal = normal;
+			Points = perimeter.Points.Select(point => mapping[point]);
 		}
 		
-		public static IEnumerable<Vector2> Compute(List<Vector2> points, bool sortInPlace = false) {
-			if (!sortInPlace) {
-				points = new List<Vector2>(points);
-			}
-			points.Sort((a, b) => a.x == b.x ? a.y.CompareTo(b.y) : a.x > b.x ? 1 : -1);
+		public Mesh Mesh() {
+			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};
 
-			// Importantly, CircularList provides O(1) insertion at beginning and end
-			CircularList<Vector2> hull = new CircularList<Vector2>();
-			int lower = 0, upper = 0; // Size of lower and upper hulls
+			mesh.Clear();
+			mesh.SetVertices(Points.ToList());
+			mesh.SetTriangles(Indices.ToList(), 0);
+			mesh.SetNormals(Normals.ToList());
 
-			// Builds a hull such that the output polygon starts at the leftmost Vector2.
-			for (var i = points.Count - 1; i >= 0; i--) {
-				Vector2 p = points[i], p1;
-
-				// build lower hull (at end of output list)
-				while (lower >= 2 && (p1 = hull.Last).Sub(hull[^2]).Cross(p.Sub(p1)) >= 0) {
-					hull.PopLast();
-					lower--;
-				}
-				hull.PushLast(p);
-				lower++;
-
-				// Build upper hull (at beginning of output list)
-				while (upper >= 2 && (p1 = hull.First).Sub(hull[1]).Cross(p.Sub(p1)) <= 0) {
-					hull.PopFirst();
-					upper--;
-				}
-				if (upper != 0) {
-					// When upper=0, share the Vector2 added above
-					hull.PushFirst(p);
-				}
-				upper++;
-				Debug.Assert(upper + lower == hull.Count + 1);
-			}
-			hull.PopLast();
-			return hull;
+			return mesh;
 		}
 	}
 }

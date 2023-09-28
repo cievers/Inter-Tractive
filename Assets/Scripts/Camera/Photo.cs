@@ -41,7 +41,9 @@ namespace Camera {
 			result.Apply();
 			
 			// Write it as PNG
-			Captured?.Invoke(new Png(result).Write());
+			var path = new Png(result).Write();
+			Captured?.Invoke(path);
+			Debug.Log("Saved screenshot as "+path);
 		}
 		private Texture2D Capture(RenderTexture buffer, Frame frame, Color background) {
 			camera.backgroundColor = background;

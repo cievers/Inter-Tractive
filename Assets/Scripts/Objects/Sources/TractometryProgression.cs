@@ -192,12 +192,14 @@ namespace Objects.Sources {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new Divider.Data(),
 				new Folder.Data("Global measuring", new List<Controller> {
-					new ActionToggle.Data("Mean", false, tractMesh.gameObject.SetActive),
+					new ActionToggle.Data("Mean", true, tractMesh.gameObject.SetActive),
+					new ActionToggle.Data("Cross-section", true, cutMesh.gameObject.SetActive),
+					new ActionToggle.Data("Volume", true, volumeMesh.gameObject.SetActive),
 					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) transformed).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSummary).Request),
 				}),
 				new Divider.Data(),
 				new Folder.Data("Local measuring", new List<Controller> {
-					new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
+					new ActionToggle.Data("Map", false, gridMesh.gameObject.SetActive),
 					new Interface.Control.Evaluation.Data(UpdateEvaluation),
 				}),
 				new Divider.Data(),

@@ -10,6 +10,7 @@ using UnityEngine;
 
 using Geometry;
 using Maps.Cells;
+using UnityEngine.UI;
 
 namespace Interface {
 	public class Source : MonoBehaviour {
@@ -69,6 +70,7 @@ namespace Interface {
 			foreach (var data in instance.Controls()) {
 				styles.Construct(controls, data);
 			}
+			LayoutRebuilder.ForceRebuildLayoutImmediate(controls);
 		}
 		public void Write() {
 			instance.Nifti().Write(StandaloneFileBrowser.SaveFilePanel("Save as NIFTI", "", Name(), "nii"));

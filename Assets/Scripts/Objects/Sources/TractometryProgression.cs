@@ -25,6 +25,7 @@ namespace Objects.Sources {
 		public MeshFilter tractMesh;
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
+		public MeshFilter cutMesh;
 		public MeshFilter volumeMesh;
 		public GameObject dot;
 
@@ -95,13 +96,13 @@ namespace Objects.Sources {
 				}
 				var projections = Geometry.Plane.Projections(tractogram.Sample(32).Slice(0), origin, normal).ToList();
 				foreach (var projection in projections) {
-					// Instantiate(dot, projection, Quaternion.identity);
+					Instantiate(dot, projection, Quaternion.identity);
 				}
 				var perimeter = new ConvexPolygon(projections, origin, normal);
 				foreach (var point in perimeter.Points) {
 					// Instantiate(dot, point, Quaternion.identity);
 				}
-				// volumeMesh.mesh = perimeter.Mesh();
+				cutMesh.mesh = perimeter.Mesh();
 			}
 		}
 		private void UpdateTracts() {

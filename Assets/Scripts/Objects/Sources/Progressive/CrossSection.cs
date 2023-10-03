@@ -40,16 +40,16 @@ namespace Objects.Sources.Progressive {
 		}
 		
 		protected override void Compute() {
-			Complete(
-				tract.Normals
-					.Select((normal, i) => new ConvexPolygon(
-						Plane.Projections(tractogram.Slice(i), tract.Points[i], normal).ToList(), 
-						tract.Points[i], 
-						normal
-					))
-					.ToList()
-				);
-			return;
+			// Complete(
+			// 	tract.Normals
+			// 		.Select((normal, i) => new ConvexPolygon(
+			// 			Plane.Projections(tractogram.Slice(i), tract.Points[i], normal).ToList(), 
+			// 			tract.Points[i], 
+			// 			normal
+			// 		))
+			// 		.ToList()
+			// 	);
+			// return;
 			var result = new List<ConvexPolygon>();
 			var points = tract.Points;
 			var normals = tract.Normals.ToArray();
@@ -65,10 +65,12 @@ namespace Objects.Sources.Progressive {
 				// 	Instantiate(dot, point, Quaternion.identity);
 				// }
 				var projections = Plane.Projections(tractogram.Slice(i), points[i], normals[i]).ToList();
+				var hull = new ConvexPolyhedron(tractogram.Slice(i).ToList());
+				var intersections = Plane.Intersections(hull.Edges, points[i], normals[i]).ToList();
 				// foreach (var projection in projections) {
 				// 	Instantiate(dot, projection, Quaternion.identity);
 				// }
-				var perimeter = new ConvexPolygon(projections, points[i], normals[i]);
+				var perimeter = new ConvexPolygon(intersections, points[i], normals[i]);
 				// foreach (var point in perimeter.Points) {
 				// 	Instantiate(dot, point, Quaternion.identity);
 				// }

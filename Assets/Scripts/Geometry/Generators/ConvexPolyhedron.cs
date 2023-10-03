@@ -84,6 +84,19 @@ namespace Geometry.Generators {
 		public List<int> Indices {get;}
 		public List<Triangle> Faces => throw new NotImplementedException();
 		public List<Vector3> Normals {get;}
+		public IEnumerable<Edge> Edges {
+			get {
+				var result = new HashSet<Edge>();
+
+				for (var i = 0; i < Indices.Count; i += 3) {
+					result.Add(new Edge(Points[Indices[i]], Points[Indices[i + 1]]));
+					result.Add(new Edge(Points[Indices[i + 1]], Points[Indices[i + 2]]));
+					result.Add(new Edge(Points[Indices[i + 2]], Points[Indices[i]]));
+				}
+
+				return result;
+			}
+		}
 
 		public ConvexPolyhedron(List<Vector3> points) {
 			Points = new List<Vector3>();

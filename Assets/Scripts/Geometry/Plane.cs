@@ -32,6 +32,22 @@ namespace Geometry {
 			// The segment is parallel to plane, or beyond the bounds of the line segment
 			return null;
 		}
+		public static Vector3? Intersection(Edge edge, Vector3 origin, Vector3 normal) {
+			// The creation of a Segment instance seems unnecessarily costly here
+			return Intersection(new Segment(edge.A, edge.B), origin, normal);
+		}
+		public static IEnumerable<Vector3> Intersections(IEnumerable<Edge> segments, Vector3 origin, Vector3 normal) {
+			return segments
+				.Select(edge => Intersection(edge, origin, normal))
+				.Where(intersection => intersection != null)
+				.Select(intersection => (Vector3) intersection);
+		}
+		public static IEnumerable<Vector3> Intersections(IEnumerable<Segment> segments, Vector3 origin, Vector3 normal) {
+			return segments
+				.Select(segment => Intersection(segment, origin, normal))
+				.Where(intersection => intersection != null)
+				.Select(intersection => (Vector3) intersection);
+		}
 		public static IEnumerable<Vector3> Intersections(Tract tract, Vector3 origin, Vector3 normal) {
 			return tract.Segments
 				.Select(segment => Intersection(segment, origin, normal))

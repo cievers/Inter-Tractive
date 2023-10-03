@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -92,7 +93,7 @@ namespace Geometry.Generators {
 		}
 
 		public Hull Hull() {
-			return new Hull(Points, Normals, Indices);
+			return new Hull(Points.ToArray(), Normals.ToArray(), Indices.ToArray());
 		}
 		public Mesh Mesh() {
 			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};

@@ -12,9 +12,14 @@ namespace Geometry.Generators {
 			get {
 				var result = new List<int>();
 				for (var i = 0; i < Points.Count() - 2; i++) {
+					// Front face
 					result.Add(0);
 					result.Add(i+1);
 					result.Add(i+2);
+					// Back face
+					result.Add(0);
+					result.Add(i+2);
+					result.Add(i+1);
 				}
 				return result;
 			}
@@ -34,7 +39,7 @@ namespace Geometry.Generators {
 		}
 
 		public Hull Hull() {
-			return new Hull(Points.ToList(), Normals.ToList(), Indices.ToList());
+			return new Hull(Points.ToArray(), Normals.ToArray(), Indices.ToArray());
 		}
 		public Mesh Mesh() {
 			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};

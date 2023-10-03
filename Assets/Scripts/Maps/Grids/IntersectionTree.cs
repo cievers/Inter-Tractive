@@ -288,8 +288,9 @@ namespace Maps.Grids {
 			public Segment Segment {get; private set;} = Segment;
 			public Tract Tract {get; private set;} = Tract;
 
-			public IEnumerable<Segment> Segments => Tract.Segments;
 			public Vector3[] Points => Tract.Points;
+			public IEnumerable<Vector3> Normals => Tract.Normals;
+			public IEnumerable<Segment> Segments => Tract.Segments;
 			public Boundaries Boundaries => Tract.Boundaries;
 			public float Resolution => Tract.Resolution;
 			public float Slack => Tract.Slack;

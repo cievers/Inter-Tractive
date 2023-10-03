@@ -93,7 +93,8 @@ namespace Objects.Sources.Progressive {
 				foreach (var point in cuts[0].Points) {
 					Instantiate(dot, point, Quaternion.identity);
 				}
-				cutMesh.mesh = cuts[0].Mesh();
+				// cutMesh.mesh = cuts[0].Mesh();
+				cutMesh.mesh = Hull.Join(cuts.Select(cut => cut.Hull()).ToList()).Mesh();
 			}
 			if (promisedVolume.TryTake(out var hull)) {
 				volumeMesh.mesh = hull.Mesh();

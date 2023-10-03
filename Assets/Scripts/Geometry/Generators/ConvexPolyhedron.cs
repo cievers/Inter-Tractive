@@ -90,7 +90,10 @@ namespace Geometry.Generators {
 			Normals = new List<Vector3>();
 			Compute(points, true);
 		}
-		
+
+		public Hull Hull() {
+			return new Hull(Points, Normals, Indices);
+		}
 		public Mesh Mesh() {
 			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};
 

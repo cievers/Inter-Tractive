@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Objects.Collection;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Utility;
 
 namespace Geometry.Generators {
 	public class ConvexPolygon {
@@ -34,7 +32,10 @@ namespace Geometry.Generators {
 			this.normal = normal;
 			Points = perimeter.Points.Select(point => mapping[point]);
 		}
-		
+
+		public Hull Hull() {
+			return new Hull(Points.ToList(), Normals.ToList(), Indices.ToList());
+		}
 		public Mesh Mesh() {
 			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};
 

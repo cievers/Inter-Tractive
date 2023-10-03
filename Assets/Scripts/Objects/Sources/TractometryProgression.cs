@@ -18,7 +18,6 @@ using Maps.Cells;
 using Maps.Grids;
 using Objects.Concurrent;
 using UnityEngine;
-using Plane = UnityEngine.Plane;
 
 namespace Objects.Sources {
 	public class TractometryProgression : Voxels {
@@ -32,15 +31,22 @@ namespace Objects.Sources {
 		private Tractogram tractogram;
 		private ThreadedLattice grid;
 		private new ThreadedRenderer renderer;
+		
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
-		private ConcurrentPipe<Model> models;
-		private ConcurrentBag<Tract> mean;
+		private ConcurrentPipe<Model> maps;
+		private ConcurrentBag<UniformTractogram> sampled;
+		private ConcurrentBag<Tuple<UniformTractogram, Tract>> mean;
+		private ConcurrentBag<Hull> cuts;
+		private ConcurrentBag<Hull> volume;
 
 		private Thread quantizeThread;
 		private Thread renderThread;
+		private Thread sampleThread;
 		private Thread meanThread;
+		private Thread cutThread;
+		private Thread volumeThread;
 
 		private int samples = 64;
 		private float resolution = 1;
@@ -54,13 +60,16 @@ namespace Objects.Sources {
 			voxels = new ConcurrentPipe<Tuple<Cell, Tract>>();
 			measurements = new ConcurrentBag<Dictionary<Cell, Vector>>();
 			colors = new ConcurrentBag<Dictionary<Cell, Color32>>();
-			models = new ConcurrentPipe<Model>();
-			mean = new ConcurrentBag<Tract>();
+			maps = new ConcurrentPipe<Model>();
+			sampled = new ConcurrentBag<UniformTractogram>();
+			mean = new ConcurrentBag<Tuple<UniformTractogram, Tract>>();
+			cuts = new ConcurrentBag<Hull>();
+			volume = new ConcurrentBag<Hull>();
 			
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());
 
-			UpdateSummary();
+			UpdateSamples();
 			UpdateTracts();
 			UpdateMap();
 			Focus(new Focus(grid.Boundaries.Center, grid.Boundaries.Size.magnitude / 2 * 1.5f));
@@ -74,18 +83,22 @@ namespace Objects.Sources {
 				map = new Map(colored, grid.Cells, grid.Size, grid.Boundaries);
 				Configure(grid.Cells, colored, grid.Size, grid.Boundaries);
 			}
-			if (models.TryTake(out var model)) {
-				gridMesh.mesh = model.Mesh();
+			if (maps.TryTake(out var result)) {
+				gridMesh.mesh = result.Mesh();
 				
-				if (models.IsCompleted && models.IsEmpty) {
+				if (maps.IsCompleted && maps.IsEmpty) {
 					Loading(true);
 				}
 			}
+			if (sampled.TryTake(out var uniform)) {
+				UpdateMean(uniform);
+			}
 			if (mean.TryTake(out var tract)) {
-				tractMesh.mesh = new WireframeRenderer().Render(tract);
+				tractMesh.mesh = new WireframeRenderer().Render(tract.Item2);
+				UpdateSummary(tract.Item1, tract.Item2);
 
-				var origin = tract.Points[1];
-				var normal = tract.Points[2] - tract.Points[0];
+				var origin = tract.Item2.Points[1];
+				var normal = tract.Item2.Points[2] - tract.Item2.Points[0];
 				var points = new List<Vector3>();
 				var tracts = tractogram.Tracts.ToArray();
 				for (var i = 0; i < 100 ; i++) {
@@ -96,30 +109,48 @@ namespace Objects.Sources {
 				}
 				var projections = Geometry.Plane.Projections(tractogram.Sample(32).Slice(0), origin, normal).ToList();
 				foreach (var projection in projections) {
-					Instantiate(dot, projection, Quaternion.identity);
+					// Instantiate(dot, projection, Quaternion.identity);
 				}
 				var perimeter = new ConvexPolygon(projections, origin, normal);
 				foreach (var point in perimeter.Points) {
 					// Instantiate(dot, point, Quaternion.identity);
 				}
-				cutMesh.mesh = perimeter.Mesh();
+				// cutMesh.mesh = perimeter.Mesh();
+			}
+			if (cuts.TryTake(out var section)) {
+				cutMesh.mesh = section.Mesh();
+			}
+			if (volume.TryTake(out var hull)) {
+				volumeMesh.mesh = hull.Mesh();
 			}
 		}
 		private void UpdateTracts() {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
 		}
-		private void UpdateSummary() {
-			meanThread?.Abort();
-			meanThread = new Thread(new ThreadedMean(tractogram, samples, mean).Start);
-			meanThread.Start();
-			volumeMesh.mesh = new ConvexPolyhedron(tractogram.Sample(32).Slice(0).ToList()).Mesh();
+		private void UpdateSamples() {
+			sampleThread?.Abort();
+			sampleThread = new Thread(() => sampled.Add(tractogram.Sample(samples)));
+			sampleThread.Start();
 		}
-		private void UpdateSummary(int samples) {
+		private void UpdateSamples(int samples) {
 			this.samples = samples;
-			UpdateSummary();
+			UpdateSamples();
 		}
-		private void UpdateSummary(float samples) {
-			UpdateSummary((int) Math.Round(samples));
+		private void UpdateSamples(float samples) {
+			UpdateSamples((int) Math.Round(samples));
+		}
+		private void UpdateMean(UniformTractogram uniform) {
+			meanThread?.Abort();
+			meanThread = new Thread(new ThreadedMean(uniform, mean).Start);
+			meanThread.Start();
+		}
+		private void UpdateSummary(UniformTractogram uniform, Tract mean) {
+			cutThread?.Abort();
+			volumeThread?.Abort();
+			cutThread = new Thread(new ThreadedCrossSection(uniform, mean, cuts).Start);
+			volumeThread = new Thread(new ThreadedVolume(uniform, volume).Start);
+			cutThread.Start();
+			volumeThread.Start();
 		}
 		private void UpdateEvaluation(TractEvaluation evaluation) {
 			this.evaluation = evaluation;
@@ -140,9 +171,9 @@ namespace Objects.Sources {
 		private void UpdateMap() {
 			Loading(false);
 			voxels.Restart();
-			models.Restart();
+			maps.Restart();
 			grid = new ThreadedLattice(tractogram, resolution, voxels);
-			renderer = new ThreadedRenderer(voxels, measurements, colors, models, grid, evaluation, batch);
+			renderer = new ThreadedRenderer(voxels, measurements, colors, maps, grid, evaluation, batch);
 
 			quantizeThread?.Abort();
 			renderThread?.Abort();
@@ -195,7 +226,7 @@ namespace Objects.Sources {
 					new ActionToggle.Data("Mean", true, tractMesh.gameObject.SetActive),
 					new ActionToggle.Data("Cross-section", true, cutMesh.gameObject.SetActive),
 					new ActionToggle.Data("Volume", true, volumeMesh.gameObject.SetActive),
-					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) transformed).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSummary).Request),
+					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) transformed).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
 				}),
 				new Divider.Data(),
 				new Folder.Data("Local measuring", new List<Controller> {

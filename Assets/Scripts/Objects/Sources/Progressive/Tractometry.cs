@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-
 using Camera;
 using Evaluation;
 using Evaluation.Coloring;
@@ -19,8 +18,8 @@ using Maps.Grids;
 using Objects.Concurrent;
 using UnityEngine;
 
-namespace Objects.Sources {
-	public class TractometryProgression : Voxels {
+namespace Objects.Sources.Progressive {
+	public class Tractometry : Voxels {
 		public MeshFilter tractMesh;
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
@@ -36,17 +35,13 @@ namespace Objects.Sources {
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private ConcurrentPipe<Model> maps;
-		private ConcurrentBag<UniformTractogram> sampled;
-		private ConcurrentBag<Tuple<UniformTractogram, Tract>> mean;
-		private ConcurrentBag<Hull> cuts;
-		private ConcurrentBag<Hull> volume;
 
 		private Thread quantizeThread;
 		private Thread renderThread;
-		private Thread sampleThread;
-		private Thread meanThread;
-		private Thread cutThread;
-		private Thread volumeThread;
+
+		private PromiseCollector<Tract> promisedMean;
+		private PromiseCollector<List<ConvexPolygon>> promisedCut;
+		private PromiseCollector<ConvexPolyhedron> promisedVolume;
 
 		private int samples = 64;
 		private float resolution = 1;
@@ -61,10 +56,10 @@ namespace Objects.Sources {
 			measurements = new ConcurrentBag<Dictionary<Cell, Vector>>();
 			colors = new ConcurrentBag<Dictionary<Cell, Color32>>();
 			maps = new ConcurrentPipe<Model>();
-			sampled = new ConcurrentBag<UniformTractogram>();
-			mean = new ConcurrentBag<Tuple<UniformTractogram, Tract>>();
-			cuts = new ConcurrentBag<Hull>();
-			volume = new ConcurrentBag<Hull>();
+
+			promisedMean = new PromiseCollector<Tract>();
+			promisedCut = new PromiseCollector<List<ConvexPolygon>>();
+			promisedVolume = new PromiseCollector<ConvexPolyhedron>();
 			
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());
@@ -90,37 +85,17 @@ namespace Objects.Sources {
 					Loading(true);
 				}
 			}
-			if (sampled.TryTake(out var uniform)) {
-				UpdateMean(uniform);
+			
+			if (promisedMean.TryTake(out var mean)) {
+				tractMesh.mesh = new WireframeRenderer().Render(mean);
 			}
-			if (mean.TryTake(out var tract)) {
-				tractMesh.mesh = new WireframeRenderer().Render(tract.Item2);
-				UpdateSummary(tract.Item1, tract.Item2);
-
-				var origin = tract.Item2.Points[1];
-				var normal = tract.Item2.Points[2] - tract.Item2.Points[0];
-				var points = new List<Vector3>();
-				var tracts = tractogram.Tracts.ToArray();
-				for (var i = 0; i < 100 ; i++) {
-					points.AddRange(Geometry.Plane.Intersections(tracts[i], origin, normal));
+			if (promisedCut.TryTake(out var cuts)) {
+				foreach (var point in cuts[0].Points) {
+					Instantiate(dot, point, Quaternion.identity);
 				}
-				foreach (var point in points) {
-					// Instantiate(dot, point, Quaternion.identity);
-				}
-				var projections = Geometry.Plane.Projections(tractogram.Sample(32).Slice(0), origin, normal).ToList();
-				foreach (var projection in projections) {
-					// Instantiate(dot, projection, Quaternion.identity);
-				}
-				var perimeter = new ConvexPolygon(projections, origin, normal);
-				foreach (var point in perimeter.Points) {
-					// Instantiate(dot, point, Quaternion.identity);
-				}
-				// cutMesh.mesh = perimeter.Mesh();
+				cutMesh.mesh = cuts[0].Mesh();
 			}
-			if (cuts.TryTake(out var section)) {
-				cutMesh.mesh = section.Mesh();
-			}
-			if (volume.TryTake(out var hull)) {
+			if (promisedVolume.TryTake(out var hull)) {
 				volumeMesh.mesh = hull.Mesh();
 			}
 		}
@@ -128,9 +103,14 @@ namespace Objects.Sources {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
 		}
 		private void UpdateSamples() {
-			sampleThread?.Abort();
-			sampleThread = new Thread(() => sampled.Add(tractogram.Sample(samples)));
-			sampleThread.Start();
+			var sampler = new Resample(tractogram, samples);
+			var mean = new Mean(sampler);
+			var cut = new CrossSection(sampler, mean);
+			var volume = new Volume(sampler, cut);
+			
+			promisedMean.Add(mean);
+			promisedCut.Add(cut);
+			promisedVolume.Add(volume);
 		}
 		private void UpdateSamples(int samples) {
 			this.samples = samples;
@@ -138,19 +118,6 @@ namespace Objects.Sources {
 		}
 		private void UpdateSamples(float samples) {
 			UpdateSamples((int) Math.Round(samples));
-		}
-		private void UpdateMean(UniformTractogram uniform) {
-			meanThread?.Abort();
-			meanThread = new Thread(new ThreadedMean(uniform, mean).Start);
-			meanThread.Start();
-		}
-		private void UpdateSummary(UniformTractogram uniform, Tract mean) {
-			cutThread?.Abort();
-			volumeThread?.Abort();
-			cutThread = new Thread(new ThreadedCrossSection(uniform, mean, cuts).Start);
-			volumeThread = new Thread(new ThreadedVolume(uniform, volume).Start);
-			cutThread.Start();
-			volumeThread.Start();
 		}
 		private void UpdateEvaluation(TractEvaluation evaluation) {
 			this.evaluation = evaluation;

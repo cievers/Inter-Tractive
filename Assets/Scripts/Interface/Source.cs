@@ -53,11 +53,16 @@ namespace Interface {
 		}
 		private void Load(string path) {
 			this.path = path.Replace("\\", "/");
+			if (!templates.ContainsKey(Extension())) {
+				Debug.LogError("No visualization for source type "+Extension());
+				DestroyImmediate(gameObject);
+				return;
+			}
 			try {
 				instance = templates[Extension()].Construct(path);
 			} catch (Exception exception) {
-				Debug.Log("Exception during loading of tck instance");
-				Debug.Log(exception);
+				Debug.LogError("Exception during loading of tck instance");
+				Debug.LogError(exception);
 				DestroyImmediate(gameObject);
 				return;
 			}

@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading;
 using Geometry.Tracts;
 using Objects.Concurrent;
 using UnityEngine;
@@ -10,12 +9,12 @@ namespace Objects.Sources.Progressive {
 
 		public Mean(UniformTractogram tractogram) {
 			this.tractogram = tractogram;
-			new Thread(Start).Start();
+			Start();
 		}
 		public Mean(Promise<UniformTractogram> promise) {
 			promise.Request(tractogram => {
 				this.tractogram = tractogram;
-				new Thread(Start).Start();
+				Start();
 			});
 		}
 		

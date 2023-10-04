@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Geometry;
 using Geometry.Generators;
 using Geometry.Tracts;
@@ -18,7 +17,7 @@ namespace Objects.Sources.Progressive {
 			this.tractogram = tractogram;
 			this.tract = tract;
 			
-			new Thread(Start).Start();
+			Start();
 		}
 		public CrossSection(Promise<UniformTractogram> promisedTractogram, Promise<Tract> promisedTract) {
 			promisedTractogram.Request(tractogram => {
@@ -35,7 +34,7 @@ namespace Objects.Sources.Progressive {
 
 		private void Update() {
 			if (receivedTractogram && receivedTract) {
-				new Thread(Start).Start();
+				Start();
 			}
 		}
 		

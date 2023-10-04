@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Geometry.Generators;
 using Geometry.Tracts;
 using Objects.Concurrent;
@@ -15,7 +14,7 @@ namespace Objects.Sources.Progressive {
 
 		public Volume(UniformTractogram tractogram) {
 			this.tractogram = tractogram;
-			new Thread(Start).Start();
+			Start();
 		}
 		public Volume(Promise<UniformTractogram> promisedTractogram, Promise<List<ConvexPolygon>> promisedCuts) {
 			promisedTractogram.Request(tractogram => {
@@ -32,7 +31,7 @@ namespace Objects.Sources.Progressive {
 		
 		private void Update() {
 			if (receivedTractogram && receivedCuts) {
-				new Thread(Start).Start();
+				Start();
 			}
 		}
 		

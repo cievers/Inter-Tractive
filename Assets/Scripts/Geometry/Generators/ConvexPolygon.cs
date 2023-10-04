@@ -10,21 +10,22 @@ namespace Geometry.Generators {
 		public IEnumerable<Triangle> Faces => throw new NotImplementedException();
 		public IEnumerable<int> Indices {
 			get {
+				var length = Points.Count();
 				var result = new List<int>();
-				for (var i = 0; i < Points.Count() - 2; i++) {
+				for (var i = 0; i < length - 2; i++) {
 					// Front face
 					result.Add(0);
-					result.Add(i+1);
 					result.Add(i+2);
+					result.Add(i+1);
 					// Back face
-					result.Add(0);
-					result.Add(i+2);
-					result.Add(i+1);
+					result.Add(length);
+					result.Add(length+i+1);
+					result.Add(length+i+2);
 				}
 				return result;
 			}
 		}
-		public IEnumerable<Vector3> Normals => Enumerable.Repeat(normal, Points.Count());
+		public IEnumerable<Vector3> Normals => Enumerable.Repeat(normal.normalized, Points.Count());
 
 		private readonly Vector3 normal;
 
@@ -39,7 +40,7 @@ namespace Geometry.Generators {
 		}
 
 		public Hull Hull() {
-			return new Hull(Points.ToArray(), Normals.ToArray(), Indices.ToArray());
+			return new Hull(Points.Concat(Points).ToArray(), Enumerable.Repeat(normal.normalized, Points.Count()).Concat(Enumerable.Repeat(-normal.normalized, Points.Count())).ToArray(), Indices.ToArray());
 		}
 		public Mesh Mesh() {
 			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};

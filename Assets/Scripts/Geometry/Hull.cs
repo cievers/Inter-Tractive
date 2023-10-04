@@ -22,8 +22,8 @@ namespace Geometry {
 
 			mesh.Clear();
 			mesh.SetVertices(Vertices);
+			mesh.SetNormals(Normals);
 			mesh.SetTriangles(Indices, 0);
-			mesh.RecalculateNormals();
 
 			return mesh;
 		}

@@ -43,7 +43,7 @@ namespace Objects.Sources.Progressive {
 		private PromiseCollector<List<ConvexPolygon>> promisedCut;
 		private PromiseCollector<ConvexPolyhedron> promisedVolume;
 
-		private int samples = 64;
+		private int samples = 32;
 		private float resolution = 1;
 		private int batch = 4096;
 		private TractEvaluation evaluation;
@@ -91,7 +91,7 @@ namespace Objects.Sources.Progressive {
 			}
 			if (promisedCut.TryTake(out var cuts)) {
 				foreach (var point in cuts[0].Points) {
-					Instantiate(dot, point, Quaternion.identity);
+					// Instantiate(dot, point, Quaternion.identity);
 				}
 				// cutMesh.mesh = cuts[0].Mesh();
 				cutMesh.mesh = Hull.Join(cuts.Select(cut => cut.Hull()).ToList()).Mesh();

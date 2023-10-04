@@ -40,7 +40,7 @@ namespace Geometry.Generators {
 		}
 
 		public Hull Hull() {
-			return new Hull(Points.Concat(Points).ToArray(), Enumerable.Repeat(normal.normalized, Points.Count()).Concat(Enumerable.Repeat(-normal.normalized, Points.Count())).ToArray(), Indices.ToArray());
+			return new Hull(Points.Concat(Points).ToArray(), Normals.Concat(Normals.Select(normal => -normal)).ToArray(), Indices.ToArray());
 		}
 		public Mesh Mesh() {
 			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};

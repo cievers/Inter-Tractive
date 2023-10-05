@@ -38,7 +38,7 @@ namespace Objects.Sources.Progressive {
 
 		private Thread quantizeThread;
 		private Thread renderThread;
-
+		
 		private PromiseCollector<Tract> promisedMean;
 		private PromiseCollector<List<ConvexPolygon>> promisedCut;
 		private PromiseCollector<ConvexPolyhedron> promisedVolume;
@@ -85,7 +85,7 @@ namespace Objects.Sources.Progressive {
 					Loading(true);
 				}
 			}
-			
+
 			if (promisedMean.TryTake(out var mean)) {
 				tractMesh.mesh = new WireframeRenderer().Render(mean);
 			}

@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Threading;
 
 namespace Objects.Concurrent {
 	public abstract class Promise<T> {
 		private bool completed;
 		private T result;
-		
-		private delegate void PromiseCompleted(T promise);
-		private event PromiseCompleted Completion;
+
+		private readonly ConcurrentQueue<Action<T>> requests = new();
 
 		protected void Start() {
 			new Thread(Compute).Start();
@@ -19,13 +19,17 @@ namespace Objects.Concurrent {
 			// put in the event queue, which is about to complete
 			result = value;
 			completed = true;
-			Completion?.Invoke(value);
+			Invoke();
+		}
+		private void Invoke() {
+			while (requests.TryDequeue(out var request)) {
+				request.Invoke(result);
+			}
 		}
 		public void Request(Action<T> action) {
+			requests.Enqueue(action);
 			if (completed) {
-				action.Invoke(result);
-			} else {
-				Completion += action.Invoke;
+				Invoke();
 			}
 		}
 	}

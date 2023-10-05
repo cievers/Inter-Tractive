@@ -41,7 +41,7 @@ namespace Objects.Sources.Progressive {
 		
 		private PromiseCollector<Tract> promisedMean;
 		private PromiseCollector<List<ConvexPolygon>> promisedCut;
-		private PromiseCollector<ConvexPolyhedron> promisedVolume;
+		private PromiseCollector<Hull> promisedVolume;
 
 		private int samples = 32;
 		private float resolution = 1;
@@ -59,7 +59,7 @@ namespace Objects.Sources.Progressive {
 
 			promisedMean = new PromiseCollector<Tract>();
 			promisedCut = new PromiseCollector<List<ConvexPolygon>>();
-			promisedVolume = new PromiseCollector<ConvexPolyhedron>();
+			promisedVolume = new PromiseCollector<Hull>();
 			
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());

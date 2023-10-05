@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Geometry;
 using Geometry.Generators;
 using Geometry.Tracts;
 using Objects.Concurrent;
 
 namespace Objects.Sources.Progressive {
-	public class Volume : Promise<ConvexPolyhedron> {
+	public class Volume : Promise<Hull> {
 		private UniformTractogram tractogram;
 		private List<ConvexPolygon> cuts;
 		
@@ -36,7 +37,11 @@ namespace Objects.Sources.Progressive {
 		}
 		
 		protected override void Compute() {
-			Complete(new ConvexPolyhedron(tractogram.Slice(0).ToList()));
+			var result = new List<Hull>();
+			for (var i = 1; i < cuts.Count; i++) {
+				result.Add(new ConvexPolyhedron(cuts[i-1].Points.Concat(cuts[i].Points).ToList()).Hull());
+			}
+			Complete(Hull.Join(result));
 		}
 	}
 }

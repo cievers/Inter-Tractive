@@ -38,9 +38,11 @@ namespace Objects.Sources.Progressive {
 		
 		protected override void Compute() {
 			var result = new List<Hull>();
+			result.Add(cuts[0].Surface(false));
 			for (var i = 1; i < cuts.Count; i++) {
-				result.Add(new ConvexPolyhedron(cuts[i-1].Points.Concat(cuts[i].Points).ToList()).Hull());
+				result.Add(new ConvexWrap(cuts[i-1], cuts[i]).Hull());
 			}
+			result.Add(cuts[^1].Surface());
 			Complete(Hull.Join(result));
 		}
 	}

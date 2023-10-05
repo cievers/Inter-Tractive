@@ -8,23 +8,7 @@ namespace Geometry.Generators {
 	public class ConvexPolygon {
 		public IEnumerable<Vector3> Points {get;}
 		public IEnumerable<Triangle> Faces => throw new NotImplementedException();
-		public IEnumerable<int> Indices {
-			get {
-				var length = Points.Count();
-				var result = new List<int>();
-				for (var i = 0; i < length - 2; i++) {
-					// Front face
-					result.Add(0);
-					result.Add(i+2);
-					result.Add(i+1);
-					// Back face
-					result.Add(length);
-					result.Add(length+i+1);
-					result.Add(length+i+2);
-				}
-				return result;
-			}
-		}
+		public IEnumerable<int> Indices => Triangulate(true, false);
 		public IEnumerable<Vector3> Normals => Enumerable.Repeat(normal.normalized, Points.Count());
 
 		private readonly Vector3 normal;
@@ -39,8 +23,36 @@ namespace Geometry.Generators {
 			Points = perimeter.Points.Select(point => mapping[point]);
 		}
 
+		private List<int> Triangulate(bool front = true, bool back = true) {
+			var length = Points.Count();
+			var result = new List<int>();
+			for (var i = 0; i < length - 2; i++) {
+				switch (front) {
+					case true: {
+						result.Add(0);
+						result.Add(i+2);
+						result.Add(i+1);
+						if (back) {
+							result.Add(length);
+							result.Add(length+i+1);
+							result.Add(length+i+2);
+						}
+						break;
+					}
+					case false when back:
+						result.Add(0);
+						result.Add(i+1);
+						result.Add(i+2);
+						break;
+				}
+			}
+			return result;
+		}
+		public Hull Surface(bool front = true) {
+			return new Hull(Points.ToArray(), (front ? Normals : Normals.Select(normal => -normal)).ToArray(), Triangulate(front, !front).ToArray());
+		}
 		public Hull Hull() {
-			return new Hull(Points.Concat(Points).ToArray(), Normals.Concat(Normals.Select(normal => -normal)).ToArray(), Indices.ToArray());
+			return new Hull(Points.Concat(Points).ToArray(), Normals.Concat(Normals.Select(normal => -normal)).ToArray(), Triangulate().ToArray());
 		}
 		public Mesh Mesh() {
 			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};

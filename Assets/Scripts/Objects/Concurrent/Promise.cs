@@ -10,6 +10,7 @@ namespace Objects.Concurrent {
 		private readonly ConcurrentQueue<Action<T>> requests = new();
 
 		protected void Start() {
+			completed = false;
 			new Thread(Compute).Start();
 		}
 		protected abstract void Compute();

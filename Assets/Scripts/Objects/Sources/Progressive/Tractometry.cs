@@ -43,10 +43,9 @@ namespace Objects.Sources.Progressive {
 		private PromiseCollector<Tract> promisedMean;
 		private PromiseCollector<List<ConvexPolygon>> promisedCut;
 		private PromiseCollector<Hull> promisedVolume;
-		private PromiseCollector<List<ConvexPolygon>> promisedProminentCut;
 
 		private int samples = 32;
-		private int prominence = 1;
+		private float prominence = 0;
 		private float resolution = 1;
 		private int batch = 4096;
 		private TractEvaluation evaluation;
@@ -63,7 +62,6 @@ namespace Objects.Sources.Progressive {
 			promisedMean = new PromiseCollector<Tract>();
 			promisedCut = new PromiseCollector<List<ConvexPolygon>>();
 			promisedVolume = new PromiseCollector<Hull>();
-			promisedProminentCut = new PromiseCollector<List<ConvexPolygon>>();
 			
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());
@@ -94,17 +92,10 @@ namespace Objects.Sources.Progressive {
 				tractMesh.mesh = new WireframeRenderer().Render(mean);
 			}
 			if (promisedCut.TryTake(out var cuts)) {
-				// foreach (var point in cuts[0].Points) {
-				// 	Instantiate(dot, point, Quaternion.identity);
-				// }
-				// cutMesh.mesh = cuts[0].Mesh();
-				// cutMesh.mesh = Hull.Join(cuts.Select(cut => cut.Hull()).ToList()).Mesh();
+				cutMesh.mesh = Hull.Join(cuts.Select(cut => cut.Hull()).ToList()).Mesh();
 			}
 			if (promisedVolume.TryTake(out var hull)) {
 				volumeMesh.mesh = hull.Mesh();
-			}
-			if (promisedProminentCut.TryTake(out var prominent)) {
-				cutMesh.mesh = Hull.Join(prominent.Select(cut => cut.Hull()).ToList()).Mesh();
 			}
 		}
 		private void UpdateTracts() {
@@ -119,9 +110,8 @@ namespace Objects.Sources.Progressive {
 			prominentCuts = new CrossSectionExtrema(cut, prominence);
 			
 			promisedMean.Add(mean);
-			promisedCut.Add(cut);
+			promisedCut.Add(prominentCuts);
 			promisedVolume.Add(volume);
-			promisedProminentCut.Add(prominentCuts);
 		}
 		private void UpdateSamples(int samples) {
 			this.samples = samples;
@@ -130,16 +120,10 @@ namespace Objects.Sources.Progressive {
 		private void UpdateSamples(float samples) {
 			UpdateSamples((int) Math.Round(samples));
 		}
-		private void UpdateCutProminence() {
-			prominentCuts.UpdateProminence(prominence);
-			promisedProminentCut.Add(prominentCuts);
-		}
-		private void UpdateCutProminence(int prominence) {
-			this.prominence = prominence;
-			UpdateCutProminence();
-		}
 		private void UpdateCutProminence(float prominence) {
-			UpdateCutProminence((int) Math.Round(prominence));
+			this.prominence = prominence;
+			prominentCuts.UpdateProminence(prominence);
+			promisedCut.Add(prominentCuts);
 		}
 		private void UpdateEvaluation(TractEvaluation evaluation) {
 			this.evaluation = evaluation;
@@ -214,9 +198,9 @@ namespace Objects.Sources.Progressive {
 				new Folder.Data("Global measuring", new List<Controller> {
 					new ActionToggle.Data("Mean", true, tractMesh.gameObject.SetActive),
 					new ActionToggle.Data("Cross-section", true, cutMesh.gameObject.SetActive),
-					new TransformedSlider.Data("Cross-section prominence", 0, value => Math.Max(1, value * 100), (_, transformed) => ((int) transformed).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),
+					new TransformedSlider.Data("Cross-section prominence", 0, value => value, (_, transformed) => ((int) Math.Round(transformed * 100)).ToString() + '%', new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),
 					new ActionToggle.Data("Volume", true, volumeMesh.gameObject.SetActive),
-					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) transformed).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
+					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) Math.Round(transformed)).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
 				}),
 				new Divider.Data(),
 				new Folder.Data("Local measuring", new List<Controller> {
@@ -226,7 +210,7 @@ namespace Objects.Sources.Progressive {
 				new Divider.Data(),
 				new Folder.Data("Rendering", new List<Controller> {
 					new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
-					new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, (_, transformed) => ((int) transformed).ToString(), UpdateBatch),
+					new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, (_, transformed) => ((int) Math.Round(transformed)).ToString(), UpdateBatch),
 				}),
 				new Divider.Data()
 			};

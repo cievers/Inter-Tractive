@@ -23,6 +23,15 @@ namespace Geometry.Generators {
 			Points = perimeter.Points.Select(point => mapping[point]);
 		}
 
+		public float Area() {
+			var sum = 0f;
+			var points = Points.ToArray();
+			for (var i = 0; i < points.Length - 2; i++) {
+				sum += Triangle.Area(points[i], points[i + 1], points[i + 2]);
+			}
+			return sum;
+		}
+
 		private List<int> Triangulate(bool front = true, bool back = true) {
 			var length = Points.Count();
 			var result = new List<int>();

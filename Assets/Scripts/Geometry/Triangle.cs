@@ -29,5 +29,15 @@ namespace Geometry {
 			// This could be a method function of a plane class, but that would (for now) require making a plane class and instances just for this
 			return Math.Sign(Vector3.Dot(Vector3.Cross(b - a, c - a), d - a));
 		}
+
+		public static float Area(Vector3 a, Vector3 b, Vector3 c) {
+			return Area(b - a, c - a);
+		}
+		public static float Area(Vector3 a, Vector3 b) {
+			return (float) (0.5 * Vector3.Cross(a, b).magnitude);
+		}
+		public static float Area(float a, float b, float c) {
+			return (float) (0.25 * Math.Sqrt(4 * Math.Pow(a, 2) * Math.Pow(b, 2) - Math.Pow(Math.Pow(a, 2) + Math.Pow(b, 2) - Math.Pow(c, 2), 2)));
+		}
 	}
 }

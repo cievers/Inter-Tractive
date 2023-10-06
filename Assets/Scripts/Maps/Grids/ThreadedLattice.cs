@@ -155,18 +155,20 @@ namespace Maps.Grids {
 		}
 		
 		public Model Render(Dictionary<Cell, Color32> map) {
-			var model = new Model();
+			var vertices = new List<Vector3>();
+			var colors = new List<Color32>();
+			var indices = new List<int>();
 
 			foreach (var cell in Cells) {
 				if (cell != null && map.ContainsKey(cell)) {
 					var value = (Cuboid) cell;
-					model.Indices.AddRange(value.Indices.Select(index => index + model.Vertices.Count));
-					model.Vertices.AddRange(value.Vertices);
-					model.Colors.AddRange(value.Vertices.Select(_ => map[cell]));
+					indices.AddRange(value.Indices.Select(index => index + vertices.Count));
+					vertices.AddRange(value.Vertices);
+					colors.AddRange(value.Vertices.Select(_ => map[cell]));
 				}
 			}
 
-			return model;
+			return new Model(vertices.ToArray(), new Vector3[]{}, colors.ToArray(), indices.ToArray());
 		}
 		
 		private record DistancedSegment(Segment Segment, Tract Tract) {

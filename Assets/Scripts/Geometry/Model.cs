@@ -1,45 +1,20 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Geometry {
 	public class Model {
-		public List<Vector3> Vertices {get; private set;}
-		public List<Vector3> Normals {get; private set;}
-		public List<Color32> Colors {get; private set;}
-		public List<int> Indices {get; private set;}
+		public Vector3[] Vertices {get; private set;}
+		public Vector3[] Normals {get; private set;}
+		public Color32[] Colors {get; private set;}
+		public int[] Indices {get; private set;}
 
-		public Model(List<Vector3> vertices, List<Vector3> normals, List<Color32> colors, List<int> indices) {
+		public Model(Vector3[] vertices, Vector3[] normals, Color32[] colors, int[] indices) {
 			Vertices = vertices;
 			Normals = normals;
 			Colors = colors;
 			Indices = indices;
-		}
-		public Model() : this(new List<Vector3>(), new List<Vector3>(), new List<Color32>(), new List<int>()) {}
-
-		public void AddVertices(Vector3 vertex) {
-			Vertices.Add(vertex);
-		}
-		public void AddVertices(IEnumerable<Vector3> vertices) {
-			Vertices.AddRange(vertices);
-		}
-		public void AddNormals(Vector3 normal) {
-			Normals.Add(normal);
-		}
-		public void AddNormals(IEnumerable<Vector3> normals) {
-			Normals.AddRange(normals);
-		}
-		public void AddColors(Color32 color) {
-			Colors.Add(color);
-		}
-		public void AddColors(IEnumerable<Color32> colors) {
-			Colors.AddRange(colors);
-		}
-		public void AddIndices(int index) {
-			Indices.Add(index);
-		}
-		public void AddIndices(IEnumerable<int> indices) {
-			Indices.AddRange(indices);
 		}
 
 		public Mesh Mesh() {
@@ -53,6 +28,35 @@ namespace Geometry {
 			mesh.RecalculateNormals();
 
 			return mesh;
+		}
+
+		public static Model Join(params Model[] geometry) => Join((IList<Model>) geometry);
+		public static Model Join(IList<Model> geometry) {
+			var final = new Model(
+				new Vector3[geometry.Sum(static g => g.Vertices.Length)],
+				new Vector3[geometry.Sum(static g => g.Normals.Length)],
+				new Color32[geometry.Sum(static g => g.Colors.Length)],
+				new int[geometry.Sum(static g => g.Indices.Length)]
+			);
+
+			var lastVertexIndex = 0;
+			var lastElemIndex = 0;
+			foreach (var g in geometry) {
+				g.Vertices.CopyTo(final.Vertices, lastVertexIndex);
+				g.Normals.CopyTo(final.Normals, lastVertexIndex);
+				g.Colors.CopyTo(final.Colors, lastVertexIndex);
+				g.Indices.CopyTo(final.Indices, lastElemIndex);
+				
+				//offset index buffer
+				for (var j = lastElemIndex; j < lastElemIndex + g.Indices.Length; j++) {
+					final.Indices[j] += (lastVertexIndex);
+				}
+
+				lastVertexIndex += g.Vertices.Length;
+				lastElemIndex += g.Indices.Length;
+			}
+
+			return final;
 		}
 	}
 }

@@ -14,8 +14,10 @@ namespace Geometry {
 			Normals = normals;
 			Indices = indices;
 		}
-		public Hull() : this(new Vector3[]{}, new Vector3[]{}, new int[]{}) {}
 
+		public Model Color(Color32 color) {
+			return new Model(Vertices, Normals, Enumerable.Repeat(color, Vertices.Length).ToArray(), Indices);
+		}
 		public Mesh Mesh() {
 			// TODO: Normals aren't used in rendering yet
 			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};

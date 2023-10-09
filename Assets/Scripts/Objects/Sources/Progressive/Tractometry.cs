@@ -211,7 +211,7 @@ namespace Objects.Sources.Progressive {
 				}),
 				new Divider.Data(),
 				new Folder.Data("Local measuring", new List<Controller> {
-					new ActionToggle.Data("Map", false, gridMesh.gameObject.SetActive),
+					new Loader.Data(new ActionToggle.Data("Map", false, gridMesh.gameObject.SetActive)),
 					new Interface.Control.Evaluation.Data(UpdateEvaluation),
 				}),
 				new Divider.Data(),

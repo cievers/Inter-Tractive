@@ -9,6 +9,7 @@ namespace Interface {
 		public Folder folder;
 		public Description description;
 		public Divider divider;
+		public Loader loader;
 		
 		public ActionToggle toggle;
 		public Slider slider;
@@ -26,6 +27,9 @@ namespace Interface {
 					break;
 				case Divider.Data dividerData:
 					divider.Construct(parent, dividerData);
+					break;
+				case Loader.Data loaderData:
+					loader.Construct(parent, loaderData, this);
 					break;
 				case ActionToggle.Data toggleData:
 					toggle.Construct(parent, toggleData);

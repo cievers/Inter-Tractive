@@ -47,6 +47,7 @@ MonoBehaviour:
   folder: {fileID: 2262085649631915118, guid: 9ef49c561737ec24dbc0a71e8583adcb, type: 3}
   description: {fileID: 0}
   divider: {fileID: -5745153181373567781, guid: 22970256a129eae4cbef3d3b03899eb1, type: 3}
+  loader: {fileID: 1371829380183929874, guid: 71081dfc347f1034db254a86e1de6087, type: 3}
   toggle: {fileID: 6920744148939201583, guid: 8cec65452a016914c8f9d61dffad6cee, type: 3}
   slider: {fileID: 9100611682966551760, guid: e80ccac4fadf60643a1e40944bc06f36, type: 3}
   transformedSlider: {fileID: 6717780289610301499, guid: 7f3d9070269787445b435ccb7b785ff0, type: 3}

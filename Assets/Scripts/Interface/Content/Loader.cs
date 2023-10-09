@@ -7,6 +7,9 @@ namespace Interface.Content {
 		public RectTransform container;
 		public GameObject spinner;
 
+		private bool state;
+		private bool changed;
+
 		public Loader Construct(RectTransform parent, Data component, Theming theming) {
 			var instance = Instantiate(this, parent);
 
@@ -16,9 +19,16 @@ namespace Interface.Content {
 
 			return instance;
 		}
-		
+
+		private void Update() {
+			if (changed) {
+				spinner.SetActive(state);
+				changed = false;
+			}
+		}
 		private void UpdateState(bool state) {
-			spinner.SetActive(state);
+			this.state = state;
+			changed = true;
 		}
 		
 		public record Data : Controller {

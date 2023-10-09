@@ -56,7 +56,7 @@ namespace Objects {
 					Publish();
 				}
 				if (input.IsCompleted) {
-					models.Complete();
+					models.Sent();
 				}
 			}
 		}

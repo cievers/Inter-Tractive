@@ -1,15 +1,36 @@
 ﻿using System.Collections.Concurrent;
+using Logic.Eventful;
 
 namespace Objects.Concurrent {
-	public class ConcurrentPipe<T> : ConcurrentBag<T> {
-		public bool IsCompleted {get; private set;}
+	public class ConcurrentPipe<T> : ConcurrentBag<T>, Boolean {
+		public bool IsPublished {get; private set;}
+		public bool IsCompleted => IsPublished && IsEmpty;
+		public bool State => !IsCompleted;
+		
+		public new bool TryTake(out T result) {
+			var success = base.TryTake(out result);
+			if (success && IsCompleted) {
+				Completed();
+			}
+			return success;
+		}
 		
 		public void Restart() {
 			// This should probably clear out any remaining queue
-			IsCompleted = false;
+			IsPublished = false;
+			True?.Invoke();
+			Change?.Invoke(State);
 		}
-		public void Complete() {
-			IsCompleted = true;
+		public void Sent() {
+			IsPublished = true;
 		}
+		private void Completed() {
+			False?.Invoke();
+			Change?.Invoke(State);
+		}
+		
+		public event Boolean.ValueEvent True;
+		public event Boolean.ValueEvent False;
+		public event Boolean.ChangeEvent Change;
 	}
 }

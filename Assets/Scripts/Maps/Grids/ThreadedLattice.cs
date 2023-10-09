@@ -148,7 +148,7 @@ namespace Maps.Grids {
 				}
 			}
 
-			Bag.Complete();
+			Bag.Sent();
 		}
 		private void Produce(Index3 index, Tract tract) {
 			Bag.Add(new Tuple<Cell, Tract>(Quantize(index), tract));

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Geometry.Generators;
 using Objects.Concurrent;
+using UnityEngine;
 
 namespace Objects.Sources.Progressive {
 	public class CrossSectionExtrema : Promise<List<ConvexPolygon>> {
@@ -42,7 +43,8 @@ namespace Objects.Sources.Progressive {
 				var minIndex = i;
 				var max = float.MinValue;
 				var maxIndex = i;
-				for (var j = Math.Max(i - range, 0); j < Math.Min(i + range, array.Length-1); j++) {
+				// Debug.Log("Context for "+i+" with range "+range+": "+Math.Max(i - range, 0)+" to "+Math.Min(i + range, array.Length));
+				for (var j = Math.Max(i - range, 0); j < Math.Min(i + range, array.Length); j++) {
 					if (areas[j] < min) {
 						min = areas[j];
 						minIndex = j;

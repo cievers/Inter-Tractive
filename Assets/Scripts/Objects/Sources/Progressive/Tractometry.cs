@@ -13,10 +13,13 @@ using Geometry.Generators;
 using Geometry.Tracts;
 using Interface.Content;
 using Interface.Control;
+using Logic.Eventful;
 using Maps.Cells;
 using Maps.Grids;
 using Objects.Concurrent;
 using UnityEngine;
+
+using Boolean = Logic.Eventful.Boolean;
 
 namespace Objects.Sources.Progressive {
 	public class Tractometry : Voxels {
@@ -45,6 +48,8 @@ namespace Objects.Sources.Progressive {
 		private PromiseCollector<Model> promisedCut;
 		private PromiseCollector<Hull> promisedVolume;
 
+		private Any loading;
+
 		private int samples = 32;
 		private float prominence = 0;
 		private float resolution = 1;
@@ -63,9 +68,13 @@ namespace Objects.Sources.Progressive {
 			promisedMean = new PromiseCollector<Tract>();
 			promisedCut = new PromiseCollector<Model>();
 			promisedVolume = new PromiseCollector<Hull>();
-			
+
+
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());
+			
+			loading = new Any(new Boolean[] {maps, promisedMean, promisedCut, promisedVolume});
+			loading.Change += state => Loading(!state);
 
 			UpdateSamples();
 			UpdateTracts();
@@ -83,10 +92,6 @@ namespace Objects.Sources.Progressive {
 			}
 			if (maps.TryTake(out var result)) {
 				gridMesh.mesh = result.Mesh();
-				
-				if (maps.IsCompleted && maps.IsEmpty) {
-					Loading(true);
-				}
 			}
 
 			if (promisedMean.TryTake(out var mean)) {

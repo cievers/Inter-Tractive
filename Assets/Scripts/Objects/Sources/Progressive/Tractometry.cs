@@ -23,6 +23,7 @@ namespace Objects.Sources.Progressive {
 		public MeshFilter tractMesh;
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
+		public MeshFilter spanMesh;
 		public MeshFilter cutMesh;
 		public MeshFilter volumeMesh;
 		public GameObject dot;
@@ -89,7 +90,9 @@ namespace Objects.Sources.Progressive {
 			}
 
 			if (promisedMean.TryTake(out var mean)) {
-				tractMesh.mesh = new WireframeRenderer().Render(mean);
+				var wires = new WireframeRenderer();
+				tractMesh.mesh = wires.Render(mean);
+				spanMesh.mesh = wires.Render(new ArrayTract(new[] {mean.Points[0], mean.Points[^1]}));
 			}
 			if (promisedCut.TryTake(out var cuts)) {
 				cutMesh.mesh = cuts.Mesh();
@@ -200,6 +203,7 @@ namespace Objects.Sources.Progressive {
 				new Divider.Data(),
 				new Folder.Data("Global measuring", new List<Controller> {
 					new ActionToggle.Data("Mean", true, tractMesh.gameObject.SetActive),
+					new ActionToggle.Data("Mean span", true, spanMesh.gameObject.SetActive),
 					new ActionToggle.Data("Cross-section", true, cutMesh.gameObject.SetActive),
 					new TransformedSlider.Data("Cross-section prominence", 0, value => value, (_, transformed) => ((int) Math.Round(transformed * 100)).ToString() + '%', new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),
 					new ActionToggle.Data("Volume", true, volumeMesh.gameObject.SetActive),

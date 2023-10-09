@@ -27,7 +27,7 @@ namespace Geometry.Generators {
 			var sum = 0f;
 			var points = Points.ToArray();
 			for (var i = 0; i < points.Length - 2; i++) {
-				sum += Triangle.Area(points[i], points[i + 1], points[i + 2]);
+				sum += Triangle.Area(points[0], points[i + 1], points[i + 2]);
 			}
 			return sum;
 		}

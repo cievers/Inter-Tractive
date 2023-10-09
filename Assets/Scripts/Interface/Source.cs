@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Camera;
 using Objects;
@@ -37,11 +38,6 @@ namespace Interface {
 				templates.Add(type.extension, type.template);
 			}
 			Browse();
-			
-			// If the file selection was abandoned, remove the UI panel that was already created
-			if (path == null) {
-				DestroyImmediate(gameObject);
-			}
 		}
 		private void Update() {
 			loading.SetActive(!loaded);
@@ -49,7 +45,15 @@ namespace Interface {
 		private void Browse() {
 			// var properties = new BrowserProperties {filter = "Tract files (*.tck) | *.tck", filterIndex = 0};
 			// new FileBrowser().OpenFileBrowser(properties, Load);
-			Load(StandaloneFileBrowser.OpenFilePanel("Tract files", "", "tck", false)[0]);
+			var selection = StandaloneFileBrowser.OpenFilePanel("Tract files", "", "tck", false);
+			if (selection.Length == 1) {
+				Load(selection[0]);
+			} else {
+				DestroyImmediate(gameObject);
+				if (selection.Length > 1) {
+					throw new InvalidDataException("Please select only one file at a time");
+				}
+			}
 		}
 		private void Load(string path) {
 			this.path = path.Replace("\\", "/");

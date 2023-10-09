@@ -41,7 +41,7 @@ namespace Objects.Sources.Progressive {
 		private Thread renderThread;
 		
 		private PromiseCollector<Tract> promisedMean;
-		private PromiseCollector<List<ConvexPolygon>> promisedCut;
+		private PromiseCollector<Model> promisedCut;
 		private PromiseCollector<Hull> promisedVolume;
 
 		private int samples = 32;
@@ -60,7 +60,7 @@ namespace Objects.Sources.Progressive {
 			maps = new ConcurrentPipe<Model>();
 
 			promisedMean = new PromiseCollector<Tract>();
-			promisedCut = new PromiseCollector<List<ConvexPolygon>>();
+			promisedCut = new PromiseCollector<Model>();
 			promisedVolume = new PromiseCollector<Hull>();
 			
 			tractogram = Tck.Load(path);
@@ -92,7 +92,7 @@ namespace Objects.Sources.Progressive {
 				tractMesh.mesh = new WireframeRenderer().Render(mean);
 			}
 			if (promisedCut.TryTake(out var cuts)) {
-				cutMesh.mesh = Hull.Join(cuts.Select(cut => cut.Hull()).ToList()).Mesh();
+				cutMesh.mesh = cuts.Mesh();
 			}
 			if (promisedVolume.TryTake(out var hull)) {
 				volumeMesh.mesh = hull.Mesh();
@@ -108,10 +108,10 @@ namespace Objects.Sources.Progressive {
 			var volume = new Volume(sampler, cut);
 
 			prominentCuts = new CrossSectionExtrema(cut, prominence);
-			
+
 			promisedMean.Add(mean);
-			promisedCut.Add(prominentCuts);
 			promisedVolume.Add(volume);
+			UpdateCutEvaluation();
 		}
 		private void UpdateSamples(int samples) {
 			this.samples = samples;
@@ -123,7 +123,10 @@ namespace Objects.Sources.Progressive {
 		private void UpdateCutProminence(float prominence) {
 			this.prominence = prominence;
 			prominentCuts.UpdateProminence(prominence);
-			promisedCut.Add(prominentCuts);
+			UpdateCutEvaluation();
+		}
+		private void UpdateCutEvaluation() {
+			promisedCut.Add(new CrossSectionEvaluation(prominentCuts));
 		}
 		private void UpdateEvaluation(TractEvaluation evaluation) {
 			this.evaluation = evaluation;

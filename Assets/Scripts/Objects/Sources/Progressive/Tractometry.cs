@@ -34,8 +34,9 @@ namespace Objects.Sources.Progressive {
 		private Tractogram tractogram;
 		private ThreadedLattice grid;
 		private new ThreadedRenderer renderer;
+		private Tract tractogramMean;
 		private CrossSectionExtrema prominentCuts;
-		
+
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
@@ -95,6 +96,7 @@ namespace Objects.Sources.Progressive {
 			}
 
 			if (promisedMean.TryTake(out var mean)) {
+				tractogramMean = mean;
 				var wires = new WireframeRenderer();
 				tractMesh.mesh = wires.Render(mean);
 				spanMesh.mesh = wires.Render(new ArrayTract(new[] {mean.Points[0], mean.Points[^1]}));

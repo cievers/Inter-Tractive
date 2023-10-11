@@ -7,7 +7,7 @@ using Geometry;
 using UnityEngine;
 
 namespace Files.Types {
-	public record Nii<T> {
+	public record Nii<T> : Stored {
 		private readonly T[] values;
 		private readonly int measurements;
 		private readonly Index3 composition;

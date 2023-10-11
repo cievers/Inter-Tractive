@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Camera;
+using Files;
 using Files.Types;
 using Geometry;
 using Maps.Cells;
@@ -21,6 +22,7 @@ namespace Objects.Sources {
 		public abstract Nii<float> Nifti();
 
 		public virtual IEnumerable<Interface.Component> Controls() => new List<Interface.Component>();
+		public virtual IEnumerable<Publisher> Exports() => new List<Publisher>();
 
 		public delegate void SourceLoadedEvent(bool loaded);
 		public event SourceLoadedEvent Loaded;

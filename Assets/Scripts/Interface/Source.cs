@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Camera;
+using Files;
 using Objects;
 using Objects.Sources;
 using TMPro;
@@ -79,10 +80,16 @@ namespace Interface {
 			foreach (var data in instance.Controls()) {
 				styles.Construct(controls, data);
 			}
+			foreach (var export in instance.Exports()) {
+				export.Published += Write;
+			}
 			LayoutRebuilder.ForceRebuildLayoutImmediate(controls);
 		}
 		public void Write() {
 			instance.Nifti().Write(StandaloneFileBrowser.SaveFilePanel("Save as NIFTI", "", Name(), "nii"));
+		}
+		private void Write(Stored file, string description, string type) {
+			file.Write(StandaloneFileBrowser.SaveFilePanel(description, "", Name(), type));
 		}
 		
 		public void UpdateContext(Source source) {

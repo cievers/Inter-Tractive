@@ -7,6 +7,7 @@ using Camera;
 using Evaluation;
 using Evaluation.Coloring;
 using Evaluation.Geometric;
+using Files;
 using Files.Types;
 using Geometry;
 using Geometry.Generators;
@@ -20,6 +21,7 @@ using Objects.Concurrent;
 using UnityEngine;
 
 using Boolean = Logic.Eventful.Boolean;
+using Exporter = Interface.Control.Exporter;
 
 namespace Objects.Sources.Progressive {
 	public class Tractometry : Voxels {
@@ -36,6 +38,7 @@ namespace Objects.Sources.Progressive {
 		private new ThreadedRenderer renderer;
 		private Tract tractogramMean;
 		private CrossSectionExtrema prominentCuts;
+		private Summary summary;
 
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
@@ -48,6 +51,10 @@ namespace Objects.Sources.Progressive {
 		private PromiseCollector<Tract> promisedMean;
 		private PromiseCollector<Model> promisedCut;
 		private PromiseCollector<Hull> promisedVolume;
+
+		private Files.Exporter exportMap;
+		private Files.Exporter exportCore;
+		private Files.Exporter exportSummary;
 
 		private Any loading;
 
@@ -70,6 +77,9 @@ namespace Objects.Sources.Progressive {
 			promisedCut = new PromiseCollector<Model>();
 			promisedVolume = new PromiseCollector<Hull>();
 
+			exportMap = new Files.Exporter("Save as NIFTI", "nii", Nifti);
+			exportCore = new Files.Exporter("Save as TCK", "tck", () => throw new NotImplementedException());
+			exportSummary = new Files.Exporter("Save numeric summary", "json", () => throw new NotImplementedException());
 
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());
@@ -220,6 +230,7 @@ namespace Objects.Sources.Progressive {
 				new Folder.Data("Local measuring", new List<Controller> {
 					new Loader.Data(maps, new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive)),
 					new Interface.Control.Evaluation.Data(UpdateEvaluation),
+					new Exporter.Data("Export map", exportMap)
 				}),
 				new Divider.Data(),
 				new Folder.Data("Rendering", new List<Controller> {
@@ -228,6 +239,9 @@ namespace Objects.Sources.Progressive {
 				}),
 				new Divider.Data()
 			};
+		}
+		public override IEnumerable<Files.Publisher> Exports() {
+			return new Publisher[] {exportMap, exportCore, exportSummary};
 		}
 	}
 }

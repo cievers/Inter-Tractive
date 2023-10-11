@@ -16,6 +16,7 @@ namespace Interface {
 		public TransformedSlider transformedSlider;
 		public SmoothStepper stepper;
 		public Control.Evaluation evaluation;
+		public Exporter exporter;
 
 		public void Construct(RectTransform parent, Component data) {
 			switch (data) {
@@ -45,6 +46,9 @@ namespace Interface {
 					break;
 				case Control.Evaluation.Data evaluationData:
 					evaluation.Construct(parent, evaluationData);
+					break;
+				case Exporter.Data exporterData:
+					exporter.Construct(parent, exporterData);
 					break;
 				default:
 					throw new NotSupportedException("No interface element is implemented for component type " + data.GetType());

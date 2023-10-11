@@ -16,6 +16,7 @@ namespace Geometry.Generators {
 			// Because of vertex splitting for unique normals per face, removing only the indices of a face leaves many
 			// unused vertices and normals still in the mesh. These could and should be optimized, although that would
 			// also cause the just filtered indices to shift again
+			// TODO: The two convex polygons might intersect, what the hell now?!
 			var points = new HashSet<Vector3>(start.Points);
 			var solid = new ConvexPolyhedron(start.Points.Concat(end.Points).ToList()).Hull();
 			var result = new List<int>();

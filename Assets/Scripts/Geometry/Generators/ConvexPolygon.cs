@@ -23,6 +23,14 @@ namespace Geometry.Generators {
 			Points = perimeter.Points.Select(point => mapping[point]);
 		}
 
+		public float Perimeter() {
+			var sum = 0f;
+			var points = Points.ToArray();
+			for (var i = 0; i < points.Length - 1; i++) {
+				sum += (points[i + 1] - points[i]).magnitude;
+			}
+			return sum;
+		}
 		public float Area() {
 			var sum = 0f;
 			var points = Points.ToArray();

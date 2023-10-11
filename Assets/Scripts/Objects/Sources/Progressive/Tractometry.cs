@@ -36,7 +36,6 @@ namespace Objects.Sources.Progressive {
 		private Tractogram tractogram;
 		private ThreadedLattice grid;
 		private new ThreadedRenderer renderer;
-		private Tract tractogramMean;
 		private CrossSectionExtrema prominentCuts;
 		private Summary summary;
 
@@ -48,7 +47,7 @@ namespace Objects.Sources.Progressive {
 		private Thread quantizeThread;
 		private Thread renderThread;
 		
-		private PromiseCollector<Tract> promisedMean;
+		private PromiseCollector<Tract> promisedCore;
 		private PromiseCollector<Model> promisedCut;
 		private PromiseCollector<Hull> promisedVolume;
 
@@ -72,19 +71,20 @@ namespace Objects.Sources.Progressive {
 			measurements = new ConcurrentBag<Dictionary<Cell, Vector>>();
 			colors = new ConcurrentBag<Dictionary<Cell, Color32>>();
 			maps = new ConcurrentPipe<Model>();
+			summary = new Summary();
 
-			promisedMean = new PromiseCollector<Tract>();
+			promisedCore = new PromiseCollector<Tract>();
 			promisedCut = new PromiseCollector<Model>();
 			promisedVolume = new PromiseCollector<Hull>();
 
 			exportMap = new Files.Exporter("Save as NIFTI", "nii", Nifti);
 			exportCore = new Files.Exporter("Save as TCK", "tck", () => throw new NotImplementedException());
-			exportSummary = new Files.Exporter("Save numeric summary", "json", () => throw new NotImplementedException());
+			exportSummary = new Files.Exporter("Save numeric summary", "json", summary.Json);
 
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Rgb());
 			
-			loading = new Any(new Boolean[] {maps, promisedMean, promisedCut, promisedVolume});
+			loading = new Any(new Boolean[] {maps, promisedCore, promisedCut, promisedVolume});
 			loading.Change += state => Loading(!state);
 
 			UpdateSamples();
@@ -105,11 +105,11 @@ namespace Objects.Sources.Progressive {
 				gridMesh.mesh = result.Mesh();
 			}
 
-			if (promisedMean.TryTake(out var mean)) {
-				tractogramMean = mean;
+			if (promisedCore.TryTake(out var core)) {
 				var wires = new WireframeRenderer();
-				tractMesh.mesh = wires.Render(mean);
-				spanMesh.mesh = wires.Render(new ArrayTract(new[] {mean.Points[0], mean.Points[^1]}));
+				tractMesh.mesh = wires.Render(core);
+				spanMesh.mesh = wires.Render(new ArrayTract(new[] {core.Points[0], core.Points[^1]}));
+				summary.Core(core);
 			}
 			if (promisedCut.TryTake(out var cuts)) {
 				cutMesh.mesh = cuts.Mesh();
@@ -129,7 +129,7 @@ namespace Objects.Sources.Progressive {
 
 			prominentCuts = new CrossSectionExtrema(cut, prominence);
 
-			promisedMean.Add(mean);
+			promisedCore.Add(mean);
 			promisedVolume.Add(volume);
 			UpdateCutEvaluation();
 		}
@@ -219,12 +219,13 @@ namespace Objects.Sources.Progressive {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new Divider.Data(),
 				new Folder.Data("Global measuring", new List<Controller> {
-					new Loader.Data(promisedMean, new ActionToggle.Data("Mean", true, tractMesh.gameObject.SetActive)),
-					new Loader.Data(promisedMean, new ActionToggle.Data("Span", false, spanMesh.gameObject.SetActive)),
+					new Loader.Data(promisedCore, new ActionToggle.Data("Mean", true, tractMesh.gameObject.SetActive)),
+					new Loader.Data(promisedCore, new ActionToggle.Data("Span", false, spanMesh.gameObject.SetActive)),
 					new Loader.Data(promisedCut, new ActionToggle.Data("Cross-section", false, cutMesh.gameObject.SetActive)),
 					new TransformedSlider.Data("Cross-section prominence", 0, value => value, (_, transformed) => ((int) Math.Round(transformed * 100)).ToString() + '%', new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),
 					new Loader.Data(promisedVolume, new ActionToggle.Data("Volume", false, volumeMesh.gameObject.SetActive)),
 					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) Math.Round(transformed)).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
+					new Exporter.Data("Export summary", exportSummary)
 				}),
 				new Divider.Data(),
 				new Folder.Data("Local measuring", new List<Controller> {

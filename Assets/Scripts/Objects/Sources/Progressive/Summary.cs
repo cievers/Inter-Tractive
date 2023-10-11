@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.Json;
 using Evaluation.Geometric;
+using Files.Types;
 using Geometry.Generators;
 using Geometry.Tracts;
 
@@ -23,8 +24,8 @@ namespace Objects.Sources.Progressive {
 			Perimeters = array.Select(cut => cut.Perimeter()).ToArray();
 		}
 
-		public string Json() {
-			return JsonSerializer.Serialize(this);
+		public Json Json() {
+			return new Json(JsonSerializer.Serialize(this));
 		}
 	}
 }

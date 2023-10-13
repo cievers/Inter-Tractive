@@ -47,6 +47,13 @@ namespace Geometry.Generators {
 			return sum;
 		}
 
+		public Side Side(Vector3 point) {
+			return Plane.Side(point, origin, normal);
+		}
+		public Line? IntersectionLine(ConvexPolygon other) {
+			// This is a bit of a misnomer, as it returns the intersecting line of the planes of the two polygons, which might not intersect either polygon at all
+			return Plane.Intersection(origin, normal, other.origin, other.normal);
+		}
 		public ConvexPolygon[] Split(Line line) {
 			// Assume the line lies in the plane defined by this polygon's origin and normal
 			// Also definitively projects the given set of points to the given plane

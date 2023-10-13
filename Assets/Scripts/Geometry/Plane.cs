@@ -6,6 +6,13 @@ using UnityEngine.Rendering;
 
 namespace Geometry {
 	public class Plane {
+		public static Side Side(Vector3 point, Vector3 origin, Vector3 normal) {
+			return Vector3.Dot(normal, point - origin) switch {
+				> 0 => Geometry.Side.Positive,
+				< 0 => Geometry.Side.Negative,
+				_ => Geometry.Side.Contained
+			};
+		}
 		public static Vector3 Projection(Vector3 point, Vector3 origin, Vector3 normal) {
 			var normalized = normal.normalized;
 			return point - normalized * Vector3.Dot(normalized, point - origin);

@@ -2,6 +2,7 @@
 using System.Linq;
 using Geometry.Tracts;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Geometry {
 	public class Plane {
@@ -36,6 +37,21 @@ namespace Geometry {
 			// The creation of a Segment instance seems unnecessarily costly here
 			return Intersection(new Segment(edge.A, edge.B), origin, normal);
 		}
+		public static Line? Intersection(Vector3 originA, Vector3 normalA, Vector3 originB, Vector3 normalB) {
+			if (normalA == normalB) {
+				return null;
+			}
+			
+			// Logically the 3rd plane, but we only use the normal component.
+			var direction = Vector3.Cross(normalA, normalB);
+			var determinant = direction.sqrMagnitude;
+    
+			// If the determinant is 0, that means parallel planes, no intersection, but that should have been check beforehand
+			return new Line((
+				Vector3.Cross(direction, normalB) * -Vector3.Dot(normalA, originA) +
+				Vector3.Cross(normalA, direction) * -Vector3.Dot(normalB, originB)
+			) / determinant, direction);
+		}
 		public static IEnumerable<Vector3> Intersections(IEnumerable<Edge> segments, Vector3 origin, Vector3 normal) {
 			return segments
 				.Select(edge => Intersection(edge, origin, normal))
@@ -56,6 +72,32 @@ namespace Geometry {
 		}
 		public static IEnumerable<Vector3> Intersections(Tractogram tractogram, Vector3 origin, Vector3 normal) {
 			return tractogram.Tracts.SelectMany(tract => Intersections(tract, origin, normal));
+		}
+
+		public static Mesh Mesh(Vector3 origin, Vector3 normal, float size) {
+			var rotation = Quaternion.FromToRotation(Vector3.forward, normal);
+			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};
+
+			mesh.Clear();
+			mesh.SetVertices(new Vector3[] {
+				new(size, size),
+				new(-size, size),
+				new(size, -size),
+				new(-size, -size),
+				new(size, size),
+				new(-size, size),
+				new(size, -size),
+				new(-size, -size)
+			}.Select(point => rotation * point + origin).ToArray());
+			mesh.SetNormals(Enumerable.Repeat(normal, 4).Concat(Enumerable.Repeat(normal * -1, 4)).ToArray());
+			mesh.SetTriangles(new[] {
+				0, 1, 3,
+				0, 3, 2,
+				0, 2, 3,
+				0, 3, 1
+			}, 0);
+
+			return mesh;
 		}
 	}
 }

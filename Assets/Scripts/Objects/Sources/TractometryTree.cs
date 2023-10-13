@@ -71,23 +71,6 @@ namespace Objects.Sources {
 		public override Map Map() {
 			return map;
 		}
-		public override Nii<float> Nifti() {
-			// var gridBoundaries = grid.Boundaries;
-			// return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, gridBoundaries.Min + new Vector3(grid.CellSize / 2, grid.CellSize / 2, grid.CellSize / 2), new Vector3(grid.CellSize, grid.CellSize, grid.CellSize));
-			throw new NotImplementedException();
-		}
-
-		private T[] ToArray<T>(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, T> values, T fill) {
-			var result = new T[cells.Count];
-			for (var i = 0; i < cells.Count; i++) {
-				if (cells[i] != null && values.ContainsKey(cells[i])) {
-					result[i] = values[cells[i]];
-				} else {
-					result[i] = fill;
-				}
-			}
-			return result;
-		}
 
 		public override IEnumerable<Interface.Component> Controls() {
 			return new Controller[] {

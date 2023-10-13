@@ -184,37 +184,6 @@ namespace Objects.Sources.Progressive {
 		public override Map Map() {
 			return map;
 		}
-		public override Nii<float> Nifti() {
-			return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, grid.Boundaries.Min + new Vector3(grid.Resolution / 2, grid.Resolution / 2, grid.Resolution / 2), new Vector3(grid.Resolution, grid.Resolution, grid.Resolution));
-		}
-
-		private T[] ToArray<T>(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, T> values, T fill) {
-			var result = new T[cells.Count];
-			for (var i = 0; i < cells.Count; i++) {
-				if (cells[i] != null && values.ContainsKey(cells[i])) {
-					result[i] = values[cells[i]];
-				} else {
-					result[i] = fill;
-				}
-			}
-			return result;
-		}
-		private float[] ToArray(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Vector> values, float fill) {
-			var dimensions = values.Values.Select(vector => vector.Dimensions).Min();
-			var result = new float[cells.Count * dimensions];
-			for (var i = 0; i < cells.Count; i++) {
-				if (cells[i] != null && values.ContainsKey(cells[i])) {
-					for (var j = 0; j < dimensions; j++) {
-						result[i * dimensions + j] = values[cells[i]][j];
-					}
-				} else {
-					for (var j = 0; j < dimensions; j++) {
-						result[i * dimensions + j] = fill;
-					}
-				}
-			}
-			return result;
-		}
 		
 		public override IEnumerable<Interface.Component> Controls() {
 			return new Interface.Component[] {
@@ -245,6 +214,37 @@ namespace Objects.Sources.Progressive {
 		}
 		public override IEnumerable<Files.Publisher> Exports() {
 			return new Publisher[] {exportMap, exportCore, exportSummary};
+		}
+		
+		private Nii<float> Nifti() {
+			return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, grid.Boundaries.Min + new Vector3(grid.Resolution / 2, grid.Resolution / 2, grid.Resolution / 2), new Vector3(grid.Resolution, grid.Resolution, grid.Resolution));
+		}
+		private T[] ToArray<T>(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, T> values, T fill) {
+			var result = new T[cells.Count];
+			for (var i = 0; i < cells.Count; i++) {
+				if (cells[i] != null && values.ContainsKey(cells[i])) {
+					result[i] = values[cells[i]];
+				} else {
+					result[i] = fill;
+				}
+			}
+			return result;
+		}
+		private float[] ToArray(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Vector> values, float fill) {
+			var dimensions = values.Values.Select(vector => vector.Dimensions).Min();
+			var result = new float[cells.Count * dimensions];
+			for (var i = 0; i < cells.Count; i++) {
+				if (cells[i] != null && values.ContainsKey(cells[i])) {
+					for (var j = 0; j < dimensions; j++) {
+						result[i * dimensions + j] = values[cells[i]][j];
+					}
+				} else {
+					for (var j = 0; j < dimensions; j++) {
+						result[i * dimensions + j] = fill;
+					}
+				}
+			}
+			return result;
 		}
 	}
 }

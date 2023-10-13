@@ -19,7 +19,6 @@ namespace Objects.Sources {
 		protected abstract void New(string path);
 
 		public abstract Map Map();
-		public abstract Nii<float> Nifti();
 
 		public virtual IEnumerable<Interface.Component> Controls() => new List<Interface.Component>();
 		public virtual IEnumerable<Publisher> Exports() => new List<Publisher>();

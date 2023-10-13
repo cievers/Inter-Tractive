@@ -85,9 +85,6 @@ namespace Interface {
 			}
 			LayoutRebuilder.ForceRebuildLayoutImmediate(controls);
 		}
-		public void Write() {
-			instance.Nifti().Write(StandaloneFileBrowser.SaveFilePanel("Save as NIFTI", "", Name(), "nii"));
-		}
 		private void Write(Stored file, string description, string type) {
 			file.Write(StandaloneFileBrowser.SaveFilePanel(description, "", Name(), type));
 		}

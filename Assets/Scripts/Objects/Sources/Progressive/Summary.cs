@@ -13,6 +13,14 @@ namespace Objects.Sources.Progressive {
 		public float[] Areas {get; set;}
 		public float[] Perimeters {get; set;}
 		public float? Volume {get; set;}
+		public float? RiemannVolume {
+			get {
+				if (CoreLength == null || Areas == null) {
+					return null;
+				}
+				return Areas.Select(area => area * ((float) CoreLength / Areas.Length)).Sum();
+			}
+		}
 
 		public void Core(Tract core) {
 			CoreLength = new Length().Measure(core);
@@ -23,6 +31,10 @@ namespace Objects.Sources.Progressive {
 			Areas = array.Select(cut => cut.Area()).ToArray();
 			Perimeters = array.Select(cut => cut.Perimeter()).ToArray();
 		}
+		// public void CrossSectionsVolume(Tract core, IEnumerable<ConvexPolygon> cuts) {
+		// 	var length = new Length().Measure(core);
+		// 	var segment = length / cuts.Count();
+		// }
 
 		public Json Json() {
 			return new Json(JsonSerializer.Serialize(this));

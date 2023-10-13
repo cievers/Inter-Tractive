@@ -109,7 +109,6 @@ namespace Objects.Sources.Progressive {
 				var wires = new WireframeRenderer();
 				tractMesh.mesh = wires.Render(core);
 				spanMesh.mesh = wires.Render(new ArrayTract(new[] {core.Points[0], core.Points[^1]}));
-				summary.Core(core);
 			}
 			if (promisedCut.TryTake(out var cuts)) {
 				cutMesh.mesh = cuts.Mesh();
@@ -123,14 +122,17 @@ namespace Objects.Sources.Progressive {
 		}
 		private void UpdateSamples() {
 			var sampler = new Resample(tractogram, samples);
-			var mean = new Mean(sampler);
-			var cut = new CrossSection(sampler, mean);
+			var core = new Core(sampler);
+			var cut = new CrossSection(sampler, core);
 			var volume = new Volume(sampler, cut);
 
 			prominentCuts = new CrossSectionExtrema(cut, prominence);
 
-			promisedCore.Add(mean);
+			promisedCore.Add(core);
 			promisedVolume.Add(volume);
+			core.Request(summary.Core);
+			cut.Request(summary.CrossSections);
+			// cut.Request(cuts => core.Request(tract => summary.CrossSectionsVolume(tract, cuts)));
 			UpdateCutEvaluation();
 		}
 		private void UpdateSamples(int samples) {

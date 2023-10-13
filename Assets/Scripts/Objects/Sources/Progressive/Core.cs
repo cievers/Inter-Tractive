@@ -4,14 +4,14 @@ using Objects.Concurrent;
 using UnityEngine;
 
 namespace Objects.Sources.Progressive {
-	public class Mean : Promise<Tract> {
+	public class Core : Promise<Tract> {
 		private UniformTractogram tractogram;
 
-		public Mean(UniformTractogram tractogram) {
+		public Core(UniformTractogram tractogram) {
 			this.tractogram = tractogram;
 			Start();
 		}
-		public Mean(Promise<UniformTractogram> promise) {
+		public Core(Promise<UniformTractogram> promise) {
 			promise.Request(tractogram => {
 				this.tractogram = tractogram;
 				Start();

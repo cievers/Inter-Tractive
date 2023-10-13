@@ -10,6 +10,11 @@ namespace Geometry {
 			var normalized = normal.normalized;
 			return point - normalized * Vector3.Dot(normalized, point - origin);
 		}
+		public static Planar.Line Projection(Line line, Vector3 origin, Vector3 normal) {
+			var projected = Projection(line.Origin, origin, normal);
+			var directed = Projection(line.Origin + line.Direction, origin, normal);
+			return new Planar.Line(projected, (directed - projected).normalized);
+		}
 		public static IEnumerable<Vector3> Projections(IEnumerable<Vector3> points, Vector3 origin, Vector3 normal) {
 			return points.Select(point => Projection(point, origin, normal));
 		}

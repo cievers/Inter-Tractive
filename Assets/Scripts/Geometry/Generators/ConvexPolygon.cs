@@ -11,6 +11,7 @@ namespace Geometry.Generators {
 		public IEnumerable<int> Indices => Triangulate(true, false);
 		public IEnumerable<Vector3> Normals => Enumerable.Repeat(normal.normalized, Points.Count());
 
+		private readonly Vector3 origin;
 		private readonly Vector3 normal;
 
 		public ConvexPolygon(List<Vector3> points, Vector3 origin, Vector3 normal) {
@@ -19,8 +20,14 @@ namespace Geometry.Generators {
 				.ToDictionary(point => rotation * Plane.Projection(point, origin, normal), point => point)
 				.ToDictionary(projection => new Vector2(projection.Key.x, projection.Key.y), point => point.Value);
 			var perimeter = new ConvexPerimeter(mapping.Keys.ToList());
+			this.origin = origin;
 			this.normal = normal;
 			Points = perimeter.Points.Select(point => mapping[point]);
+		}
+		private ConvexPolygon(List<Vector3> points, Vector3 normal) {
+			Points = points;
+			origin = points[0];
+			this.normal = normal;
 		}
 
 		public float Perimeter() {
@@ -38,6 +45,20 @@ namespace Geometry.Generators {
 				sum += Triangle.Area(points[0], points[i + 1], points[i + 2]);
 			}
 			return sum;
+		}
+
+		public ConvexPolygon[] Split(Line line) {
+			// Assume the line lies in the plane defined by this polygon's origin and normal
+			// Also definitively projects the given set of points to the given plane
+			var rotation = Quaternion.FromToRotation(normal, Vector3.forward);
+			var inverse = Quaternion.Inverse(rotation);
+			var projected = Geometry.Plane.Projection(line, origin, normal);
+			var perimeter = new ConvexPerimeter(Points
+				.Select(point => rotation * Plane.Projection(point, origin, normal))
+				.Select(projection => new Vector2(projection.x, projection.y))
+				.ToList()
+			);
+			return perimeter.Split(projected).Select(p => new ConvexPolygon(p.Points.Select(point => origin + inverse * point).ToList(), normal)).ToArray();
 		}
 
 		private List<int> Triangulate(bool front = true, bool back = true) {

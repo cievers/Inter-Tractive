@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Objects.Collection;
 using UnityEngine;
 using Utility;
@@ -19,9 +20,23 @@ namespace Geometry.Generators {
 	public class ConvexPerimeter {
 		public IEnumerable<Vector2> Points {get;}
 		public IEnumerable<Triangle> Faces => throw new NotImplementedException();
+		public IEnumerable<Planar.Segment> Edges {
+			get {
+				var result = new List<Planar.Segment>();
+				var points = Points.ToArray();
+				for (var i = 0; i < points.Length - 1; i++) {
+					result.Add(new Planar.Segment(points[i], points[i+1]));
+				}
+				result.Add(new Planar.Segment(points[^1], points[0]));
+				return result;
+			}
+		}
 
 		public ConvexPerimeter(List<Vector2> points) {
 			Points = Compute(points);
+		}
+		private ConvexPerimeter(List<Vector2> points, bool literal=false) {
+			Points = literal ? points : Compute(points);
 		}
 		
 		public static IEnumerable<Vector2> Compute(List<Vector2> points, bool sortInPlace = false) {
@@ -60,6 +75,64 @@ namespace Geometry.Generators {
 			}
 			hull.PopLast();
 			return hull;
+		}
+
+		// public ConvexPerimeter[] Split(Planar.Line line) {
+		// 	var a = new List<Vector2>();
+		// 	var b = new List<Vector2>();
+		// 	var intersected = false;
+		// 	foreach (var edge in Edges) {
+		// 		if (intersected) {
+		// 			b.Add(edge.Start);
+		// 		} else {
+		// 			a.Add(edge.Start);
+		// 		}
+		// 		var intersection = line.Intersection(edge);
+		// 		if (intersection != null) {
+		// 			intersected = true;
+		// 			var point = (Vector2) intersection;
+		// 			a.Add(point);
+		// 			b.Add(point);
+		// 		}
+		// 	}
+		// 	// foreach (var split in new[] {a, b}) {
+		// 	// 	Debug.Log("A part of the polygon!");
+		// 	// 	foreach (var point in split) {
+		// 	// 		Debug.Log(point);
+		// 	// 	}
+		// 	// }
+		// 	Debug.Log(b.Count);
+		// 	return b.Count == 0 ? new[] {this} : new ConvexPerimeter[] {new(a, true), new(b, true)};
+		// }
+		public ConvexPerimeter[] Split(Planar.Line line) {
+			var a = new List<Vector2>();
+			var b = new List<Vector2>();
+			foreach (var point in Points) {
+				var side = line.Side(point);
+				switch (side) {
+					case Side.Positive:
+						a.Add(point);
+						break;
+					case Side.Negative:
+						b.Add(point);
+						break;
+					case Side.Contained:
+						a.Add(point);
+						b.Add(point);
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
+			foreach (var edge in Edges) {
+				var intersection = line.Intersection(edge);
+				if (intersection != null) {
+					var point = (Vector2) intersection;
+					a.Add(point);
+					b.Add(point);
+				}
+			}
+			return a.Count == 0 || b.Count == 0 ? new[] {this} : new ConvexPerimeter[] {new(a), new(b)};
 		}
 	}
 }

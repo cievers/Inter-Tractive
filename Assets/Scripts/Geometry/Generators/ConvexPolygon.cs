@@ -31,8 +31,8 @@ namespace Geometry.Generators {
 		}
 
 		public float Perimeter() {
-			var sum = 0f;
 			var points = Points.ToArray();
+			var sum = (points[^1] - points[0]).magnitude;
 			for (var i = 0; i < points.Length - 1; i++) {
 				sum += (points[i + 1] - points[i]).magnitude;
 			}

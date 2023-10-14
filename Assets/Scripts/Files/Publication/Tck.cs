@@ -20,10 +20,11 @@ namespace Files.Publication {
 		private IEnumerable<byte> Body() {
 			var result = new List<byte>();
 			var array = Tracts.ToArray();
-			for (var i = 0; i < array.Length; i++) {
-				result.AddRange(Track(array[i]));
-				result.AddRange(i < array.Length - 1 ? Triplet(float.NaN) : Triplet(float.PositiveInfinity));
+			foreach (var tract in array) {
+				result.AddRange(Track(tract));
+				result.AddRange(Triplet(float.NaN));
 			}
+			result.AddRange(Triplet(float.PositiveInfinity));
 			return result;
 		}
 		private static IEnumerable<byte> Track(Tract tract) {

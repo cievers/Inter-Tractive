@@ -33,7 +33,7 @@ namespace Objects.Sources.Progressive {
 		public MeshFilter volumeMesh;
 		public GameObject dot;
 
-		private Tractogram tractogram;
+		private Tck tractogram;
 		private ThreadedLattice grid;
 		private new ThreadedRenderer renderer;
 		private CrossSectionExtrema prominentCuts;
@@ -78,7 +78,7 @@ namespace Objects.Sources.Progressive {
 			promisedVolume = new PromiseCollector<Hull>();
 
 			exportMap = new Files.Exporter("Save as NIFTI", "nii", Nifti);
-			exportCore = new Files.Exporter("Save as TCK", "tck", () => throw new NotImplementedException());
+			exportCore = new Files.Exporter("Save as TCK", "tck", () => tractogram);
 			exportSummary = new Files.Exporter("Save numeric summary", "json", summary.Json);
 
 			tractogram = Tck.Load(path);
@@ -196,6 +196,7 @@ namespace Objects.Sources.Progressive {
 					new TransformedSlider.Data("Cross-section prominence", 0, value => value, (_, transformed) => ((int) Math.Round(transformed * 100)).ToString() + '%', new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),
 					new Loader.Data(promisedVolume, new ActionToggle.Data("Volume", false, volumeMesh.gameObject.SetActive)),
 					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) Math.Round(transformed)).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
+					new Exporter.Data("Export tracts", exportCore),
 					new Exporter.Data("Export summary", exportSummary)
 				}),
 				new Divider.Data(),

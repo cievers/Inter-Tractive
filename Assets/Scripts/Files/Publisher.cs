@@ -8,9 +8,9 @@
 			this.type = type;
 		}
 		
-		public delegate void PublishEvent(Stored file, string description, string type);
+		public delegate void PublishEvent(Publication.Publication file, string description, string type);
 		public event PublishEvent Published;
-		public void Publish(Stored file) {
+		public void Publish(Publication.Publication file) {
 			Published?.Invoke(file, description, type);
 		}
 	}

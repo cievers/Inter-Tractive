@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Camera;
 using Files;
+using Files.Publication;
 using Objects;
 using Objects.Sources;
 using TMPro;
@@ -85,7 +86,7 @@ namespace Interface {
 			}
 			LayoutRebuilder.ForceRebuildLayoutImmediate(controls);
 		}
-		private void Write(Stored file, string description, string type) {
+		private void Write(Publication file, string description, string type) {
 			file.Write(StandaloneFileBrowser.SaveFilePanel(description, "", Name(), type));
 		}
 		

@@ -2,9 +2,9 @@
 
 namespace Files {
 	public class Exporter : Publisher {
-		private readonly Func<Stored> file;
+		private readonly Func<Publication.Publication> file;
 
-		public Exporter(string description, string type, Func<Stored> file) : base(description, type) {
+		public Exporter(string description, string type, Func<Publication.Publication> file) : base(description, type) {
 			this.file = file;
 		}
 

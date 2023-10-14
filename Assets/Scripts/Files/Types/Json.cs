@@ -1,5 +1,5 @@
 ﻿namespace Files.Types {
-	public class Json : Stored {
+	public class Json : Publication.Publication {
 		private readonly string serialized;
 
 		public Json(string serialized) {

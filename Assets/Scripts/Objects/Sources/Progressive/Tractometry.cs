@@ -37,6 +37,7 @@ namespace Objects.Sources.Progressive {
 		private ThreadedLattice grid;
 		private new ThreadedRenderer renderer;
 		private CrossSectionExtrema prominentCuts;
+		private Tract core;
 		private Summary summary;
 
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
@@ -78,7 +79,7 @@ namespace Objects.Sources.Progressive {
 			promisedVolume = new PromiseCollector<Hull>();
 
 			exportMap = new Files.Exporter("Save as NIFTI", "nii", Nifti);
-			exportCore = new Files.Exporter("Save as TCK", "tck", () => tractogram);
+			exportCore = new Files.Exporter("Save as TCK", "tck", () => new SimpleTractogram(new[] {core}));
 			exportSummary = new Files.Exporter("Save numeric summary", "json", summary.Json);
 
 			tractogram = Tck.Load(path);
@@ -105,10 +106,11 @@ namespace Objects.Sources.Progressive {
 				gridMesh.mesh = result.Mesh();
 			}
 
-			if (promisedCore.TryTake(out var core)) {
+			if (promisedCore.TryTake(out var tract)) {
+				core = tract;
 				var wires = new WireframeRenderer();
-				tractMesh.mesh = wires.Render(core);
-				spanMesh.mesh = wires.Render(new ArrayTract(new[] {core.Points[0], core.Points[^1]}));
+				tractMesh.mesh = wires.Render(tract);
+				spanMesh.mesh = wires.Render(new ArrayTract(new[] {tract.Points[0], tract.Points[^1]}));
 			}
 			if (promisedCut.TryTake(out var cuts)) {
 				cutMesh.mesh = cuts.Mesh();
@@ -167,7 +169,7 @@ namespace Objects.Sources.Progressive {
 			UpdateBatch((int) Math.Round(batch));
 		}
 		private void UpdateMap() {
-			Loading(false);
+			Loading(false); // Should this be here now that loading is done by an aggregate of threaded things?
 			voxels.Restart();
 			maps.Restart();
 			grid = new ThreadedLattice(tractogram, resolution, voxels);
@@ -196,7 +198,7 @@ namespace Objects.Sources.Progressive {
 					new TransformedSlider.Data("Cross-section prominence", 0, value => value, (_, transformed) => ((int) Math.Round(transformed * 100)).ToString() + '%', new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),
 					new Loader.Data(promisedVolume, new ActionToggle.Data("Volume", false, volumeMesh.gameObject.SetActive)),
 					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) Math.Round(transformed)).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
-					new Exporter.Data("Export tracts", exportCore),
+					new Exporter.Data("Export core tract", exportCore),
 					new Exporter.Data("Export summary", exportSummary)
 				}),
 				new Divider.Data(),

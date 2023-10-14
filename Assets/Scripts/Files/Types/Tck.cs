@@ -163,7 +163,7 @@ namespace Files.Types {
 		}
 		
 		public UniformTractogram Sample(int samples) {
-			return new ArrayTractogram(Tracts.Select(tract => tract.Sample(samples)));
+			return new UniformTractogram(Tracts.Select(tract => tract.Sample(samples)));
 		}
 	}
 }

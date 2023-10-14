@@ -52,35 +52,31 @@ namespace Files.Types {
 			var coreStart = Vector3.zero;
 			var coreEnd = Vector3.zero;
 			var coreWeight = 0;
+			var filePointCount = (filestream.Length - filestream.Position) / VECTOR_SIZE;
 			
 			// Set the file streamer position to the start of the vertex data
 			filestream.Position = int.Parse(meta["file"].Replace(".", ""));
+			// lines.EnsureCapacity((int)filePointCount); // At some point it might have been desirable to ensure the list has enough memory available to store all tracts
 
-			// Read all points except last point.
-			var filePointCount = (filestream.Length - filestream.Position) / VECTOR_SIZE - 1;
-			// lines.EnsureCapacity((int)filePointCount); // TODO: If we get some capacity/out of bounds errors, look here
+			for (var read = 0; read < filePointCount;) {
+				var batch = filestream.Read(READ_BUFFER, 0, READ_BUFFER.Length);
 
+				for (var processed = 0; processed < batch / VECTOR_SIZE; processed++) {
+					Vector3 point = GetVectorInBuffer(processed);
 
-			for (var read = 0; read < filePointCount - 1;) {
-				var readLength = filestream.Read(READ_BUFFER, 0, READ_BUFFER.Length);
-
-				for (var buffered = 0; buffered < readLength / VECTOR_SIZE; buffered++) {
-					if (read >= filePointCount - 1) {
-						break;
-					}
-
-					Vector3 point = GetVectorInBuffer(buffered);
-
-					if (float.IsNaN(point.x) && float.IsNaN(point.y) && float.IsNaN(point.z)) {
+					if (IsTerminal(point)) {
 						// If we hit the NaN, NaN, NaN marker for the end of a tract, save this tract
-						if (coreWeight > 0 && (points[0] - coreStart).magnitude + (points[^1] - coreEnd).magnitude > (points[0] - coreEnd).magnitude + (points[^1] - coreStart).magnitude) {
-							points.Reverse();
+						if (points.Count > 0) {
+							// But only if we have some points stored, so ignore successive terminators
+							if (coreWeight > 0 && (points[0] - coreStart).magnitude + (points[^1] - coreEnd).magnitude > (points[0] - coreEnd).magnitude + (points[^1] - coreStart).magnitude) {
+								points.Reverse();
+							}
+							lines.Add(new ArrayTract(points.ToArray(), (uint) lines.Count, Vector3.Normalize(points[^1] - points[0]), (uint) read));
+							coreStart = (coreStart * coreWeight + points[0]) / (coreWeight + 1);
+							coreEnd = (coreEnd * coreWeight + points[^1]) / (coreWeight + 1);
+							coreWeight++;
+							points.Clear();
 						}
-						lines.Add(new ArrayTract(points.ToArray(), (uint) lines.Count, Vector3.Normalize(points[^1] - points[0]), (uint) read));
-						coreStart = (coreStart * coreWeight + points[0]) / (coreWeight + 1);
-						coreEnd = (coreEnd * coreWeight + points[^1]) / (coreWeight + 1);
-						coreWeight++;
-						points.Clear();
 					} else {
 						// If not, continue expanding the current tract
 						UpdateBounds(ref boundsMin, ref boundsMax, point);
@@ -96,9 +92,6 @@ namespace Files.Types {
 					read++;
 				}
 			}
-			// Check last point is the correct separator.
-			// if (GetVectorInBuffer(v) != new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity))
-			//     throw new FileLoadException("Something went wrong during reading. Final point is not (inf,inf,inf).");
 
 			if (filestream.Position != filestream.Length) {
 				throw new FileLoadException("Something went wrong during reading. End of file has not been reached.");
@@ -150,6 +143,11 @@ namespace Files.Types {
 			var z = BitConverter.ToSingle(READ_BUFFER, i * VECTOR_SIZE + sizeof(float) * 2);
 			var point = new Vector3(x, z, y);
 			return point;
+		}
+		private static bool IsTerminal(Vector3 point) {
+			return 
+				(float.IsNaN(point.x) && float.IsNaN(point.y) && float.IsNaN(point.z)) || 
+				(float.IsInfinity(point.x) && float.IsInfinity(point.y) && float.IsInfinity(point.z));
 		}
 
 		private static void UpdateBounds(ref Vector3 boundsMin, ref Vector3 boundsMax, Vector3 point) {

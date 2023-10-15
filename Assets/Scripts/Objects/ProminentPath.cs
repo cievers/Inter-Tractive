@@ -16,6 +16,9 @@ namespace Objects {
 		}
 		
 		public void UpdateContext(ProminentPath source) {
+			if (this == source) {
+				return;
+			}
 			if (context.Contains(source)) {
 				context.Remove(source);
 			} else {

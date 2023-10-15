@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Camera;
 using UnityEngine;
 using Source = Objects.Sources.Source;
@@ -20,11 +21,13 @@ namespace Objects {
 				var source = instance.GetComponent<Source>();
 
 				sources.Add(source);
+				sources.ForEach(s => s.UpdateContext(source));
 
 				source.Focused += camera.Target;
 				source.Sliced += slices.Slice;
 				source.Closed += x => sources.Remove(x);
 				source.Closed += x => slices.Remove(x);
+				source.Closed += x => sources.ForEach(s => s.UpdateContext(x));
 				
 				if (sources.Count == 1) {
 					source.Focus();

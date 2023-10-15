@@ -3,10 +3,6 @@ using SFB;
 
 namespace Objects.Sources {
 	public class SourceSelector : Source {
-		private bool loaded;
-		private ProminentPath path;
-		private Voxels instance;
-		
 		private void Awake() {
 			LoadTemplates();
 			Browse();

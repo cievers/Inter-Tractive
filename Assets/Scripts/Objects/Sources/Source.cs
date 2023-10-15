@@ -18,7 +18,6 @@ namespace Objects.Sources {
 			public Voxels template;
 		}
 
-		private bool loaded;
 		private ProminentPath path;
 		private readonly Dictionary<string, Voxels> templates = new();
 		private Voxels instance;
@@ -43,7 +42,7 @@ namespace Objects.Sources {
 			panel.UpdateControls(instance.Controls());
 			panel.Sliced += Slice;
 			panel.Closed += Close;
-			
+
 			foreach (var export in instance.Exports()) {
 				export.Published += Write;
 			}
@@ -69,13 +68,13 @@ namespace Objects.Sources {
 
 		public delegate void SourceSlicedEvent(Source source, Map map);
 		public event SourceSlicedEvent Sliced;
-		public void Slice() {
+		private void Slice() {
 			Sliced?.Invoke(this, instance.Map());
 		}
 
 		public delegate void SourceClosedEvent(Source source);
 		public event SourceClosedEvent Closed;
-		public void Close() {
+		private void Close() {
 			Destroy(instance.gameObject);
 			Destroy(gameObject);
 			Closed?.Invoke(this);

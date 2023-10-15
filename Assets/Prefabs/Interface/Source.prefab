@@ -366,7 +366,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6280160977700837335}
+      - m_Target: {fileID: 27013662854394332}
         m_TargetAssemblyTypeName: Interface.Source, Assembly-CSharp
         m_MethodName: Close
         m_Mode: 1
@@ -848,7 +848,7 @@ PrefabInstance:
     - target: {fileID: 7860094605623388911, guid: 9a6b517587ae13c499f29b15ee913faf, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 6280160977700837335}
+      objectReference: {fileID: 27013662854394332}
     - target: {fileID: 8561297113173297626, guid: 9a6b517587ae13c499f29b15ee913faf, type: 3}
       propertyPath: m_text
       value: Slice

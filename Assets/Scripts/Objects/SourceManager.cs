@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Objects {
 	public class SourceManager : MonoBehaviour {
-		public GameObject template;
+		public Source template;
 		public ProjectionManager slices;
 		public new OrbitingCamera camera;
 
@@ -16,8 +16,7 @@ namespace Objects {
 		}
 		public void Add() {
 			try {
-				var instance = Instantiate(template, transform);
-				var source = instance.GetComponent<Source>();
+				var source = Instantiate(template, transform);
 
 				sources.ForEach(s => source.UpdateContext(s));
 				sources.Add(source);

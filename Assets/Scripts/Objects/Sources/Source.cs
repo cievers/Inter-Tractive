@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Camera;
 using Files.Publication;
 using Geometry;

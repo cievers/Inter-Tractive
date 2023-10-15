@@ -7,7 +7,7 @@ namespace Objects.Sources {
 		private ProminentPath path;
 		private Voxels instance;
 		
-		public void Awake() {
+		private void Awake() {
 			LoadTemplates();
 			Browse();
 		}

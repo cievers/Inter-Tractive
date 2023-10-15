@@ -11,8 +11,7 @@ namespace Objects.Sources {
 		private Focus focus;
 		
 		public Voxels Construct(string path) {
-			var instance = Instantiate(gameObject);
-			var source = instance.GetComponent<Voxels>();
+			var source = Instantiate(this);
 			source.New(path);
 			return source;
 		}

@@ -64,7 +64,6 @@ namespace Files.Types {
 
 				for (var processed = 0; processed < batch / VECTOR_SIZE; processed++) {
 					Vector3 point = GetVectorInBuffer(processed);
-					Debug.Log("Processing point "+point);
 
 					if (IsTerminal(point)) {
 						// If we hit the NaN, NaN, NaN marker for the end of a tract, save this tract

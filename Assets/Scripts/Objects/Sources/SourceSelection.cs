@@ -2,7 +2,7 @@
 using SFB;
 
 namespace Objects.Sources {
-	public class SourceSelector : Source {
+	public class SourceSelection : Source {
 		private void Awake() {
 			LoadTemplates();
 			Browse();

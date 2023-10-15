@@ -9,7 +9,7 @@ using SFB;
 using UnityEngine;
 
 namespace Objects.Sources {
-	public class Source : MonoBehaviour {
+	public abstract class Source : MonoBehaviour {
 		public Interface.Source panel;
 		public Type[] types;
 		
@@ -24,23 +24,12 @@ namespace Objects.Sources {
 		private readonly Dictionary<string, Voxels> templates = new();
 		private Voxels instance;
 		
-		public void Awake() {
+		protected void LoadTemplates() {
 			foreach (var type in types) {
 				templates.Add(type.extension, type.template);
 			}
-			Browse();
 		}
-		private void Browse() {
-			var selection = StandaloneFileBrowser.OpenFilePanel("Tract files", "", "tck", false);
-			switch (selection.Length) {
-				case 1:
-					Load(selection[0]);
-					break;
-				case > 1:
-					throw new InvalidDataException("Please select only one file at a time");
-			}
-		}
-		private void Load(string path) {
+		protected void Load(string path) {
 			this.path = new ProminentPath(path.Replace("\\", "/"));
 			if (!templates.ContainsKey(this.path.Extension())) {
 				throw new ArgumentException("No visualization for source type "+this.path.Extension());

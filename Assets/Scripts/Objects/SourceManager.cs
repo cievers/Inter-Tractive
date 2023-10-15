@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Camera;
+using Objects.Sources;
 using UnityEngine;
-using Source = Objects.Sources.Source;
 
 namespace Objects {
 	public class SourceManager : MonoBehaviour {

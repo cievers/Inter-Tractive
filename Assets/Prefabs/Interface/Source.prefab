@@ -524,9 +524,10 @@ GameObject:
   - component: {fileID: 6280160977700837328}
   - component: {fileID: 6280160977700837333}
   - component: {fileID: 6280160977700837334}
-  - component: {fileID: 6280160977700837335}
   - component: {fileID: 591119614398880102}
   - component: {fileID: 2994835612474109028}
+  - component: {fileID: 27013662854394332}
+  - component: {fileID: 6280160977700837335}
   m_Layer: 5
   m_Name: Source
   m_TagString: Untagged
@@ -596,25 +597,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &6280160977700837335
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6280160977700837329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8f650e6ef7a4080aa47b8b68adfaa6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  text: {fileID: 6280160976944639739}
-  types:
-  - extension: tck
-    template: {fileID: 6787547898181110352, guid: 80283614397615845affdf61588042ca, type: 3}
-  loading: {fileID: 3310827972235001950}
-  controls: {fileID: 9005884123872663310}
-  styles: {fileID: 4723733535447934101, guid: 4402ed590fdeff64d99c01737895cf70, type: 3}
 --- !u!114 &591119614398880102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -655,6 +637,38 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &27013662854394332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6280160977700837329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12be40f336a14a0ebb5522efca374fa3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: {fileID: 6280160976944639739}
+  loading: {fileID: 5730548983686553128}
+  controls: {fileID: 9005884123872663310}
+  styles: {fileID: 4723733535447934101, guid: 4402ed590fdeff64d99c01737895cf70, type: 3}
+--- !u!114 &6280160977700837335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6280160977700837329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f650e6ef7a4080aa47b8b68adfaa6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panel: {fileID: 27013662854394332}
+  types:
+  - extension: tck
+    template: {fileID: 6787547898181110352, guid: 80283614397615845affdf61588042ca, type: 3}
 --- !u!1 &6365828035049130204
 GameObject:
   m_ObjectHideFlags: 0

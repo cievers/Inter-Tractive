@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using Camera;
 using UnityEngine;
+using Source = Objects.Sources.Source;
 
-namespace Interface {
+namespace Objects {
 	public class SourceManager : MonoBehaviour {
 		public GameObject template;
 		public ProjectionManager slices;

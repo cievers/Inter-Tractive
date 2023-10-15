@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
+using Interface;
 using Maps;
-using Objects;
 using UnityEngine;
 using Utility;
 
-namespace Interface {
+namespace Objects {
 	public class ProjectionManager : MonoBehaviour {
 		public GameObject templateSlice;
 		public GameObject templateProjection;
-		private readonly Dictionary<Source, List<ArraySlice>> slices = new();
+		private readonly Dictionary<Objects.Sources.Source, List<ArraySlice>> slices = new();
 		private readonly Dictionary<ArraySlice, Projection> projections = new();
 
-		public void Slice(Source source, Map map) {
+		public void Slice(Objects.Sources.Source source, Map map) {
 			var instance2 = Instantiate(templateProjection, transform);
 			var image = instance2.GetComponent<Projection>();
 			
@@ -31,7 +31,7 @@ namespace Interface {
 			var colorGrid = Enumeration.ToArray(map.Cells, map.Colors, new Color32(0, 0, 0, 0));
 			slice.Initialize(colorGrid, map.Size, map.Boundaries);
 		}
-		public void Remove(Source source) {
+		public void Remove(Objects.Sources.Source source) {
 			if (slices.ContainsKey(source)) {
 				foreach (var slice in slices[source]) {
 					// Destroy(projections[slice].gameObject);
@@ -42,7 +42,7 @@ namespace Interface {
 				slices.Remove(source);
 			}
 		}
-		public void Remove(Source source, ArraySlice slice) {
+		public void Remove(Objects.Sources.Source source, ArraySlice slice) {
 			Destroy(projections[slice].gameObject);
 			Destroy(slice.gameObject);
 			projections.Remove(slice);

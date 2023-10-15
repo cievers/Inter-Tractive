@@ -44,6 +44,9 @@ namespace Files.Types {
 				throw new DataException("Only supports Float32LE for now");
 			}
 			
+			// Set the file streamer position to the start of the vertex data
+			filestream.Position = int.Parse(meta["file"].Replace(".", ""));
+			
 			// Prepare constants and container variables for reading the vertex data
 			var points = new List<Vector3>();
 			var lines = new List<Tract>();
@@ -54,8 +57,6 @@ namespace Files.Types {
 			var coreWeight = 0;
 			var filePointCount = (filestream.Length - filestream.Position) / VECTOR_SIZE;
 			
-			// Set the file streamer position to the start of the vertex data
-			filestream.Position = int.Parse(meta["file"].Replace(".", ""));
 			// lines.EnsureCapacity((int)filePointCount); // At some point it might have been desirable to ensure the list has enough memory available to store all tracts
 
 			for (var read = 0; read < filePointCount;) {
@@ -63,6 +64,7 @@ namespace Files.Types {
 
 				for (var processed = 0; processed < batch / VECTOR_SIZE; processed++) {
 					Vector3 point = GetVectorInBuffer(processed);
+					Debug.Log("Processing point "+point);
 
 					if (IsTerminal(point)) {
 						// If we hit the NaN, NaN, NaN marker for the end of a tract, save this tract
@@ -94,6 +96,8 @@ namespace Files.Types {
 			}
 
 			if (filestream.Position != filestream.Length) {
+				Debug.Log(filestream.Position);
+				Debug.Log(filestream.Length);
 				throw new FileLoadException("Something went wrong during reading. End of file has not been reached.");
 			}
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Camera;
 using Files.Publication;
 using Geometry;
@@ -20,9 +19,8 @@ namespace Objects.Sources {
 			public Voxels template;
 		}
 
-		private string path;
 		private bool loaded;
-		private readonly List<Source> context = new();
+		private ProminentPath path;
 		private readonly Dictionary<string, Voxels> templates = new();
 		private Voxels instance;
 		
@@ -43,17 +41,17 @@ namespace Objects.Sources {
 			}
 		}
 		private void Load(string path) {
-			this.path = path.Replace("\\", "/");
-			if (!templates.ContainsKey(Extension())) {
-				throw new ArgumentException("No visualization for source type "+Extension());
+			this.path = new ProminentPath(path.Replace("\\", "/"));
+			if (!templates.ContainsKey(this.path.Extension())) {
+				throw new ArgumentException("No visualization for source type "+this.path.Extension());
 			}
 			
-			instance = templates[Extension()].Construct(path);
+			instance = templates[this.path.Extension()].Construct(path);
 			instance.Focused += focus => Focused?.Invoke(focus);
 			instance.Loaded += panel.UpdateLoaded;
 			instance.Configured += (cells, values, resolution, boundaries) => Configured?.Invoke(cells, values, resolution, boundaries);
 
-			panel.UpdateTitle(Prominence());
+			panel.UpdateTitle(this.path.Prominence());
 			panel.UpdateControls(instance.Controls());
 			panel.Sliced += Slice;
 			panel.Closed += Close;
@@ -63,39 +61,12 @@ namespace Objects.Sources {
 			}
 		}
 		private void Write(Publication file, string description, string type) {
-			file.Write(StandaloneFileBrowser.SaveFilePanel(description, "", Name(), type));
+			file.Write(StandaloneFileBrowser.SaveFilePanel(description, "", path.Name(), type));
 		}
 		
 		public void UpdateContext(Source source) {
-			context.Add(source);
-		}
-
-		private string Prominence() {
-			for (var i = 1; i < Significance(); i++) {
-				var display = Significance(i);
-				if (context.Any(source => source.Significance(i) == display)) {
-					continue;
-				}
-				return display;
-			}
-			return Significance(Significance());
-		}
-		private int Significance() {
-			return path.Split("/").Length;
-		}
-		private string Significance(int length) {
-			var result = "";
-			var split = path.Split("/");
-			for (var i = 0; i < split.Length && i < length; i++) {
-				result = split[^(i+1)] + "/" + result;
-			}
-			return result.TrimEnd('/');
-		}
-		private string Name() {
-			return Significance(1).Split(".")[0];
-		}
-		private string Extension() {
-			return path.Split(".")[^1];
+			path.UpdateContext(source.path);
+			panel.UpdateTitle(path.Prominence());
 		}
 
 		public delegate void SourceFocusedEvent(Focus focus);

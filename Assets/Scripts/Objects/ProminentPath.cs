@@ -16,7 +16,11 @@ namespace Objects {
 		}
 		
 		public void UpdateContext(ProminentPath source) {
-			context.Add(source);
+			if (context.Contains(source)) {
+				context.Remove(source);
+			} else {
+				context.Add(source);
+			}
 		}
 
 		public string Name() {

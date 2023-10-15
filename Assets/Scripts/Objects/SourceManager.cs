@@ -20,6 +20,7 @@ namespace Objects {
 				var instance = Instantiate(template, transform);
 				var source = instance.GetComponent<Source>();
 
+				sources.ForEach(s => source.UpdateContext(s));
 				sources.Add(source);
 				sources.ForEach(s => s.UpdateContext(source));
 

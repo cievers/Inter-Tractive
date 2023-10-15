@@ -18,7 +18,7 @@ namespace Interface.Control {
 		public IEnumerable<string> Values => Dropdowns.Select(dropdown => dropdown.options[dropdown.value].text);
 
 		private void Start() {
-			ForceUpdates();
+			Utility.Layout.Fix(container);
 		}
 
 		public void Add() {
@@ -28,26 +28,19 @@ namespace Interface.Control {
 			instance.options = options;
 			instance.onValueChanged.AddListener(_ => Configure());
 			entries.Add(wrap);
-			ForceUpdates();
+			Utility.Layout.Fix(container);
 			Configure();
 		}
 		private void Remove(Stackable entry) {
 			entries.Remove(entry);
 			Destroy(entry.gameObject);
-			ForceUpdates();
+			Utility.Layout.Fix(container);
 		}
 
 		private void Configure() {
 			Configured?.Invoke(Values);
 		}
 
-		private void ForceUpdates() {
-			// I hate this hack, or the fact that something like it is even needed
-			foreach (var element in forceUpdates) {
-				LayoutRebuilder.ForceRebuildLayoutImmediate(element);
-			}
-		}
-		
 		public delegate void StackUpdate(IEnumerable<string> values);
 		public event StackUpdate Configured;
 	}

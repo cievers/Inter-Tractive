@@ -32,7 +32,7 @@ namespace Interface {
 			UpdateLayout();
 		}
 		private void UpdateLayout() {
-			LayoutRebuilder.ForceRebuildLayoutImmediate(controls);
+			Utility.Layout.Fix(controls);
 		}
 
 		public delegate void SourceAction();

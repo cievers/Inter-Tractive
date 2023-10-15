@@ -2,7 +2,6 @@
 using Interface.Control;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Interface.Content {
 	public class Folder : MonoBehaviour {
@@ -41,19 +40,9 @@ namespace Interface.Content {
 			container.gameObject.SetActive(state);
 			iconOpen.SetActive(state);
 			iconClosed.SetActive(!state);
-			// TODO: Probably fix all them stupid layout sizing issues
-			ForceUpdates();
+			Utility.Layout.Fix(container);
 		}
-		
-		private void ForceUpdates() {
-			// I hate this hack, or the fact that something like it is even needed
-			var element = container.transform;
-			while (element != null && element.GetComponent<ContentSizeFitter>() != null) {
-				LayoutRebuilder.ForceRebuildLayoutImmediate(element.GetComponent<RectTransform>());
-				element = element.parent;
-			}
-		}
-		
+
 		public record Data : Controller {
 			public readonly bool state;
 			public readonly string title;

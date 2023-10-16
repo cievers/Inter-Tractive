@@ -40,7 +40,7 @@ namespace Objects {
 			}
 		}
 		private void Record(SourceAutomation source) {
-			// source.Close();
+			source.AutomateClose();
 			Next();
 		}
 		private void Next() {

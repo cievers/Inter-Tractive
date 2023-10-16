@@ -68,13 +68,13 @@ namespace Objects.Sources {
 
 		public delegate void SourceSlicedEvent(Source source, Map map);
 		public event SourceSlicedEvent Sliced;
-		private void Slice() {
+		protected void Slice() {
 			Sliced?.Invoke(this, instance.Map());
 		}
 
 		public delegate void SourceClosedEvent(Source source);
 		public event SourceClosedEvent Closed;
-		private void Close() {
+		protected void Close() {
 			Destroy(instance.gameObject);
 			Destroy(gameObject);
 			Closed?.Invoke(this);

@@ -383,7 +383,7 @@ GameObject:
   - component: {fileID: 664069436}
   - component: {fileID: 664069435}
   - component: {fileID: 664069439}
-  - component: {fileID: 664069438}
+  - component: {fileID: 664069440}
   m_Layer: 5
   m_Name: Sources
   m_TagString: Untagged
@@ -476,21 +476,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 664069433}
   m_CullTransparentMesh: 1
---- !u!114 &664069438
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 664069433}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73af4e7c68344a8f9cc92d6fde6d7b1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slices: {fileID: 28251900}
-  template: {fileID: 6280160977700837335, guid: 1e2f8176529352f46b01f1f22529b53a, type: 3}
-  camera: {fileID: 963194229}
 --- !u!114 &664069439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -505,6 +490,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!114 &664069440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 664069433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ce773d422334c48acf9b36bc914ddc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slices: {fileID: 28251900}
+  template: {fileID: 142924986021746702, guid: b6b146e263a08414c91787464769d6fd, type: 3}
+  camera: {fileID: 963194229}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -1399,7 +1399,7 @@ PrefabInstance:
     - target: {fileID: 4765605799279390853, guid: 5aa0eedd8a30a264c932a7b16aab2720, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 664069438}
+      objectReference: {fileID: 0}
     - target: {fileID: 4765605799279390853, guid: 5aa0eedd8a30a264c932a7b16aab2720, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: Add

@@ -61,6 +61,9 @@ namespace Objects {
 			}
 		}
 		private void Measure() {
+			// TODO: This sometimes causes an ArgumentException stating that the length of the destination list is not long enough to copy all the items
+			// This happens somewhere internally inside LINQ, so it's kind of a weird error
+			// Could it have to do with multithreading where the size of voxels.Keys is changed somewhere between initialization and filling of the final list
 			Measure(voxels.Keys.ToList());
 		}
 		private void Measure(IEnumerable<Cell> delta) {

@@ -35,7 +35,7 @@ namespace Objects.Sources {
 			
 			instance = templates[this.path.Extension()].Construct(path);
 			instance.Focused += focus => Focused?.Invoke(focus);
-			instance.Loaded += panel.UpdateLoaded;
+			instance.Loaded += Load;
 			instance.Configured += (cells, values, resolution, boundaries) => Configured?.Invoke(cells, values, resolution, boundaries);
 
 			panel.UpdateTitle(this.path.Prominence());
@@ -78,6 +78,13 @@ namespace Objects.Sources {
 			Destroy(instance.gameObject);
 			Destroy(gameObject);
 			Closed?.Invoke(this);
+		}
+
+		public delegate void SourceLoadedEvent(bool loaded);
+		public event SourceLoadedEvent Loaded;
+		private void Load(bool loaded) {
+			panel.UpdateLoaded(loaded);
+			Loaded?.Invoke(loaded);
 		}
 	}
 }

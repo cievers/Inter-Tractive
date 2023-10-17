@@ -52,7 +52,7 @@ namespace Interface.Control {
 			);
 		}
 
-		public record Data : Controller {
+		public record Data : Component {
 			public readonly Action<TractEvaluation> update;
 			public readonly Dictionary<string, Coloring> colorings = new() {
 				{"Grayscale", new Grayscale()},

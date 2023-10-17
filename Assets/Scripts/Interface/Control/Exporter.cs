@@ -1,5 +1,7 @@
-﻿using TMPro;
+﻿using Interface.Paradigm;
+using TMPro;
 using UnityEngine;
+using Action = System.Action;
 
 namespace Interface.Control {
 	public class Exporter : MonoBehaviour {
@@ -17,12 +19,13 @@ namespace Interface.Control {
 		}
 
 		public void Export() {
-			file.Publish();
+			file.Publish(); // Maybe just use the created action from the Data record
 		}
 
-		public record Data(string Name, Files.Exporter File) : Controller {
-			public string Name {get; private set;} = Name;
-			public Files.Exporter File {get; private set;} = File;
+		public record Data(string Name, Files.Exporter File) : Component, Paradigm.Action {
+			public string Name {get;} = Name;
+			public Files.Exporter File {get;} = File;
+			public Action Action => File.Publish;
 		}
 	}
 }

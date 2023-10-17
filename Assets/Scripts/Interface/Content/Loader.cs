@@ -1,4 +1,4 @@
-﻿using Interface.Control;
+﻿using System.Collections.Generic;
 using Logic.Eventful;
 using UnityEngine;
 
@@ -13,9 +13,9 @@ namespace Interface.Content {
 		public Loader Construct(RectTransform parent, Data component, Theming theming) {
 			var instance = Instantiate(this, parent);
 
-			theming.Construct(instance.container, component.component);
-			instance.UpdateState(component.state.State);
-			component.state.Change += instance.UpdateState;
+			theming.Construct(instance.container, component.Component);
+			instance.UpdateState(component.State.State);
+			component.State.Change += instance.UpdateState;
 
 			return instance;
 		}
@@ -31,14 +31,11 @@ namespace Interface.Content {
 			changed = true;
 		}
 		
-		public record Data : Controller {
-			public readonly Boolean state;
-			public readonly Controller component;
-
-			public Data(Boolean state, Controller component) {
-				this.state = state;
-				this.component = component;
-			}
+		public record Data(Boolean State, Component Component) : Component, Paradigm.Container {
+			public Boolean State {get;} = State;
+			public Component Component {get;} = Component;
+			public IEnumerable<Component> Components => new[] {Component};
+			public string Prefix => "";
 		}
 	}
 }

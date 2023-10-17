@@ -16,11 +16,11 @@ namespace Interface.Content {
 		public Folder Construct(RectTransform parent, Data folder, Theming theming) {
 			var instance = Instantiate(this, parent);
 
-			instance.state = folder.state;
-			instance.title.text = folder.title;
+			instance.state = folder.State;
+			instance.title.text = folder.Title;
 			instance.forceUpdates.Add(parent);
 			
-			foreach (var component in folder.components) {
+			foreach (var component in folder.Components) {
 				theming.Construct(instance.container, component);
 			}
 			
@@ -43,17 +43,14 @@ namespace Interface.Content {
 			Utility.Layout.Fix(container);
 		}
 
-		public record Data : Controller {
-			public readonly bool state;
-			public readonly string title;
-			public readonly List<Controller> components;
+		public record Data(string Title, IEnumerable<Component> Components) : Component, Paradigm.Container {
+			public bool State {get;}
+			public string Title {get;} = Title;
+			public IEnumerable<Component> Components {get;} = Components;
+			public string Prefix => Title + "/";
 
-			public Data(string title, List<Controller> components) {
-				this.title = title;
-				this.components = components;
-			}
-			public Data(bool state, string title, List<Controller> components) : this(title, components) {
-				this.state = state;
+			public Data(bool state, string title, IEnumerable<Component> components) : this(title, components) {
+				State = state;
 			}
 		}
 	}

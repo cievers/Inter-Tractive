@@ -1,5 +1,4 @@
 ﻿using System;
-using Interface.Paradigm;
 using TMPro;
 using UnityEngine;
 
@@ -40,7 +39,7 @@ namespace Interface.Control {
 			displayFalse.SetActive(!state);
 		}
 		
-		public record Data(string Name, bool State, Action<bool> Action) : Component, Paradigm.Toggle {
+		public record Data(string Name, bool State, Action<bool> Action) : Component, Paradigm.Value<bool> {
 			public string Name {get;} = Name;
 			public bool State {get;} = State;
 			public Action<bool> Action {get;} = Action;

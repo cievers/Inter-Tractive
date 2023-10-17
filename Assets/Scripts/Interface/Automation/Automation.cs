@@ -28,7 +28,11 @@ namespace Interface.Automation {
 			return new Action(Component<Paradigm.Action>(name));
 		}
 		public Range Range(string name) {
-			return new Range(Component<Paradigm.Range<float>>(name));
+			try {
+				return new Range(Component<Paradigm.Transformation<float>>(name));
+			} catch (InvalidCastException) {
+				return new Range(Component<Paradigm.Range<float>>(name));
+			}
 		}
 		public Value<T> Value<T>(string name) {
 			return new Value<T>(Component<Paradigm.Value<T>>(name));

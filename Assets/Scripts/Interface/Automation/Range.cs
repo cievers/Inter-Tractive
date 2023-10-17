@@ -11,6 +11,12 @@ namespace Interface.Automation {
 			minimum = paradigm.Minimum;
 			maximum = paradigm.Maximum;
 			action = paradigm.Action;
+			transformation = x => x;
+		}
+		public Range(Paradigm.Transformation<float> paradigm) {
+			minimum = 0;
+			maximum = 1;
+			action = paradigm.Action;
 			transformation = paradigm.Transformation;
 		}
 

@@ -35,7 +35,7 @@ namespace Interface.Control {
 			displayName.text = name + ": "+ representation.Invoke(literal, transformed);
 		}
 
-		public new record Data(string Name, float Default, Func<float, float> Transformation, Func<float, float, string> Representation, Action<float> Action) : Slider.Data(Name, Default, 0, 1, Action) {
+		public new record Data(string Name, float Default, Func<float, float> Transformation, Func<float, float, string> Representation, Action<float> Action) : Slider.Data(Name, Default, 0, 1, Action), Paradigm.Transformation<float> {
 			public Func<float, float> Transformation {get;} = Transformation;
 			public Func<float, float, string> Representation {get;} = Representation;
 

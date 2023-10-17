@@ -191,7 +191,7 @@ namespace Objects.Sources.Progressive {
 			return new Interface.Component[] {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new Divider.Data(),
-				new Folder.Data("Global measuring", new List<Controller> {
+				new Folder.Data("Global measuring", new List<Interface.Component> {
 					new Loader.Data(promisedCore, new ActionToggle.Data("Mean", true, tractMesh.gameObject.SetActive)),
 					new Loader.Data(promisedCore, new ActionToggle.Data("Span", false, spanMesh.gameObject.SetActive)),
 					new Loader.Data(promisedCut, new ActionToggle.Data("Cross-section", false, cutMesh.gameObject.SetActive)),
@@ -202,13 +202,13 @@ namespace Objects.Sources.Progressive {
 					new Exporter.Data("Export summary", exportSummary)
 				}),
 				new Divider.Data(),
-				new Folder.Data("Local measuring", new List<Controller> {
+				new Folder.Data("Local measuring", new List<Interface.Component> {
 					new Loader.Data(maps, new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive)),
 					new Interface.Control.Evaluation.Data(UpdateEvaluation),
 					new Exporter.Data("Export map", exportMap)
 				}),
 				new Divider.Data(),
-				new Folder.Data("Rendering", new List<Controller> {
+				new Folder.Data("Rendering", new List<Interface.Component> {
 					new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
 					new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, (_, transformed) => ((int) Math.Round(transformed)).ToString(), UpdateBatch),
 				}),

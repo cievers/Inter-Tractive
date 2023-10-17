@@ -56,7 +56,7 @@ namespace Objects.Sources {
 		}
 
 		public override IEnumerable<Interface.Component> Controls() {
-			return new Controller[] {
+			return new Interface.Component[] {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive),
 				new Slider.Data("Resolution", 1, 0.1f, 10, UpdateVoxels)

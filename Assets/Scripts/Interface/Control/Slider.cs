@@ -33,12 +33,12 @@ namespace Interface.Control {
 			action?.Invoke(value);
 		}
 		
-		public record Data(string Name, float Default, float Minimum, float Maximum, Action<float> Action) : Controller {
-			public string Name {get; private set;} = Name;
-			public float Default {get; private set;} = Default;
-			public float Minimum {get; private set;} = Minimum;
-			public float Maximum {get; private set;} = Maximum;
-			public Action<float> Action {get; private set;} = Action;
+		public record Data(string Name, float Default, float Minimum, float Maximum, Action<float> Action) : Component, Paradigm.Range<float> {
+			public string Name {get;} = Name;
+			public float Default {get;} = Default;
+			public float Minimum {get;} = Minimum;
+			public float Maximum {get;} = Maximum;
+			public Action<float> Action {get;} = Action;
 		}
 	}
 }

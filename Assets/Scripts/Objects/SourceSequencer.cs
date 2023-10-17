@@ -19,8 +19,8 @@ namespace Objects {
 		private void Add(string path) {
 			try {
 				var source = Instantiate(template, transform);
-
-				source.Automate(path);
+				var automation = source.Automate(path);
+				
 				Collect(source);
 				Interact(source);
 

@@ -20,7 +20,7 @@ namespace Objects.Sources {
 
 		private ProminentPath path;
 		private readonly Dictionary<string, Voxels> templates = new();
-		private Voxels instance;
+		protected Voxels instance;
 		
 		protected void LoadTemplates() {
 			foreach (var type in types) {

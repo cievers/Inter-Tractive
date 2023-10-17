@@ -1,8 +1,11 @@
-﻿namespace Objects.Sources {
+﻿using Interface.Automation;
+
+namespace Objects.Sources {
 	public class SourceAutomation : Source {
-		public void Automate(string path) {
+		public Automation Automate(string path) {
 			LoadTemplates();
 			Load(path);
+			return new Automation(instance.Controls());
 		}
 		public void AutomateSlice() {
 			Slice();

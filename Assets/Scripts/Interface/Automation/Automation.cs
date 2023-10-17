@@ -4,11 +4,6 @@ using System.Linq;
 
 namespace Interface.Automation {
 	public class Automation {
-		private Dictionary<string, Action> actions;
-		private Dictionary<string, Toggle> toggles;
-		private Dictionary<string, Value> values;
-		private Dictionary<string, Range> ranges;
-
 		private readonly Dictionary<string, Component> components;
 
 		public Automation(IEnumerable<Component> components) {
@@ -32,8 +27,11 @@ namespace Interface.Automation {
 		public Action Action(string name) {
 			return new Action(Component<Paradigm.Action>(name));
 		}
-		// public Toggle Toggle(string name) {
-		// 	return new Toggle(Component<Paradigm.Toggle>(name));
-		// }
+		public Range Range(string name) {
+			return new Range(Component<Paradigm.Range<float>>(name));
+		}
+		public Value<T> Value<T>(string name) {
+			return new Value<T>(Component<Paradigm.Value<T>>(name));
+		}
 	}
 }

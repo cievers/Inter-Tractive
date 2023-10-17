@@ -1,4 +1,7 @@
-﻿using Camera;
+﻿using System;
+using Camera;
+using Interface.Automation;
+using Interface.Paradigm;
 using Objects.Sources;
 using UnityEngine;
 
@@ -13,10 +16,19 @@ namespace Objects {
 			"C:\\Users\\Cas\\Documents\\Computer Science\\Master\\Master Project\\Data\\Tract\\TOM\\T_POSTC_right.tck"
 		};
 
+		private int j = 0;
+		private Func<SourceAutomation, Automation, bool>[] tasks;
+
 		private void Start() {
-			Add(SEQUENCE[i]);
+			tasks = new Func<SourceAutomation, Automation, bool>[] {
+				TaskAutomationListing,
+				TaskLowResolution,
+				TaskCompletion
+			};
+			Source(SEQUENCE[i]);
 		}
-		private void Add(string path) {
+		
+		private void Source(string path) {
 			try {
 				var source = Instantiate(template, transform);
 				var automation = source.Automate(path);
@@ -24,7 +36,7 @@ namespace Objects {
 				Collect(source);
 				Interact(source);
 
-				source.Loaded += loaded => Loaded(source, loaded);
+				source.Loaded += loaded => SourceLoaded(source, automation, loaded);
 				source.Focused += camera.Target;
 				if (sources.Count == 1) {
 					source.Focus();
@@ -33,21 +45,44 @@ namespace Objects {
 				
 			}
 		}
-		private void Loaded(SourceAutomation source, bool loaded) {
-			Debug.Log("Automated source is loaded: " + loaded);
+		private void SourceLoaded(SourceAutomation source, Automation automation, bool loaded) {
 			if (loaded) {
-				Record(source);
+				Task(source, automation);
 			}
 		}
-		private void Record(SourceAutomation source) {
-			source.AutomateClose();
-			Next();
-		}
-		private void Next() {
+		private void SourceCompletion() {
 			i++;
+			j = 0;
 			if (i < SEQUENCE.Length) {
-				Add(SEQUENCE[i]);
+				Source(SEQUENCE[i]);
+			} else {
+				Debug.Log("Completed the sequence of automated tasks");
 			}
+		}
+
+		private void Task(SourceAutomation source, Automation automation) {
+			while (j < tasks.Length) {
+				// Ask each task to return a boolean representing whether it completes after the instance is done loading or instantaneously (true and false respectively)
+				// And thank the magic of postincrement for letting it all be one line statement
+				if (tasks[j++].Invoke(source, automation)) {
+					break;
+				}
+			}
+		}
+		private bool TaskAutomationListing(SourceAutomation source, Automation automation) {
+			foreach (var component in automation.Component<Controller>()) {
+				Debug.Log(component);
+			}
+			return false;
+		}
+		private bool TaskLowResolution(SourceAutomation source, Automation automation) {
+			automation.Range("Rendering/Resolution").Simulate(0.75f);
+			return true;
+		}
+		private bool TaskCompletion(SourceAutomation source, Automation automation) {
+			source.AutomateClose();
+			SourceCompletion();
+			return true;
 		}
 	}
 }

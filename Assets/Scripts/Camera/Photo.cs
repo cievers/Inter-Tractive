@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Files;
 using Files.Types;
 using UnityEngine;
 
@@ -10,8 +11,7 @@ namespace Camera {
 		public int height = 1080;
 
 		public void Capture() {
-			// Write it as PNG
-			var path = new Png(Render()).Write();
+			var path = Artifact.Write(new Png(Render()), "png");
 			Captured?.Invoke(path);
 			Debug.Log("Saved screenshot as "+path);
 		}

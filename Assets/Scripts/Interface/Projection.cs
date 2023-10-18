@@ -1,4 +1,5 @@
 ﻿using System;
+using Files;
 using Files.Types;
 using Geometry;
 using TMPro;
@@ -24,7 +25,7 @@ namespace Interface {
 			fitter.aspectRatio = (float) texture.width / texture.height;
 		}
 		public void Capture() {
-			new Png(image.sprite.texture).Write();
+			Artifact.Write(new Png(image.sprite.texture), "png");
 		}
 		private void Select(int option) {
 			axis = option switch {

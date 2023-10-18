@@ -8,8 +8,18 @@ namespace Camera {
 		public new UnityEngine.Camera camera;
 		public int width = 1920; 
 		public int height = 1080;
-		
+
 		public void Capture() {
+			// Write it as PNG
+			var path = new Png(Render()).Write();
+			Captured?.Invoke(path);
+			Debug.Log("Saved screenshot as "+path);
+		}
+		public void Capture(string path) {
+			new Png(Render()).Write(path);
+			Captured?.Invoke(path);
+		}
+		public Texture2D Render() {
 			// Set up camera for a transparent render
 			var frame = PhotoSize();
 			var filter = camera.clearFlags;
@@ -19,8 +29,8 @@ namespace Camera {
 			camera.clearFlags = CameraClearFlags.SolidColor;
 			
 			// Capture the subject on two different backgrounds
-			var white = Capture(buffer, frame, Color.white);
-			var black = Capture(buffer, frame, Color.black);
+			var white = Render(buffer, frame, Color.white);
+			var black = Render(buffer, frame, Color.black);
 				
 			// Revert settings from the camera
 			camera.clearFlags = filter;
@@ -39,13 +49,10 @@ namespace Camera {
 			var result = new Texture2D(frame.Width, frame.Height);
 			result.SetPixels32(colors);
 			result.Apply();
-			
-			// Write it as PNG
-			var path = new Png(result).Write();
-			Captured?.Invoke(path);
-			Debug.Log("Saved screenshot as "+path);
+
+			return result;
 		}
-		private Texture2D Capture(RenderTexture buffer, Frame frame, Color background) {
+		private Texture2D Render(RenderTexture buffer, Frame frame, Color background) {
 			camera.backgroundColor = background;
 			camera.Render();
 				

@@ -192,27 +192,29 @@ namespace Objects.Sources.Progressive {
 				new ActionToggle.Data("Tracts", true, tractogramMesh.gameObject.SetActive),
 				new Divider.Data(),
 				new Folder.Data("Global measuring", new List<Interface.Component> {
+					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) Math.Round(transformed)).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
 					new Loader.Data(promisedCore, new ActionToggle.Data("Mean", true, tractMesh.gameObject.SetActive)),
 					new Loader.Data(promisedCore, new ActionToggle.Data("Span", false, spanMesh.gameObject.SetActive)),
 					new Loader.Data(promisedCut, new ActionToggle.Data("Cross-section", false, cutMesh.gameObject.SetActive)),
 					new TransformedSlider.Data("Cross-section prominence", 0, value => value, (_, transformed) => ((int) Math.Round(transformed * 100)).ToString() + '%', new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),
-					new Loader.Data(promisedVolume, new ActionToggle.Data("Volume", false, volumeMesh.gameObject.SetActive)),
-					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) Math.Round(transformed)).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
-					new Exporter.Data("Export core tract", exportCore),
-					new Exporter.Data("Export summary", exportSummary)
+					new Loader.Data(promisedVolume, new ActionToggle.Data("Volume", false, volumeMesh.gameObject.SetActive))
 				}),
 				new Divider.Data(),
 				new Folder.Data("Local measuring", new List<Interface.Component> {
 					new Loader.Data(maps, new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive)),
-					new Interface.Control.Evaluation.Data(UpdateEvaluation),
-					new Exporter.Data("Export map", exportMap)
+					new Interface.Control.Evaluation.Data(UpdateEvaluation)
 				}),
 				new Divider.Data(),
 				new Folder.Data("Rendering", new List<Interface.Component> {
 					new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
 					new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, (_, transformed) => ((int) Math.Round(transformed)).ToString(), UpdateBatch),
 				}),
-				new Divider.Data()
+				new Divider.Data(),
+				new Folder.Data("Exporting", new List<Interface.Component> {
+					new Exporter.Data("Numerical summary", exportSummary),
+					new Exporter.Data("Core tract", exportCore),
+					new Exporter.Data("Map", exportMap)
+				}),
 			};
 		}
 		public override IEnumerable<Files.Publisher> Exports() {

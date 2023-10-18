@@ -1,12 +1,15 @@
-﻿using Files.Publication;
+﻿using System.IO;
+using Files.Publication;
 using Interface.Automation;
-using SFB;
 
 namespace Objects.Sources {
 	public class SourceAutomation : Source {
-		public Automation Automate(string path) {
+		private string output;
+		
+		public Automation Automate(string input, string output) {
+			this.output = output;
 			LoadTemplates();
-			Load(path);
+			Load(input);
 			return new Automation(instance.Controls());
 		}
 		public void AutomateSlice() {
@@ -16,8 +19,8 @@ namespace Objects.Sources {
 		public void AutomateClose() {
 			Close();
 		}
-		// private override void Write(Publication file, string description, string type) {
-		// 	file.Write(StandaloneFileBrowser.SaveFilePanel(description, "", path.Name(), type));
-		// }
+		protected override void Write(Publication file, string description, string type) {
+			file.Write(Path.ChangeExtension(output, type));
+		}
 	}
 }

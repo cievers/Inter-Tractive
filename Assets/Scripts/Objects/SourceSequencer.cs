@@ -28,6 +28,7 @@ namespace Objects {
 			tasks = new Func<SourceAutomation, Automation, bool>[] {
 				TaskAutomationListing,
 				TaskLowResolution,
+				TaskNifti,
 				TaskCompletion
 			};
 			Source(sequence[i]);
@@ -36,7 +37,7 @@ namespace Objects {
 		private void Source(string path) {
 			try {
 				var source = Instantiate(template, transform);
-				var automation = source.Automate(path);
+				var automation = source.Automate(path, path.Replace(INPUT, OUTPUT));
 				
 				Collect(source);
 				Interact(source);
@@ -83,6 +84,10 @@ namespace Objects {
 		private bool TaskLowResolution(SourceAutomation source, Automation automation) {
 			automation.Range("Rendering/Resolution").Simulate(0.75f);
 			return true;
+		}
+		private bool TaskNifti(SourceAutomation source, Automation automation) {
+			automation.Action("Exporting/Map").Automate();
+			return false;
 		}
 		private bool TaskCompletion(SourceAutomation source, Automation automation) {
 			source.AutomateClose();

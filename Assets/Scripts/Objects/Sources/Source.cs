@@ -47,7 +47,7 @@ namespace Objects.Sources {
 				export.Published += Write;
 			}
 		}
-		private void Write(Publication file, string description, string type) {
+		protected virtual void Write(Publication file, string description, string type) {
 			file.Write(StandaloneFileBrowser.SaveFilePanel(description, "", path.Name(), type));
 		}
 		

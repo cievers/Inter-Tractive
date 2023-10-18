@@ -6,9 +6,12 @@ namespace Objects {
 	public class SourceCollector : SourceManager {
 		public Source template;
 		public new OrbitingCamera camera;
+		public bool initialize;
 		
 		private void Start() {
-			Add();
+			if (initialize) {
+				Add();
+			}
 		}
 		public void Add() {
 			try {

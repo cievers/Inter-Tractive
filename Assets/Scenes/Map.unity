@@ -491,6 +491,7 @@ MonoBehaviour:
   slices: {fileID: 28251900}
   template: {fileID: 6280160977700837335, guid: 1e2f8176529352f46b01f1f22529b53a, type: 3}
   camera: {fileID: 963194229}
+  initialize: 1
 --- !u!114 &664069439
 MonoBehaviour:
   m_ObjectHideFlags: 0

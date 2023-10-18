@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Files.Publication;
 using Interface.Automation;
 
@@ -20,7 +21,7 @@ namespace Objects.Sources {
 			Close();
 		}
 		protected override void Write(Publication file, string description, string type) {
-			file.Write(Path.ChangeExtension(output, type));
+			file.Write(Path.Join(Path.ChangeExtension(output, null), $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss.ms}.{type}"));
 		}
 	}
 }

@@ -1,31 +1,36 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using Camera;
 using Interface.Automation;
 using Interface.Paradigm;
 using Objects.Sources;
 using UnityEngine;
+using UnityEngine.Windows;
 
 namespace Objects {
 	public class SourceSequencer : SourceManager {
 		public SourceAutomation template;
 		public new OrbitingCamera camera;
 
+		private const string ROOT = "C:\\Users\\Cas\\Documents\\Computer Science\\Master\\Master Project\\Data\\Evaluation\\";
+		private const string INPUT = ROOT + "Input\\";
+		private const string OUTPUT = ROOT + "Output\\";
+
 		private int i = 0;
-		private static readonly string[] SEQUENCE = {
-			"C:\\Users\\Cas\\Documents\\Computer Science\\Master\\Master Project\\Data\\Tract\\TOM\\T_POSTC_left.tck",
-			"C:\\Users\\Cas\\Documents\\Computer Science\\Master\\Master Project\\Data\\Tract\\TOM\\T_POSTC_right.tck"
-		};
+		private string[] sequence;
 
 		private int j = 0;
 		private Func<SourceAutomation, Automation, bool>[] tasks;
 
 		private void Start() {
+			sequence = System.IO.Directory.EnumerateFiles(INPUT, "*.tck", SearchOption.AllDirectories).ToArray();
 			tasks = new Func<SourceAutomation, Automation, bool>[] {
 				TaskAutomationListing,
 				TaskLowResolution,
 				TaskCompletion
 			};
-			Source(SEQUENCE[i]);
+			Source(sequence[i]);
 		}
 		
 		private void Source(string path) {
@@ -53,8 +58,8 @@ namespace Objects {
 		private void SourceCompletion() {
 			i++;
 			j = 0;
-			if (i < SEQUENCE.Length) {
-				Source(SEQUENCE[i]);
+			if (i < sequence.Length) {
+				Source(sequence[i]);
 			} else {
 				Debug.Log("Completed the sequence of automated tasks");
 			}

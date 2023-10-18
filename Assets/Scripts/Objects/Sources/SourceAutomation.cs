@@ -1,4 +1,6 @@
-﻿using Interface.Automation;
+﻿using Files.Publication;
+using Interface.Automation;
+using SFB;
 
 namespace Objects.Sources {
 	public class SourceAutomation : Source {
@@ -14,5 +16,8 @@ namespace Objects.Sources {
 		public void AutomateClose() {
 			Close();
 		}
+		// private override void Write(Publication file, string description, string type) {
+		// 	file.Write(StandaloneFileBrowser.SaveFilePanel(description, "", path.Name(), type));
+		// }
 	}
 }

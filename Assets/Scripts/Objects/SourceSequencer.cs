@@ -12,6 +12,7 @@ namespace Objects {
 	public class SourceSequencer : SourceManager {
 		public SourceAutomation template;
 		public new OrbitingCamera camera;
+		public GameObject successor;
 
 		private const string ROOT = "C:\\Users\\Cas\\Documents\\Computer Science\\Master\\Master Project\\Data\\Evaluation\\";
 		private const string INPUT = ROOT + "Input\\";
@@ -63,6 +64,8 @@ namespace Objects {
 				Source(sequence[i]);
 			} else {
 				Debug.Log("Completed the sequence of automated tasks");
+				gameObject.SetActive(false);
+				successor.SetActive(true);
 			}
 		}
 

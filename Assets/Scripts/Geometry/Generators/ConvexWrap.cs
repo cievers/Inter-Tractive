@@ -13,14 +13,14 @@ namespace Geometry.Generators {
 			this.end = end;
 			var intersection = start.IntersectionLine(end);
 			if (intersection != null) {
-				Debug.Log("Defined a wrap from two intersecting planes");
-				Debug.Log(intersection);
+				// Debug.Log("Defined a wrap from two intersecting planes");
+				// Debug.Log(intersection);
 				var line = (Line) intersection;
 				var startSplit = start.Split(line);
 				var endSplit = end.Split(line);
 				
-				Debug.Log(startSplit.Length);
-				Debug.Log(endSplit.Length);
+				// Debug.Log(startSplit.Length);
+				// Debug.Log(endSplit.Length);
 				// foreach (var split in start.Split(line).Concat(end.Split(line))) {
 				// 	Debug.Log("Split a part of a polygon!");
 				// 	foreach (var point in split.Points) {

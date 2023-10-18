@@ -90,7 +90,6 @@ namespace Camera {
 			// -white.r + black.r + 1 = a
 
 			var alphas = new double[] {-white.r + black.r + 1, -white.g + black.g + 1, -white.b + black.b + 1};
-			var alpha = alphas.Average();
 			
 			// Debug.Log("Deciphering an in-between blended color");
 			// Debug.Log(white);
@@ -102,7 +101,12 @@ namespace Camera {
 			// Debug.Log(new Color((float) (black.r/alpha), (float) (black.r/alpha),(float) (black.r/alpha), (float) alpha));
 			// Debug.Log(new Color32((byte) (255*black.r/alpha), (byte) (255*black.r/alpha), (byte) (255*black.r/alpha), (byte) (255*alpha)));
 			
-			return new Color32((byte) (255*black.r/alpha), (byte) (255*black.g/alpha), (byte) (255*black.b/alpha), (byte) (255*alpha));
+			return new Color32(
+				(byte) (255*black.r/alphas[0]), 
+				(byte) (255*black.g/alphas[1]), 
+				(byte) (255*black.b/alphas[2]), 
+				(byte) (255*alphas.Average())
+			);
 		}
 
 		public delegate void PhotoCaptured(string name);

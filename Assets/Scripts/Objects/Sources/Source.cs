@@ -58,7 +58,10 @@ namespace Objects.Sources {
 
 		public delegate void SourceFocusedEvent(Focus focus);
 		public event SourceFocusedEvent Focused;
-		
+
+		public string Name() {
+			return path.Name();
+		}
 		public void Focus() {
 			instance.Focus();
 		}

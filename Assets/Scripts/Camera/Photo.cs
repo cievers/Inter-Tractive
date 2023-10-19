@@ -15,8 +15,8 @@ namespace Camera {
 			Captured?.Invoke(path);
 			Debug.Log("Saved screenshot as "+path);
 		}
-		public void Capture(string path) {
-			new Png(Render()).Write(path);
+		public void Capture(string directory) {
+			var path = Artifact.Write(new Png(Render()), directory, "png");
 			Captured?.Invoke(path);
 		}
 		public Texture2D Render() {

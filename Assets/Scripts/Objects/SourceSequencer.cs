@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Camera;
@@ -18,6 +19,10 @@ namespace Objects {
 		private const string ROOT = "C:\\Users\\Cas\\Documents\\Computer Science\\Master\\Master Project\\Data\\Evaluation\\";
 		private const string INPUT = ROOT + "Input\\";
 		private const string OUTPUT = ROOT + "Output\\";
+
+		private static readonly Dictionary<string, Tuple<Vector3, Quaternion>> VIEWS = new() {
+			{"T_POSTC_left", new(new(-58.2747688f,57.1660652f,-80.9801636f), new(0.140221402f,0.219812125f,-0.0319440812f,0.964883506f))},
+		};
 
 		private int i = 0;
 		private string[] sequence;

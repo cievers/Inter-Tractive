@@ -190,6 +190,14 @@ namespace Camera {
 			zoom = Math.Min(Math.Max(focus.Distance, zoomMinimum), zoomMaximum);
 			Target(focus.Origin);
 		}
+		public void View(Vector3 position, Quaternion rotation) {
+			view.position = position;
+			view.rotation = rotation;
+		}
+		public void View(Vector3 position, Vector3 rotation) {
+			view.position = position;
+			view.rotation = Quaternion.Euler(rotation);
+		}
 
 		public void LockCamera() {
 			inputLocked = true;

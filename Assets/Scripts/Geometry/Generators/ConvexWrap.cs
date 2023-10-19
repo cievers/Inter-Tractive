@@ -11,32 +11,32 @@ namespace Geometry.Generators {
 		public ConvexWrap(ConvexPolygon start, ConvexPolygon end) {
 			this.start = start;
 			this.end = end;
-			var intersection = start.IntersectionLine(end);
-			if (intersection != null) {
-				// Debug.Log("Defined a wrap from two intersecting planes");
-				// Debug.Log(intersection);
-				var line = (Line) intersection;
-				var startSplit = start.Split(line);
-				var endSplit = end.Split(line);
-				
-				// Debug.Log(startSplit.Length);
-				// Debug.Log(endSplit.Length);
-				// foreach (var split in start.Split(line).Concat(end.Split(line))) {
-				// 	Debug.Log("Split a part of a polygon!");
-				// 	foreach (var point in split.Points) {
-				// 		Debug.Log(point);
-				// 	}
-				// }
-				if (startSplit.Length > 1 && endSplit.Length > 1) {
-					var startSidesA = startSplit[0].Points.Select(end.Side);
-					var startSidesB = startSplit[1].Points.Select(end.Side);
-					var endSidesA = endSplit[0].Points.Select(start.Side);
-					var endSidesB = endSplit[1].Points.Select(start.Side);
-
-					this.start = startSidesA.Count(side => side == Side.Positive) >= startSidesB.Count(side => side == Side.Positive) ? startSplit[0] : startSplit[1];
-					this.end = endSidesA.Count(side => side == Side.Negative) >= endSidesB.Count(side => side == Side.Negative) ? endSplit[0] : endSplit[1];
-				}
-			}
+			// var intersection = start.IntersectionLine(end);
+			// if (intersection != null) {
+			// 	// Debug.Log("Defined a wrap from two intersecting planes");
+			// 	// Debug.Log(intersection);
+			// 	var line = (Line) intersection;
+			// 	var startSplit = start.Split(line);
+			// 	var endSplit = end.Split(line);
+			// 	
+			// 	// Debug.Log(startSplit.Length);
+			// 	// Debug.Log(endSplit.Length);
+			// 	// foreach (var split in start.Split(line).Concat(end.Split(line))) {
+			// 	// 	Debug.Log("Split a part of a polygon!");
+			// 	// 	foreach (var point in split.Points) {
+			// 	// 		Debug.Log(point);
+			// 	// 	}
+			// 	// }
+			// 	if (startSplit.Length > 1 && endSplit.Length > 1) {
+			// 		var startSidesA = startSplit[0].Points.Select(end.Side);
+			// 		var startSidesB = startSplit[1].Points.Select(end.Side);
+			// 		var endSidesA = endSplit[0].Points.Select(start.Side);
+			// 		var endSidesB = endSplit[1].Points.Select(start.Side);
+			//
+			// 		this.start = startSidesA.Count(side => side == Side.Positive) >= startSidesB.Count(side => side == Side.Positive) ? startSplit[0] : startSplit[1];
+			// 		this.end = endSidesA.Count(side => side == Side.Negative) >= endSidesB.Count(side => side == Side.Negative) ? endSplit[0] : endSplit[1];
+			// 	}
+			// }
 		}
 		
 		public Hull Hull() {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Files;
 using Files.Types;
 using UnityEngine;
 
@@ -8,8 +9,17 @@ namespace Camera {
 		public new UnityEngine.Camera camera;
 		public int width = 1920; 
 		public int height = 1080;
-		
+
 		public void Capture() {
+			var path = Artifact.Write(new Png(Render()), "png");
+			Captured?.Invoke(path);
+			Debug.Log("Saved screenshot as "+path);
+		}
+		public void Capture(string path) {
+			new Png(Render()).Write(path);
+			Captured?.Invoke(path);
+		}
+		public Texture2D Render() {
 			// Set up camera for a transparent render
 			var frame = PhotoSize();
 			var filter = camera.clearFlags;
@@ -19,8 +29,8 @@ namespace Camera {
 			camera.clearFlags = CameraClearFlags.SolidColor;
 			
 			// Capture the subject on two different backgrounds
-			var white = Capture(buffer, frame, Color.white);
-			var black = Capture(buffer, frame, Color.black);
+			var white = Render(buffer, frame, Color.white);
+			var black = Render(buffer, frame, Color.black);
 				
 			// Revert settings from the camera
 			camera.clearFlags = filter;
@@ -39,13 +49,10 @@ namespace Camera {
 			var result = new Texture2D(frame.Width, frame.Height);
 			result.SetPixels32(colors);
 			result.Apply();
-			
-			// Write it as PNG
-			var path = new Png(result).Write();
-			Captured?.Invoke(path);
-			Debug.Log("Saved screenshot as "+path);
+
+			return result;
 		}
-		private Texture2D Capture(RenderTexture buffer, Frame frame, Color background) {
+		private Texture2D Render(RenderTexture buffer, Frame frame, Color background) {
 			camera.backgroundColor = background;
 			camera.Render();
 				
@@ -90,7 +97,6 @@ namespace Camera {
 			// -white.r + black.r + 1 = a
 
 			var alphas = new double[] {-white.r + black.r + 1, -white.g + black.g + 1, -white.b + black.b + 1};
-			var alpha = alphas.Average();
 			
 			// Debug.Log("Deciphering an in-between blended color");
 			// Debug.Log(white);
@@ -102,7 +108,12 @@ namespace Camera {
 			// Debug.Log(new Color((float) (black.r/alpha), (float) (black.r/alpha),(float) (black.r/alpha), (float) alpha));
 			// Debug.Log(new Color32((byte) (255*black.r/alpha), (byte) (255*black.r/alpha), (byte) (255*black.r/alpha), (byte) (255*alpha)));
 			
-			return new Color32((byte) (255*black.r/alpha), (byte) (255*black.g/alpha), (byte) (255*black.b/alpha), (byte) (255*alpha));
+			return new Color32(
+				(byte) (255*black.r/alphas[0]), 
+				(byte) (255*black.g/alphas[1]), 
+				(byte) (255*black.b/alphas[2]), 
+				(byte) (255*alphas.Average())
+			);
 		}
 
 		public delegate void PhotoCaptured(string name);

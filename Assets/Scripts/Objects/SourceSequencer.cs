@@ -92,7 +92,7 @@ namespace Objects {
 			return false;
 		}
 		private bool TaskCapture(SourceAutomation source, Automation automation) {
-			
+			// capture.Capture(source.Output);
 			return false;
 		}
 		private bool TaskLowResolution(SourceAutomation source, Automation automation) {

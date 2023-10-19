@@ -504,6 +504,7 @@ MonoBehaviour:
   slices: {fileID: 28251900}
   template: {fileID: 142924986021746702, guid: b6b146e263a08414c91787464769d6fd, type: 3}
   camera: {fileID: 963194229}
+  capture: {fileID: 963194230}
   successor: {fileID: 1964491114}
 --- !u!1 &705507993
 GameObject:

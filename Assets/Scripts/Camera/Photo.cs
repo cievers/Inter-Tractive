@@ -11,13 +11,16 @@ namespace Camera {
 		public int height = 1080;
 
 		public void Capture() {
-			var path = Artifact.Write(new Png(Render()), "png");
+			var path = Artifact.Write(Publication(), "png");
 			Captured?.Invoke(path);
 			Debug.Log("Saved screenshot as "+path);
 		}
 		public void Capture(string directory) {
-			var path = Artifact.Write(new Png(Render()), directory, "png");
+			var path = Artifact.Write(Publication(), directory, "png");
 			Captured?.Invoke(path);
+		}
+		public Png Publication() {
+			return new Png(Render());
 		}
 		public Texture2D Render() {
 			// Set up camera for a transparent render

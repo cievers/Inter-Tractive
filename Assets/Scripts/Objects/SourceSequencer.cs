@@ -22,6 +22,7 @@ namespace Objects {
 
 		private static readonly Dictionary<string, Tuple<Vector3, Quaternion>> VIEWS = new() {
 			{"T_POSTC_left", new(new(-58.2747688f,57.1660652f,-80.9801636f), new(0.140221402f,0.219812125f,-0.0319440812f,0.964883506f))},
+			{"T_POSTC_right", new(new(58.2747688f,57.1660652f,-80.9801636f), new (-0.0962854624f,0.259828955f,-0.0260469466f,-0.960489213f))},
 		};
 
 		private int i = 0;
@@ -34,7 +35,7 @@ namespace Objects {
 			sequence = System.IO.Directory.EnumerateFiles(INPUT, "*.tck", SearchOption.AllDirectories).ToArray();
 			tasks = new Func<SourceAutomation, Automation, bool>[] {
 				TaskAutomationListing,
-				TaskViewPostCRight,
+				TaskView,
 				TaskCapture,
 				TaskLowResolution,
 				TaskNifti,
@@ -92,8 +93,9 @@ namespace Objects {
 			}
 			return false;
 		}
-		private bool TaskViewPostCRight(SourceAutomation source, Automation automation) {
-			camera.View(new Vector3(-58.2747688f,57.1660652f,-80.9801636f), new Quaternion(0.140221402f,0.219812125f,-0.0319440812f,0.964883506f));
+		private bool TaskView(SourceAutomation source, Automation automation) {
+			var pair = VIEWS[source.Name()];
+			camera.View(pair.Item1, pair.Item2);
 			return false;
 		}
 		private bool TaskCapture(SourceAutomation source, Automation automation) {

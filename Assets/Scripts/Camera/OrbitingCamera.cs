@@ -194,6 +194,10 @@ namespace Camera {
 			view.position = position;
 			view.rotation = rotation;
 		}
+		public void View(Vector3 position, Vector3 rotation) {
+			view.position = position;
+			view.rotation = Quaternion.Euler(rotation);
+		}
 
 		public void LockCamera() {
 			inputLocked = true;

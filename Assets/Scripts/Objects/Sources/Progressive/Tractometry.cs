@@ -44,6 +44,8 @@ namespace Objects.Sources.Progressive {
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private ConcurrentPipe<Model> maps;
+		private ConcurrentPipe<float> voxelSurfaces;
+		private ConcurrentPipe<float> voxelVolumes;
 
 		private Thread quantizeThread;
 		private Thread renderThread;
@@ -104,6 +106,11 @@ namespace Objects.Sources.Progressive {
 			}
 			if (maps.TryTake(out var result)) {
 				gridMesh.mesh = result.Mesh();
+				
+				// A bit of a hack checking for this here, as these evaluations also make some sense before the entire map is done
+				if (maps.IsCompleted) {
+					UpdateMapEvaluation();
+				}
 			}
 
 			if (promisedCore.TryTake(out var tract)) {
@@ -180,6 +187,10 @@ namespace Objects.Sources.Progressive {
 			renderThread = new Thread(renderer.Render);
 			quantizeThread.Start();
 			renderThread.Start();
+		}
+		private void UpdateMapEvaluation() {
+			new VoxelSurface(grid.Cells, grid.Size, grid.Resolution).Request(surface => summary.VoxelSurface = surface);
+			new VoxelVolume(grid.Cells, grid.Resolution).Request(volume => summary.VoxelVolume = volume);
 		}
 
 		public override Map Map() {

@@ -21,6 +21,8 @@ namespace Objects.Sources.Progressive {
 				return Areas.Select(area => area * ((float) CoreLength / Areas.Length)).Sum();
 			}
 		}
+		public float? VoxelSurface {get; set;}
+		public float? VoxelVolume {get; set;}
 
 		public void Core(Tract core) {
 			CoreLength = new Length().Measure(core);

@@ -27,6 +27,11 @@ namespace Geometry {
 
 		public int Length => Math.Abs(x) + Math.Abs(y) + Math.Abs(z);
 
+		public int Index(Index3 dimensions) {
+			// Get the offset of this index for a flat array representing a three-dimensional volume with dimensions
+			return x + y * dimensions.x + z * dimensions.x * dimensions.y;
+		}
+
 		public IEnumerable<Index3> Step(Index3 goal) {
 			var result = new List<Index3>(3);
 			if (goal.x != x) {

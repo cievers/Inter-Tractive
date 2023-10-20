@@ -169,7 +169,6 @@ namespace Objects.Sources.Progressive {
 			UpdateBatch((int) Math.Round(batch));
 		}
 		private void UpdateMap() {
-			Loading(false); // Should this be here now that loading is done by an aggregate of threaded things?
 			voxels.Restart();
 			maps.Restart();
 			grid = new ThreadedLattice(tractogram, resolution, voxels);

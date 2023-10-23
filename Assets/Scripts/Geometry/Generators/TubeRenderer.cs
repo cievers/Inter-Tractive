@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Geometry.Tracts;
 using UnityEngine;
@@ -57,15 +58,16 @@ namespace Geometry.Generators {
 					throw new ArithmeticException("There should always be the same number of intersections with a plane along the tract as there are edges");
 				}
 
-				var triangles = new int[vertices * 6];
-				for (var j = 0; j < vertices; j++) {
-					triangles[j * 6] = (i - 1) * vertices + j;
-					triangles[j * 6 + 1] = (i - 1) * vertices + (j + 1) % vertices;
-					triangles[j * 6 + 2] = i * vertices + j;
-					triangles[j * 6 + 3] = i * vertices + j;
-					triangles[j * 6 + 4] = (i - 1) * vertices + (j + 1) % vertices;
-					triangles[j * 6 + 5] = i * vertices + (j + 1) % vertices;
-				}
+				var triangles = Wrap(vertices).Select(j => j + (i - 1) * vertices).ToArray();
+				// var triangles = new int[vertices * 6];
+				// for (var j = 0; j < vertices; j++) {
+				// 	triangles[j * 6] = (i - 1) * vertices + j;
+				// 	triangles[j * 6 + 1] = (i - 1) * vertices + (j + 1) % vertices;
+				// 	triangles[j * 6 + 2] = i * vertices + j;
+				// 	triangles[j * 6 + 3] = i * vertices + j;
+				// 	triangles[j * 6 + 4] = (i - 1) * vertices + (j + 1) % vertices;
+				// 	triangles[j * 6 + 5] = i * vertices + (j + 1) % vertices;
+				// }
 				
 				intersections.CopyTo(resultVertices, i * vertices);
 				normals.CopyTo(resultNormals, i * vertices);
@@ -75,8 +77,74 @@ namespace Geometry.Generators {
 
 			return Model.Join(startingCap, new Model(resultVertices, resultNormals, resultColors, resultTriangles), Cap(currentVertices, tract.Points[^1], directions[^1]));
 		}
-		private Model Cap(Vector3[] edge, Vector3 origin, Vector3 normal) {
-			return new ConvexPolygon(edge.ToList(), origin, normal).Surface().Color(color);
+		private Model Cap(Vector3[] points, Vector3 origin, Vector3 normal) {
+			if (Vector3.Dot(normal, Vector3.Cross(points[1] - points[0], points[2] - points[0])) <= 0) {
+				points = points.Reverse().ToArray();
+			}
+			var length = points.Length;
+			var axisA = (points[0] - origin).normalized;
+			var axisB = Vector3.Cross(normal, axisA).normalized;
+			var layers = length / 4;
+			var cone = length % 4 == 0;
+			
+			var resultVertices = new List<Vector3>();
+			var resultNormals = new List<Vector3>();
+			var resultTriangles = new List<int>();
+			
+			resultVertices.AddRange(points);
+			resultNormals.AddRange(points.Select(point => (point - origin).normalized));
+
+			for (var i = 1; i <= layers; i++) {
+				if (cone && i == layers) {
+					break;
+				}
+				var interval = (float) i / (cone ? layers : layers + 1);
+				var layerRadius = radius * Mathf.Cos(Mathf.PI * 0.5f * interval);
+				var layer = Circle(origin + normal.normalized * (radius * Mathf.Sin(Mathf.PI * 0.5f * interval)), axisA * layerRadius, axisB * layerRadius);
+				
+				resultVertices.AddRange(layer);
+				resultNormals.AddRange(layer.Select(point => (point - origin).normalized));
+				resultTriangles.AddRange(Wrap(length).Select(j => j + (i - 1) * length));
+			}
+			if (cone) {
+				resultTriangles.AddRange(Cone(length).Select(v => v + resultVertices.Count - length));
+				resultVertices.Add(origin + normal.normalized * radius);
+				resultNormals.Add(normal.normalized);
+			} else {
+				resultTriangles.AddRange(Polygon(length).Select(v => v + resultVertices.Count - length));
+			}
+			
+			return new Hull(resultVertices.ToArray(), resultNormals.ToArray(), resultTriangles.ToArray()).Color(color);
+		}
+		private static IEnumerable<int> Cone(int vertices) {
+			var triangles = new int[vertices * 3];
+			for (var i = 0; i < vertices; i++) {
+				triangles[i * 3] = i;
+				triangles[i * 3 + 1] = (i + 1) % vertices;
+				triangles[i * 3 + 2] = vertices;
+			}
+			return triangles;
+		}
+		private static IEnumerable<int> Wrap(int vertices) {
+			var triangles = new int[vertices * 6];
+			for (var i = 0; i < vertices; i++) {
+				triangles[i * 6] = i;
+				triangles[i * 6 + 1] = (i + 1) % vertices;
+				triangles[i * 6 + 2] = vertices + i;
+				triangles[i * 6 + 3] = vertices + i;
+				triangles[i * 6 + 4] = (i + 1) % vertices;
+				triangles[i * 6 + 5] = vertices + (i + 1) % vertices;
+			}
+			return triangles;
+		}
+		private static IEnumerable<int> Polygon(int vertices) {
+			var triangles = new int[vertices * 3];
+			for (var i = 0; i < vertices; i++) {
+				triangles[i * 3] = 0;
+				triangles[i * 3 + 1] = i;
+				triangles[i * 3 + 2] = (i + 1) % vertices;
+			}
+			return triangles;
 		}
 		
 		private Tuple<Vector3, Vector3> IntersectionAxis(Vector3 u, Vector3 v) {

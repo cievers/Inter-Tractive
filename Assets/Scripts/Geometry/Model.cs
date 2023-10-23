@@ -18,14 +18,18 @@ namespace Geometry {
 		}
 
 		public Mesh Mesh() {
-			// TODO: Normals aren't used in rendering yet
 			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};
 
 			mesh.Clear();
 			mesh.SetVertices(Vertices);
 			mesh.SetColors(Colors);
 			mesh.SetTriangles(Indices, 0);
-			mesh.RecalculateNormals();
+
+			if (Normals.Length > 0) {
+				mesh.SetNormals(Normals);
+			} else {
+				mesh.RecalculateNormals();
+			}
 
 			return mesh;
 		}

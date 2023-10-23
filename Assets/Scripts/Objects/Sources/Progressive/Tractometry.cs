@@ -205,7 +205,10 @@ namespace Objects.Sources.Progressive {
 				new Divider.Data(),
 				new Folder.Data("Global measuring", new List<Interface.Component> {
 					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) Math.Round(transformed)).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
-					new Loader.Data(promisedCore, new ActionToggle.Data("Mean", true, tractMesh.gameObject.SetActive)),
+					new Loader.Data(promisedCore, new ActionToggle.Data("Mean", true, state => {
+							tractMesh.gameObject.SetActive(state);
+							tractOutlineMesh.gameObject.SetActive(state);
+					})),
 					new Loader.Data(promisedCore, new ActionToggle.Data("Span", false, spanMesh.gameObject.SetActive)),
 					new Loader.Data(promisedCut, new ActionToggle.Data("Cross-section", false, cutMesh.gameObject.SetActive)),
 					new TransformedSlider.Data("Cross-section prominence", 0, value => value, (_, transformed) => ((int) Math.Round(transformed * 100)).ToString() + '%', new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),

@@ -26,6 +26,7 @@ using Exporter = Interface.Control.Exporter;
 namespace Objects.Sources.Progressive {
 	public class Tractometry : Voxels {
 		public MeshFilter tractMesh;
+		public MeshFilter tractOutlineMesh;
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
 		public MeshFilter spanMesh;
@@ -118,6 +119,7 @@ namespace Objects.Sources.Progressive {
 				var wires = new WireframeRenderer();
 				tractMesh.mesh = wires.Render(tract);
 				spanMesh.mesh = wires.Render(new ArrayTract(new[] {tract.Points[0], tract.Points[^1]}));
+				tractOutlineMesh.mesh = new TubeRenderer(8, 1, new Color32(255, 255, 255, 255)).Render(tract);
 			}
 			if (promisedCut.TryTake(out var cuts)) {
 				cutMesh.mesh = cuts.Mesh();

@@ -25,6 +25,23 @@ namespace Geometry {
 		public static IEnumerable<Vector3> Projections(IEnumerable<Vector3> points, Vector3 origin, Vector3 normal) {
 			return points.Select(point => Projection(point, origin, normal));
 		}
+		public static Vector3? Intersection(Line line, Vector3 origin, Vector3 normal) {
+			// origin & normal define the plane
+			// origin Is a point on the plane
+			// normal Is a normal vector defining the plane direction (does not need to be normalized)
+			var u = line.Direction;
+			var dot = Vector3.Dot(normal, u);
+
+			if (Mathf.Abs(dot) > 0) {
+				// If the line is not parallel to the plane
+				// The factor is a multiplication of u representing where the intersection is
+				var v = line.Origin - origin;
+				return line.Origin + u * (-Vector3.Dot(normal, v) / dot);
+			}
+
+			// The line is parallel to plane
+			return null;
+		}
 		public static Vector3? Intersection(Segment segment, Vector3 origin, Vector3 normal) {
 			// origin & normal define the plane
 		    // origin Is a point on the plane

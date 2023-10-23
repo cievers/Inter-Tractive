@@ -38,6 +38,8 @@ namespace Geometry.Generators {
 			var startingDirections = Directions(startingAxisA, startingAxisB);
 			var currentVertices = startingDirections.Select(direction => tract.Points[0] + direction).ToArray();
 			var currentNormals = startingDirections.Select(direction => direction.normalized).ToArray();
+
+			var startingCap = Cap(currentVertices, tract.Points[0], -directions[0]);
 			
 			currentVertices.CopyTo(resultVertices, 0);
 			currentNormals.CopyTo(resultNormals, 0);
@@ -71,8 +73,12 @@ namespace Geometry.Generators {
 				currentVertices = intersections;
 			}
 
-			return new Model(resultVertices, resultNormals, resultColors, resultTriangles);
+			return Model.Join(startingCap, new Model(resultVertices, resultNormals, resultColors, resultTriangles), Cap(currentVertices, tract.Points[^1], directions[^1]));
 		}
+		private Model Cap(Vector3[] edge, Vector3 origin, Vector3 normal) {
+			return new ConvexPolygon(edge.ToList(), origin, normal).Surface().Color(color);
+		}
+		
 		private Tuple<Vector3, Vector3> IntersectionAxis(Vector3 u, Vector3 v) {
 			// Assume U is the direction vector of the incoming point, and V is the direction vector of the outgoing point
 			return new Tuple<Vector3, Vector3>((u + v).normalized * radius, Vector3.Cross(u, v).normalized * radius);

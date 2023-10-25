@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace Geometry.Generators {
-	public interface TractogramRenderer {
+	public interface TractogramRenderer : TractRenderer {
 		public Mesh Render(Tractogram tractogram);
 	}
 }

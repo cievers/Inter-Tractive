@@ -168,7 +168,7 @@ namespace Objects.Sources.Progressive {
 			UpdateCutEvaluation();
 		}
 		private void UpdateCutEvaluation() {
-			promisedCut.Add(new CrossSectionEvaluation(prominentCuts));
+			promisedCut.Add(new CrossSectionEvaluation(prominentCuts, evaluation.Coloring));
 		}
 		private void UpdateEvaluation(TractEvaluation evaluation) {
 			this.evaluation = evaluation;
@@ -202,6 +202,7 @@ namespace Objects.Sources.Progressive {
 		private void UpdateMapEvaluation() {
 			new VoxelSurface(grid.Cells, grid.Size, grid.Resolution).Request(surface => summary.VoxelSurface = surface);
 			new VoxelVolume(grid.Cells, grid.Resolution).Request(volume => summary.VoxelVolume = volume);
+			UpdateCutEvaluation();
 		}
 
 		public override Map Map() {

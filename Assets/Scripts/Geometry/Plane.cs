@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Geometry.Tracts;
 using UnityEngine;
@@ -101,6 +102,18 @@ namespace Geometry {
 		}
 		public static IEnumerable<Vector3> Intersections(Tractogram tractogram, Vector3 origin, Vector3 normal) {
 			return tractogram.Tracts.SelectMany(tract => Intersections(tract, origin, normal));
+		}
+
+		public static Vector3 Any(Vector3 origin, Vector3 normal) {
+			var projections = Projections(new[] {Vector3.zero, Vector3.right, Vector3.up, Vector3.forward}, origin, normal).Select(projection => projection - origin).ToArray();
+			var magnitudes = projections.Select(projection => projection.magnitude).ToArray();
+			var maximum = magnitudes.Max();
+			for (var i = 0; i < projections.Length; i++) {
+				if (magnitudes[i] == maximum) {
+					return projections[i];
+				}
+			}
+			throw new ArithmeticException("One of the selected projections should have the maximum magnitude");
 		}
 
 		public static Mesh Mesh(Vector3 origin, Vector3 normal, float size) {

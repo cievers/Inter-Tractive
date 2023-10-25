@@ -25,6 +25,10 @@ namespace Geometry.Generators {
 		}
 
 		private Model Route(Tract tract) {
+			if (tract.Points.Length == 2) {
+				return Route(tract.Segments.ToArray()[0]);
+			}
+			
 			var resultVertices = new Vector3[tract.Points.Length * vertices];
 			var resultNormals = new Vector3[tract.Points.Length * vertices];
 			var resultColors = new Color32[tract.Points.Length * vertices];
@@ -82,6 +86,35 @@ namespace Geometry.Generators {
 			}
 
 			return Model.Join(startingCap, new Model(resultVertices, resultNormals, resultColors, resultTriangles), Cap(currentVertices, tract.Points[^1], directions[^1], currentColor));
+		}
+		private Model Route(Segment segment) {
+			var resultVertices = new Vector3[2 * vertices];
+			var resultNormals = new Vector3[2 * vertices];
+			var resultColors = new Color32[2 * vertices];
+
+			var normal = segment.Size.normalized;
+
+			var axisB = Vector3.Cross(normal, Plane.Any(segment.Start, normal)).normalized * radius;
+			var axisA = Vector3.Cross(axisB, normal).normalized * radius;
+
+			var startingDirections = Directions(axisA, axisB);
+			var startingVertices = startingDirections.Select(direction => segment.Start + direction).ToArray();
+			var endingVertices = startingDirections.Select(direction => segment.End + direction).ToArray();
+			var normals = startingDirections.Select(direction => direction.normalized).ToArray();
+			var startingColor = color.Invoke(segment.Start, normal, 0);
+			var endingColor = color.Invoke(segment.End, normal, 1);
+
+			var startingCap = Cap(startingVertices, segment.Start, -normal, startingColor);
+			var endingCap = Cap(endingVertices, segment.End, normal, endingColor);
+			
+			startingVertices.CopyTo(resultVertices, 0);
+			endingVertices.CopyTo(resultVertices, vertices);
+			normals.CopyTo(resultNormals, 0);
+			normals.CopyTo(resultNormals, vertices);
+			Enumerable.Repeat(startingColor, vertices).ToArray().CopyTo(resultColors, 0);
+			Enumerable.Repeat(endingColor, vertices).ToArray().CopyTo(resultColors, vertices);
+
+			return Model.Join(startingCap, new Model(resultVertices, resultNormals, resultColors, Wrap(vertices).ToArray()), endingCap);
 		}
 		private Model Cap(Vector3[] points, Vector3 origin, Vector3 normal, Color32 color) {
 			return Cap(points, origin, normal).Color(color);

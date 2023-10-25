@@ -28,7 +28,7 @@ namespace Geometry.Tracts {
 				}
 				result[^1] = points[^1] - points[^2];
 
-				return result;
+				return result.Select(normal => normal.normalized);
 			}
 		}
 		public IEnumerable<Segment> Segments {

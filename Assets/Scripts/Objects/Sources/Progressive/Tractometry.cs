@@ -119,7 +119,8 @@ namespace Objects.Sources.Progressive {
 				var wires = new WireframeRenderer();
 				tractMesh.mesh = wires.Render(tract);
 				spanMesh.mesh = wires.Render(new ArrayTract(new[] {tract.Points[0], tract.Points[^1]}));
-				tractOutlineMesh.mesh = new TubeRenderer(16, 0.5f, new Color32(255, 255, 255, 255)).Render(tract);
+				// tractOutlineMesh.mesh = new TubeRenderer(16, 0.5f, new Color32(255, 255, 255, 255)).Render(tract);
+				tractOutlineMesh.mesh = new TubeRenderer(16, 0.5f, (_, normal, _) => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y))).Render(tract);
 			}
 			if (promisedCut.TryTake(out var cuts)) {
 				cutMesh.mesh = cuts.Mesh();

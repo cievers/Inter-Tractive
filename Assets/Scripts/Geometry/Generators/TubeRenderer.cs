@@ -8,13 +8,14 @@ namespace Geometry.Generators {
 	public class TubeRenderer : TractogramRenderer {
 		private readonly int vertices;
 		private readonly float radius;
-		private readonly Color32 color;
+		private readonly Func<Vector3, Vector3, float, Color32> color;
 
-		public TubeRenderer(int vertices, float radius, Color32 color) {
+		public TubeRenderer(int vertices, float radius, Func<Vector3, Vector3, float, Color32> color) {
 			this.vertices = vertices;
 			this.radius = radius;
 			this.color = color;
 		}
+		public TubeRenderer(int vertices, float radius, Color32 color) : this(vertices, radius, (_, _, _) => color) {}
 		
 		public Mesh Render(Tractogram tractogram) {
 			return Model.Join(tractogram.Tracts.Select(Route).ToList()).Mesh();
@@ -40,7 +41,7 @@ namespace Geometry.Generators {
 			var startingDirections = Directions(startingAxisA, startingAxisB);
 			var currentVertices = startingDirections.Select(direction => tract.Points[0] + direction).ToArray();
 			var currentNormals = startingDirections.Select(direction => direction.normalized).ToArray();
-			var currentColor = Color(planes[0]);
+			var currentColor = color.Invoke(tract.Points[0], planes[0], 0);
 
 			var startingCap = Cap(currentVertices, tract.Points[0], -directions[0], currentColor);
 			
@@ -72,7 +73,7 @@ namespace Geometry.Generators {
 				// 	triangles[j * 6 + 5] = i * vertices + (j + 1) % vertices;
 				// }
 				currentVertices = intersections;
-				currentColor = Color(planes[i]);
+				currentColor = color.Invoke(tract.Points[i], planes[i], i / (tract.Points.Length - 1));
 
 				intersections.CopyTo(resultVertices, i * vertices);
 				normals.CopyTo(resultNormals, i * vertices);
@@ -180,10 +181,6 @@ namespace Geometry.Generators {
 		}
 		private Vector3[] Circle(Vector3 origin, Tuple<Vector3, Vector3> axis) {
 			return Circle(origin, axis.Item1, axis.Item2);
-		}
-
-		private Color32 Color(Vector3 normal) {
-			return new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y));
 		}
 	}
 }

@@ -19,17 +19,18 @@ using Maps.Cells;
 using Maps.Grids;
 using Objects.Concurrent;
 using UnityEngine;
-
+using UnityEngine.Serialization;
 using Boolean = Logic.Eventful.Boolean;
 using Exporter = Interface.Control.Exporter;
 
 namespace Objects.Sources.Progressive {
 	public class Tractometry : Voxels {
-		public MeshFilter tractMesh;
-		public MeshFilter tractOutlineMesh;
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
+		public MeshFilter coreMesh;
+		public MeshFilter coreOutlineMesh;
 		public MeshFilter spanMesh;
+		public MeshFilter spanOutlineMesh;
 		public MeshFilter cutMesh;
 		public MeshFilter volumeMesh;
 		public GameObject dot;
@@ -40,6 +41,9 @@ namespace Objects.Sources.Progressive {
 		private CrossSectionExtrema prominentCuts;
 		private Tract core;
 		private Summary summary;
+
+		private TractogramRenderer wireRenderer;
+		private TractogramRenderer outlineRenderer;
 
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
@@ -76,6 +80,9 @@ namespace Objects.Sources.Progressive {
 			colors = new ConcurrentBag<Dictionary<Cell, Color32>>();
 			maps = new ConcurrentPipe<Model>();
 			summary = new Summary();
+
+			wireRenderer = new WireframeRenderer();
+			outlineRenderer = new TubeRenderer(16, 0.5f, (_, normal, _) => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y)));
 
 			promisedCore = new PromiseCollector<Tract>();
 			promisedCut = new PromiseCollector<Model>();
@@ -116,11 +123,12 @@ namespace Objects.Sources.Progressive {
 
 			if (promisedCore.TryTake(out var tract)) {
 				core = tract;
-				var wires = new WireframeRenderer();
-				tractMesh.mesh = wires.Render(tract);
-				spanMesh.mesh = wires.Render(new ArrayTract(new[] {tract.Points[0], tract.Points[^1]}));
-				// tractOutlineMesh.mesh = new TubeRenderer(16, 0.5f, new Color32(255, 255, 255, 255)).Render(tract);
-				tractOutlineMesh.mesh = new TubeRenderer(16, 0.5f, (_, normal, _) => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y))).Render(tract);
+				var span = new ArrayTract(new[] {tract.Points[0], tract.Points[^1]});
+				
+				coreMesh.mesh = wireRenderer.Render(tract);
+				spanMesh.mesh = wireRenderer.Render(span);
+				coreOutlineMesh.mesh = outlineRenderer.Render(tract);
+				spanOutlineMesh.mesh = outlineRenderer.Render(span);
 			}
 			if (promisedCut.TryTake(out var cuts)) {
 				cutMesh.mesh = cuts.Mesh();
@@ -207,10 +215,13 @@ namespace Objects.Sources.Progressive {
 				new Folder.Data("Global measuring", new List<Interface.Component> {
 					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) Math.Round(transformed)).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
 					new Loader.Data(promisedCore, new ActionToggle.Data("Mean", true, state => {
-							tractMesh.gameObject.SetActive(state);
-							tractOutlineMesh.gameObject.SetActive(state);
+							coreMesh.gameObject.SetActive(state);
+							coreOutlineMesh.gameObject.SetActive(state);
 					})),
-					new Loader.Data(promisedCore, new ActionToggle.Data("Span", false, spanMesh.gameObject.SetActive)),
+					new Loader.Data(promisedCore, new ActionToggle.Data("Span", false, state => {
+						spanMesh.gameObject.SetActive(state);
+						spanOutlineMesh.gameObject.SetActive(state);
+					})),
 					new Loader.Data(promisedCut, new ActionToggle.Data("Cross-section", false, cutMesh.gameObject.SetActive)),
 					new TransformedSlider.Data("Cross-section prominence", 0, value => value, (_, transformed) => ((int) Math.Round(transformed * 100)).ToString() + '%', new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),
 					new Loader.Data(promisedVolume, new ActionToggle.Data("Volume", false, volumeMesh.gameObject.SetActive))

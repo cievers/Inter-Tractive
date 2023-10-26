@@ -31,13 +31,19 @@ namespace Geometry {
 		}
 
 		public static float Area(Vector3 a, Vector3 b, Vector3 c) {
+			// Compute area from three corners
 			return Area(b - a, c - a);
 		}
 		public static float Area(Vector3 a, Vector3 b) {
+			// Compute area from two vectors representing two directed edges sharing a common origin
 			return (float) (0.5 * Vector3.Cross(a, b).magnitude);
 		}
 		public static float Area(float a, float b, float c) {
+			// Compute area from three side lengths
 			return (float) (0.25 * Math.Sqrt(4 * Math.Pow(a, 2) * Math.Pow(b, 2) - Math.Pow(Math.Pow(a, 2) + Math.Pow(b, 2) - Math.Pow(c, 2), 2)));
+		}
+		public static float SignedVolume(Vector3 a, Vector3 b, Vector3 c) {
+			return Vector3.Dot(a, Vector3.Cross(b, c)) / 6.0f;
 		}
 	}
 }

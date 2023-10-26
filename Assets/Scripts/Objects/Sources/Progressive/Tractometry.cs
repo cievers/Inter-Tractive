@@ -135,6 +135,7 @@ namespace Objects.Sources.Progressive {
 			}
 			if (promisedVolume.TryTake(out var hull)) {
 				volumeMesh.mesh = hull.Mesh();
+				summary.Volume(hull);
 			}
 		}
 		private void UpdateTracts() {
@@ -200,8 +201,8 @@ namespace Objects.Sources.Progressive {
 			renderThread.Start();
 		}
 		private void UpdateMapEvaluation() {
-			new VoxelSurface(grid.Cells, grid.Size, grid.Resolution).Request(surface => summary.VoxelSurface = surface);
-			new VoxelVolume(grid.Cells, grid.Resolution).Request(volume => summary.VoxelVolume = volume);
+			new VoxelSurface(grid.Cells, grid.Size, grid.Resolution).Request(surface => summary.SurfaceVoxels = surface);
+			new VoxelVolume(grid.Cells, grid.Resolution).Request(volume => summary.VolumeVoxels = volume);
 			UpdateCutEvaluation();
 		}
 

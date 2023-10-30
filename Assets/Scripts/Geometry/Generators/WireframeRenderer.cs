@@ -16,9 +16,6 @@ namespace Geometry.Generators {
 		private static Mesh Render(Wire wires) {
 			// TODO: Maybe check if a specific index format is really needed
 			var shape = new Mesh {indexFormat = IndexFormat.UInt32};
-
-			// Debug.Log(wires.Vertices.Length);
-			// Debug.Log(wires.Indices.Length);
 		
 			// TODO: Works nicely, but always 1 pixel wide
 			// Solution is likely within shaders, maybe learn from https://github.com/devOdico/GoodLines

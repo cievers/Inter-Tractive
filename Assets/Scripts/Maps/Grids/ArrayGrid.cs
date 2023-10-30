@@ -19,20 +19,6 @@ namespace Maps.Grids {
 			gridAnchor = new Index3(boundaries.Min, cellSize);
 			gridSize = new Index3(boundaries.Max, cellSize) + new Index3(1, 1, 1) - gridAnchor;
 			cells = new Cuboid?[gridSize.x * gridSize.y * gridSize.z];
-			// gridSize = new Index3(boundaries.Max, cellSize) - gridAnchor;
-			// cells = new Cuboid?[(gridSize.x + 1) * (gridSize.y + 1) * (gridSize.z + 1)];
-			
-			// Debug.Log(new Index3(boundaries.Max, cellSize));
-			// Debug.Log(new Index3(1, 1, 1));
-			// Debug.Log(gridAnchor);
-			// Debug.Log(new Index3(boundaries.Max, cellSize) + new Index3(1, 1, 1));
-			// Debug.Log(new Index3(1, 1, 1) - gridAnchor);
-			// Debug.Log(new Index3(boundaries.Max, cellSize) + new Index3(1, 1, 1) - gridAnchor);
-			
-			Debug.Log("Set step size for grid to " + cellSize);
-			Debug.Log("And initialized a grid with size "+gridSize);
-			Debug.Log("And offset "+gridAnchor);
-			Debug.Log("Which makes for a total of "+cells.Length+" cells");
 		}
 
 		// public Boundaries Boundaries => Boundaries.Join(cells.Values.Select(cell => new Boundaries(cell.Anchor, cell.Extent)));

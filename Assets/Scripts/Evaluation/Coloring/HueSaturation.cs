@@ -18,9 +18,6 @@ namespace Evaluation.Coloring {
 			return measurements.ToDictionary(pair => pair.Key, pair => (Color32) UnityEngine.Color.HSVToRGB(hue[pair.Key] / hueLimit, saturation[pair.Key] / saturationLimit, saturation[pair.Key] / saturationLimit));
 		}
 		private Color32 Color<T>(Dictionary<T, float> hue, Dictionary<T, float> saturation, KeyValuePair<T, Vector> pair) {
-			Debug.Log("Creating HSV");
-			Debug.Log(hue[pair.Key]);
-			Debug.Log(saturation[pair.Key]);
 			return UnityEngine.Color.HSVToRGB(hue[pair.Key], saturation[pair.Key], 1);
 		}
 	}

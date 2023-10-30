@@ -16,10 +16,6 @@ namespace Maps.Grids {
 		private Dictionary<Index3, IEnumerable<Tract>> quantization;
 
 		public IntersectionTree(Tractogram tractogram, int depth, float padding) {
-			Debug.Log("Initializing a root level of an intersection-based quantization tree");
-			Debug.Log(tractogram.Boundaries.Min);
-			Debug.Log(tractogram.Boundaries.Max);
-			Debug.Log(tractogram.Boundaries.Size);
 			var resolution = (new[] {
 				Math.Abs(tractogram.Boundaries.Size.x),
 				Math.Abs(tractogram.Boundaries.Size.y),
@@ -30,11 +26,6 @@ namespace Maps.Grids {
 			Lattice = new Lattice(tractogram.Boundaries.Min, new Index3(0, 0, 0), size, resolution);
 			Cells = new Cuboid?[size.x * size.y * size.z];
 			CellSize = resolution;
-
-			Debug.Log("Set step size for grid to " + resolution);
-			Debug.Log("And initialized a grid with size " + Lattice.Size);
-			Debug.Log("And index offset " + Lattice.Anchor);
-			Debug.Log("And spatial offset: " + Lattice.Origin);
 
 			quantization = Quantize(tractogram);
 		}

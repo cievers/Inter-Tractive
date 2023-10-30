@@ -16,7 +16,6 @@ namespace Objects.Sources.Progressive {
 		public VoxelVolume(Cuboid?[] cells, float resolution) : this(cells, new Vector3(resolution, resolution, resolution)) {}
 		
 		protected override void Compute() {
-			Debug.Log("Counted "+cells.Count(cell => cell != null)+" cell in this volume");
 			Complete(template.x * template.y * template.z * cells.Count(cell => cell != null));
 		}
 	}

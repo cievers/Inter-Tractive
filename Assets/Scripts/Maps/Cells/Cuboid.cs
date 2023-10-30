@@ -150,20 +150,6 @@ namespace Maps.Cells {
 			var z = new Geometry.Range((Anchor.z - segment.Start.z) / size.z, (Extent.z - segment.Start.z) / size.z);
 			var min = Math.Min(1, Math.Min(x.Maximum, Math.Min(y.Maximum, z.Maximum)));
 			var max = Math.Max(0, Math.Max(x.Minimum, Math.Max(y.Minimum, z.Minimum)));
-			
-			// Debug.Log("Doing segment intersection");
-			// Debug.Log(Anchor);
-			// Debug.Log(Extent);
-			// Debug.Log(segment.Start);
-			// Debug.Log(segment.End);
-			// Debug.Log("----");
-			// Debug.Log(x.Minimum);
-			// Debug.Log(y.Minimum);
-			// Debug.Log(z.Minimum);
-			// Debug.Log(x.Maximum);
-			// Debug.Log(y.Maximum);
-			// Debug.Log(z.Maximum);
-			// Debug.Log("----");
 
 			return max <= min;
 		}

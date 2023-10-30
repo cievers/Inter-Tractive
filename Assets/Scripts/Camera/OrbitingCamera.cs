@@ -84,16 +84,6 @@ namespace Camera {
 				UpdateTranslation();
 				UpdateRotation();
 				UpdateZoom();
-
-				if (Input.GetMouseButtonDown(2)) {
-					Debug.Log("Middle mouse");
-					Debug.Log(ignoredLayers.value);
-					foreach (var result in Raycast.MouseEvents(ignoredLayers)) {
-						Debug.Log(result);
-						Debug.Log(result.gameObject.layer);
-						Debug.Log(ignoredLayers >> result.gameObject.layer);
-					}
-				}
 				
 				// Only reset is moving variable if no invoke is called
 				if (!resettingIsMoving) {

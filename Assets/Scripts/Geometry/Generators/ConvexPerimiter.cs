@@ -95,13 +95,6 @@ namespace Geometry.Generators {
 		// 			b.Add(point);
 		// 		}
 		// 	}
-		// 	// foreach (var split in new[] {a, b}) {
-		// 	// 	Debug.Log("A part of the polygon!");
-		// 	// 	foreach (var point in split) {
-		// 	// 		Debug.Log(point);
-		// 	// 	}
-		// 	// }
-		// 	Debug.Log(b.Count);
 		// 	return b.Count == 0 ? new[] {this} : new ConvexPerimeter[] {new(a, true), new(b, true)};
 		// }
 		public ConvexPerimeter[] Split(Planar.Line line) {

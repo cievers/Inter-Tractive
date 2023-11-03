@@ -111,12 +111,12 @@ namespace Geometry.Generators {
 				var currentVertices = currentDirections.Select(direction => walk.Points[i] + direction).ToArray();
 				var currentNormals = currentDirections.Select(direction => direction.normalized).ToArray();
 				var currentColor = color.Invoke(walk.Points[i], planes[i], i);
-				var currentTriangles = Wrap(vertices).Select(j => (j + i * vertices) % resultTriangles.Length).ToArray();
-				
+				var currentTriangles = Wrap(vertices).Select(j => (j + i * vertices) % resultVertices.Length).ToArray();
+
 				currentVertices.CopyTo(resultVertices, i * vertices);
 				currentNormals.CopyTo(resultNormals, i * vertices);
 				Enumerable.Repeat(currentColor, vertices).ToArray().CopyTo(resultColors, i * vertices);
-				currentTriangles.CopyTo(resultTriangles, (i - 1) * vertices * 6);
+				currentTriangles.CopyTo(resultTriangles, i * vertices * 6);
 			}
 
 			return new Model(resultVertices, resultNormals, resultColors, resultTriangles);

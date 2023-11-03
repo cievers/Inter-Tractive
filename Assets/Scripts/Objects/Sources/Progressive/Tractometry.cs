@@ -17,6 +17,7 @@ using Interface.Control;
 using Logic.Eventful;
 using Maps.Cells;
 using Maps.Grids;
+using Objects.Collection;
 using Objects.Concurrent;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -33,6 +34,8 @@ namespace Objects.Sources.Progressive {
 		public MeshFilter spanOutlineMesh;
 		public MeshFilter cutMesh;
 		public MeshFilter volumeMesh;
+		public MeshFilter startRadius;
+		public MeshFilter endRadius;
 		public GameObject dot;
 
 		private Tck tractogram;
@@ -44,6 +47,7 @@ namespace Objects.Sources.Progressive {
 
 		private TractogramRenderer wireRenderer;
 		private TractogramRenderer outlineRenderer;
+		private WalkRenderer endpointRenderer;
 
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
@@ -58,6 +62,7 @@ namespace Objects.Sources.Progressive {
 		private PromiseCollector<Tract> promisedCore;
 		private PromiseCollector<Model> promisedCut;
 		private PromiseCollector<Hull> promisedVolume;
+		private PromiseCollector<Pair<Tuple<Vector3, Walk>>> promisedEndpoints;
 
 		private Files.Exporter exportMap;
 		private Files.Exporter exportCore;
@@ -83,10 +88,13 @@ namespace Objects.Sources.Progressive {
 
 			wireRenderer = new WireframeRenderer();
 			outlineRenderer = new TubeRenderer(16, 0.5f, (_, normal, _) => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y)));
+			endpointRenderer = new TubeRenderer(16, 0.5f, Color.white);
+			// endpointRenderer = new TubeRenderer(16, 0.5f, (_, normal, _) => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y)));
 
 			promisedCore = new PromiseCollector<Tract>();
 			promisedCut = new PromiseCollector<Model>();
 			promisedVolume = new PromiseCollector<Hull>();
+			promisedEndpoints = new PromiseCollector<Pair<Tuple<Vector3, Walk>>>();
 
 			exportMap = new Files.Exporter("Save as NIFTI", "nii", Nifti);
 			exportCore = new Files.Exporter("Save as TCK", "tck", () => new SimpleTractogram(new[] {core}));
@@ -137,6 +145,12 @@ namespace Objects.Sources.Progressive {
 				volumeMesh.mesh = hull.Mesh();
 				summary.Volume(hull);
 			}
+			if (promisedEndpoints.TryTake(out var ends)) {
+				startRadius.transform.position = ends.Item1.Item1;
+				startRadius.mesh = endpointRenderer.Render(ends.Item1.Item2);
+				endRadius.transform.position = ends.Item2.Item1;
+				endRadius.mesh = endpointRenderer.Render(ends.Item2.Item2);
+			}
 		}
 		private void UpdateTracts() {
 			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
@@ -146,13 +160,16 @@ namespace Objects.Sources.Progressive {
 			var core = new Core(sampler);
 			var cut = new CrossSection(sampler, core);
 			var volume = new Volume(sampler, cut);
+			var endpoints = new Endpoints(sampler, cut);
 
 			prominentCuts = new CrossSectionExtrema(cut, prominence);
 
 			promisedCore.Add(core);
 			promisedVolume.Add(volume);
+			promisedEndpoints.Add(endpoints);
 			core.Request(summary.Core);
 			cut.Request(summary.CrossSections);
+			// TODO: Some thing to add endpoint radius to the summary
 			// cut.Request(cuts => core.Request(tract => summary.CrossSectionsVolume(tract, cuts)));
 			UpdateCutEvaluation();
 		}

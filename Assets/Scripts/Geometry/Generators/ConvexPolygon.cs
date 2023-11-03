@@ -12,8 +12,9 @@ namespace Geometry.Generators {
 		public IEnumerable<Vector3> Normals => Enumerable.Repeat(normal.normalized, Points.Count());
 		public Vector3 Normal => normal;
 		public float Diameter => Points.Aggregate(0f, (current, u) => Points.Select(v => (u - v).magnitude).Prepend(current).Max());
-		public Segment Skewer => Points
-			.SelectMany(u => Points.Select(v => new Segment(u, v)))
+		public Edge Skewer => Points
+			.SelectMany(u => Points.Select(v => new Edge(u, v)))
+			.ToHashSet()
 			.ToDictionary(s=> s, s => s.Size.magnitude)
 			.Aggregate((x, y) => x.Value > y.Value ? x : y)
 			.Key;

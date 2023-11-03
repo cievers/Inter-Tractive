@@ -10,6 +10,13 @@ namespace Geometry.Generators {
 		public IEnumerable<Triangle> Faces => throw new NotImplementedException();
 		public IEnumerable<int> Indices => Triangulate(true, false);
 		public IEnumerable<Vector3> Normals => Enumerable.Repeat(normal.normalized, Points.Count());
+		public float Diameter => Points.Aggregate(0f, (current, u) => Points.Select(v => (u - v).magnitude).Prepend(current).Max());
+		public Segment Skewer => Points
+			.SelectMany(u => Points.Select(v => new Segment(u, v)))
+			.ToDictionary(s=> s, s => s.Size.magnitude)
+			.Aggregate((x, y) => x.Value > y.Value ? x : y)
+			.Key;
+		
 
 		private readonly Vector3 origin;
 		private readonly Vector3 normal;

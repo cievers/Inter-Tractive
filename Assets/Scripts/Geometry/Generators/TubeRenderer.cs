@@ -5,7 +5,7 @@ using Geometry.Tracts;
 using UnityEngine;
 
 namespace Geometry.Generators {
-	public class TubeRenderer : TractogramRenderer {
+	public class TubeRenderer : TractogramRenderer, WalkRenderer {
 		private readonly int vertices;
 		private readonly float radius;
 		private readonly Func<Vector3, Vector3, float, Color32> color;
@@ -22,6 +22,9 @@ namespace Geometry.Generators {
 		}
 		public Mesh Render(Tract tract) {
 			return Route(tract).Mesh();
+		}
+		public Mesh Render(Walk walk) {
+			return Route(walk).Mesh();
 		}
 
 		private Model Route(Tract tract) {
@@ -86,6 +89,37 @@ namespace Geometry.Generators {
 			}
 
 			return Model.Join(startingCap, new Model(resultVertices, resultNormals, resultColors, resultTriangles), Cap(currentVertices, tract.Points[^1], directions[^1], currentColor));
+		}
+		private Model Route(Walk walk) {
+			if (walk.Points.Length == 2) {
+				return Route(walk.Segments.ToArray()[0]);
+			}
+			
+			var resultVertices = new Vector3[walk.Points.Length * vertices];
+			var resultNormals = new Vector3[walk.Points.Length * vertices];
+			var resultColors = new Color32[walk.Points.Length * vertices];
+			var resultTriangles = new int[walk.Points.Length * vertices * 6];
+
+			var segments = walk.Segments.ToArray();
+			var planes = walk.Normals.ToArray();
+
+			for (var i = 0; i < walk.Points.Length; i++) {
+				var axisB = Vector3.Cross(planes[i], planes[(i+1)%walk.Points.Length]).normalized * radius;
+				var axisA = Vector3.Cross(axisB, planes[i]).normalized * radius;
+
+				var currentDirections = Directions(axisA, axisB);
+				var currentVertices = currentDirections.Select(direction => walk.Points[i] + direction).ToArray();
+				var currentNormals = currentDirections.Select(direction => direction.normalized).ToArray();
+				var currentColor = color.Invoke(walk.Points[i], planes[i], i);
+				var currentTriangles = Wrap(vertices).Select(j => (j + i * vertices) % resultTriangles.Length).ToArray();
+				
+				currentVertices.CopyTo(resultVertices, i * vertices);
+				currentNormals.CopyTo(resultNormals, i * vertices);
+				Enumerable.Repeat(currentColor, vertices).ToArray().CopyTo(resultColors, i * vertices);
+				currentTriangles.CopyTo(resultTriangles, (i - 1) * vertices * 6);
+			}
+
+			return new Model(resultVertices, resultNormals, resultColors, resultTriangles);
 		}
 		private Model Route(Segment segment) {
 			var resultVertices = new Vector3[2 * vertices];

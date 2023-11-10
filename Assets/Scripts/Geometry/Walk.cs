@@ -30,6 +30,12 @@ namespace Geometry {
 				return result;
 			}
 		}
+		public Edge Skewer => Points
+			.SelectMany(u => Points.Select(v => new Edge(u, v)))
+			.ToHashSet()
+			.ToDictionary(s=> s, s => s.Size.magnitude)
+			.Aggregate((x, y) => x.Value > y.Value ? x : y)
+			.Key;
 
 		public Walk(Vector3[] points) {
 			Points = points;

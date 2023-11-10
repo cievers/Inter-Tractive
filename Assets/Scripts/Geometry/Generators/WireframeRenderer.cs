@@ -1,32 +1,31 @@
 using System;
 using System.Linq;
+using Geometry.Topology;
 using Geometry.Tracts;
 using UnityEngine;
-using UnityEngine.Rendering;
-using Mesh = UnityEngine.Mesh;
 
 namespace Geometry.Generators {
 	public class WireframeRenderer : TractogramRenderer {
-		public Mesh Render(Tractogram tractogram) {
-			return Render(Wire.Join(tractogram.Tracts.Select(Route).ToList()));
+		public Topology.Topology Render(Tractogram tractogram) {
+			return Graph.Join(tractogram.Tracts.Select(Route).ToList());
 		}
-		public Mesh Render(Tract tract) {
-			return Render(Route(tract));
+		public Topology.Topology Render(Tract tract) {
+			return Route(tract);
 		}
-		private static Mesh Render(Wire wires) {
-			// TODO: Maybe check if a specific index format is really needed
-			var shape = new Mesh {indexFormat = IndexFormat.UInt32};
-		
-			// TODO: Works nicely, but always 1 pixel wide
-			// Solution is likely within shaders, maybe learn from https://github.com/devOdico/GoodLines
-			shape.Clear();
-			shape.SetVertices(wires.Vertices);
-			shape.SetIndices(wires.Indices, MeshTopology.Lines, 0);
-			shape.SetColors(wires.Normals.Select(normal => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y))).ToArray());
-
-			return shape;
-		}
-		private static Wire Route(Tract tract) {
+		// private static Topology.Topology Render(Wire wires) {
+		// 	// TODO: Maybe check if a specific index format is really needed
+		// 	var shape = new Mesh {indexFormat = IndexFormat.UInt32};
+		//
+		// 	// TODO: Works nicely, but always 1 pixel wide
+		// 	// Solution is likely within shaders, maybe learn from https://github.com/devOdico/GoodLines
+		// 	shape.Clear();
+		// 	shape.SetVertices(wires.Vertices);
+		// 	shape.SetIndices(wires.Indices, MeshTopology.Lines, 0);
+		// 	shape.SetColors(wires.Normals.Select(normal => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y))).ToArray());
+		//
+		// 	return new Graph(wires.Vertices, wires.Indices, wires.Normals.Select(normal => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y))).ToArray());
+		// }
+		private static Graph Route(Tract tract) {
 			var vertices = new Vector3[tract.Points.Length];
 			var normals = new Vector3[tract.Points.Length]; // TODO: Normals aren't used in rendering yet
 			var indices = new int[(tract.Points.Length - 1) * 2];
@@ -46,7 +45,7 @@ namespace Geometry.Generators {
 				indices[indexIndex++] = i;
 			}
 
-			return new Wire(vertices, normals, indices);
+			return new Graph(vertices, normals.Select(normal => new Color32((byte) (Math.Abs(normal.x) * 255), (byte) (Math.Abs(normal.z) * 255), (byte) (Math.Abs(normal.y) * 255), 255)).ToArray(), indices);
 		}
 	}
 }

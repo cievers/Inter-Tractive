@@ -2,6 +2,7 @@
 using System.Linq;
 using Geometry;
 using Geometry.Generators;
+using Geometry.Topology;
 using Geometry.Tracts;
 using Objects.Concurrent;
 using UnityEngine;

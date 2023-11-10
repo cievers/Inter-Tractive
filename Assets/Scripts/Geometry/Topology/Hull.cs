@@ -3,11 +3,11 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Geometry {
-	public class Hull {
-		public Vector3[] Vertices {get; private set;}
-		public Vector3[] Normals {get; private set;}
-		public int[] Indices {get; private set;}
+namespace Geometry.Topology {
+	public class Hull : Topology {
+		public Vector3[] Vertices {get;}
+		public Vector3[] Normals {get;}
+		public int[] Indices {get;}
 
 		public Hull(Vector3[] vertices, Vector3[] normals, int[] indices) {
 			Vertices = vertices;
@@ -19,7 +19,6 @@ namespace Geometry {
 			return new Model(Vertices, Normals, Enumerable.Repeat(color, Vertices.Length).ToArray(), Indices);
 		}
 		public Mesh Mesh() {
-			// TODO: Normals aren't used in rendering yet
 			var mesh = new Mesh {indexFormat = IndexFormat.UInt32};
 
 			mesh.Clear();

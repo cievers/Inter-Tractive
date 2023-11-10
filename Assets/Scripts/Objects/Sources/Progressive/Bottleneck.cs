@@ -3,42 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using Geometry;
 using Geometry.Generators;
-using Geometry.Tracts;
-using Objects.Collection;
 using Objects.Concurrent;
 using UnityEngine;
 
 namespace Objects.Sources.Progressive {
 	public class Bottleneck : Promise<Tuple<Vector3, Vector3, Walk>> {
-		private UniformTractogram tractogram;
 		private List<ConvexPolygon> cuts;
-		
-		private bool receivedTractogram;
-		private bool receivedCuts;
 
-		public Bottleneck(UniformTractogram tractogram) {
-			this.tractogram = tractogram;
-			Start();
-		}
-		public Bottleneck(Promise<UniformTractogram> promisedTractogram, Promise<List<ConvexPolygon>> promisedCuts) {
-			promisedTractogram.Request(tractogram => {
-				this.tractogram = tractogram;
-				receivedTractogram = true;
-				Update();
-			});
+		public Bottleneck(Promise<List<ConvexPolygon>> promisedCuts) {
 			promisedCuts.Request(cuts => {
 				this.cuts = cuts;
-				receivedCuts = true;
-				Update();
+				Start();
 			});
 		}
-		
-		private void Update() {
-			if (receivedTractogram && receivedCuts) {
-				Start();
-			}
-		}
-		
+
 		protected override void Compute() {
 			var (cut, segment) = cuts
 				.ToDictionary(cut => cut, cut => cut.Skewer)

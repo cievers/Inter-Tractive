@@ -5,6 +5,7 @@ using Evaluation.Geometric;
 using Files.Types;
 using Geometry;
 using Geometry.Generators;
+using Geometry.Topology;
 using Geometry.Tracts;
 
 namespace Objects.Sources.Progressive {

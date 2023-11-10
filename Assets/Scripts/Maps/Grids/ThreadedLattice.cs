@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Geometry;
+using Geometry.Topology;
 using Geometry.Tracts;
 using Maps.Cells;
 using Objects.Concurrent;

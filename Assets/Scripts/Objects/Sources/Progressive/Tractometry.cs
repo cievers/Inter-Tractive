@@ -11,6 +11,7 @@ using Files;
 using Files.Types;
 using Geometry;
 using Geometry.Generators;
+using Geometry.Topology;
 using Geometry.Tracts;
 using Interface.Content;
 using Interface.Control;
@@ -64,7 +65,8 @@ namespace Objects.Sources.Progressive {
 		private PromiseCollector<Model> promisedCut;
 		private PromiseCollector<Hull> promisedVolume;
 		private PromiseCollector<Tuple<Vector3, Vector3, Walk>> promisedBottleneck;
-		private PromiseCollector<Pair<Tuple<Vector3, Walk>>> promisedEndpoints;
+		private PromiseCollector<Pair<Tuple<Vector3, Vector3, Walk>>> promisedEndpoints;
+		private PromiseCollector<Triple<Tuple<Vector3, Vector3, Model>>> promisedDiameters;
 
 		private Files.Exporter exportMap;
 		private Files.Exporter exportCore;
@@ -97,7 +99,8 @@ namespace Objects.Sources.Progressive {
 			promisedCut = new PromiseCollector<Model>();
 			promisedVolume = new PromiseCollector<Hull>();
 			promisedBottleneck = new PromiseCollector<Tuple<Vector3, Vector3, Walk>>();
-			promisedEndpoints = new PromiseCollector<Pair<Tuple<Vector3, Walk>>>();
+			promisedEndpoints = new PromiseCollector<Pair<Tuple<Vector3, Vector3, Walk>>>();
+			promisedDiameters = new PromiseCollector<Triple<Tuple<Vector3, Vector3, Model>>>();
 
 			exportMap = new Files.Exporter("Save as NIFTI", "nii", Nifti);
 			exportCore = new Files.Exporter("Save as TCK", "tck", () => new SimpleTractogram(new[] {core}));
@@ -136,10 +139,10 @@ namespace Objects.Sources.Progressive {
 				core = tract;
 				var span = new ArrayTract(new[] {tract.Points[0], tract.Points[^1]});
 				
-				coreMesh.mesh = wireRenderer.Render(tract);
-				spanMesh.mesh = wireRenderer.Render(span);
-				coreOutlineMesh.mesh = outlineRenderer.Render(tract);
-				spanOutlineMesh.mesh = outlineRenderer.Render(span);
+				coreMesh.mesh = wireRenderer.Render(tract).Mesh();
+				spanMesh.mesh = wireRenderer.Render(span).Mesh();
+				coreOutlineMesh.mesh = outlineRenderer.Render(tract).Mesh();
+				spanOutlineMesh.mesh = outlineRenderer.Render(span).Mesh();
 			}
 			if (promisedCut.TryTake(out var cuts)) {
 				cutMesh.mesh = cuts.Mesh();
@@ -151,25 +154,25 @@ namespace Objects.Sources.Progressive {
 			if (promisedBottleneck.TryTake(out var circumference)) {
 				minimumRadius.transform.position = circumference.Item1;
 				minimumRadius.transform.rotation = Quaternion.LookRotation(circumference.Item2);
-				minimumRadius.mesh = radiusRenderer.Render(circumference.Item3);
+				minimumRadius.mesh = radiusRenderer.Render(circumference.Item3).Mesh();
 			}
 			if (promisedEndpoints.TryTake(out var ends)) {
 				startRadius.transform.position = ends.Item1.Item1;
-				startRadius.mesh = radiusRenderer.Render(ends.Item1.Item2);
+				startRadius.mesh = radiusRenderer.Render(ends.Item1.Item3).Mesh();
 				endRadius.transform.position = ends.Item2.Item1;
-				endRadius.mesh = radiusRenderer.Render(ends.Item2.Item2);
+				endRadius.mesh = radiusRenderer.Render(ends.Item2.Item3).Mesh();
 			}
 		}
 		private void UpdateTracts() {
-			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
+			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram).Mesh();
 		}
 		private void UpdateSamples() {
 			var sampler = new Resample(tractogram, samples);
 			var core = new Core(sampler);
 			var cut = new CrossSection(sampler, core);
 			var volume = new Volume(sampler, cut);
-			var bottleneck = new Bottleneck(sampler, cut);
-			var endpoints = new Endpoints(sampler, cut);
+			var bottleneck = new Bottleneck(cut);
+			var endpoints = new Endpoints(cut);
 
 			prominentCuts = new CrossSectionExtrema(cut, prominence);
 

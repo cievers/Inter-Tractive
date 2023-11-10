@@ -40,7 +40,7 @@ namespace Objects.Sources {
 		}
 
 		private void UpdateTracts() {
-			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
+			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram).Mesh();
 		}
 		private void UpdateScale(float resolution) {
 			depth = (int) Math.Round(resolution);

@@ -3,12 +3,13 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Geometry {
-	public class Model {
-		public Vector3[] Vertices {get; private set;}
-		public Vector3[] Normals {get; private set;}
-		public Color32[] Colors {get; private set;}
-		public int[] Indices {get; private set;}
+namespace Geometry.Topology {
+	public class Model : Topology {
+		// TODO: Inherit from Hull, probably
+		public Vector3[] Vertices {get;}
+		public Vector3[] Normals {get;}
+		public Color32[] Colors {get;}
+		public int[] Indices {get;}
 
 		public Model(Vector3[] vertices, Vector3[] normals, Color32[] colors, int[] indices) {
 			Vertices = vertices;

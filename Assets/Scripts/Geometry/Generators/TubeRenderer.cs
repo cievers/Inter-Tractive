@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Geometry.Topology;
 using Geometry.Tracts;
 using UnityEngine;
 
@@ -17,14 +18,14 @@ namespace Geometry.Generators {
 		}
 		public TubeRenderer(int vertices, float radius, Color32 color) : this(vertices, radius, (_, _, _) => color) {}
 		
-		public Mesh Render(Tractogram tractogram) {
-			return Model.Join(tractogram.Tracts.Select(Route).ToList()).Mesh();
+		public Topology.Topology Render(Tractogram tractogram) {
+			return Model.Join(tractogram.Tracts.Select(Route).ToList());
 		}
-		public Mesh Render(Tract tract) {
-			return Route(tract).Mesh();
+		public Topology.Topology Render(Tract tract) {
+			return Route(tract);
 		}
-		public Mesh Render(Walk walk) {
-			return Route(walk).Mesh();
+		public Topology.Topology Render(Walk walk) {
+			return Route(walk);
 		}
 
 		private Model Route(Tract tract) {

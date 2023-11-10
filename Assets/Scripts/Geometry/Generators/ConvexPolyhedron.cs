@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Geometry.Topology;
 using UnityEngine;
 using UnityEngine.Rendering;
 

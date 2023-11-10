@@ -4,6 +4,7 @@ using Evaluation;
 using Evaluation.Coloring;
 using Geometry;
 using Geometry.Generators;
+using Geometry.Topology;
 using Objects.Concurrent;
 
 namespace Objects.Sources.Progressive {

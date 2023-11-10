@@ -251,6 +251,11 @@ namespace Objects.Sources.Progressive {
 						spanMesh.gameObject.SetActive(state);
 						spanOutlineMesh.gameObject.SetActive(state);
 					})),
+					new Loader.Data(promisedBottleneck, new ActionToggle.Data("Minimum diameter", false, minimumRadius.gameObject.SetActive)),
+					new Loader.Data(promisedEndpoints, new ActionToggle.Data("Endpoint diameter", false, state => {
+						startRadius.gameObject.SetActive(state);
+						endRadius.gameObject.SetActive(state);
+					})),
 					new Loader.Data(promisedCut, new ActionToggle.Data("Cross-section", false, cutMesh.gameObject.SetActive)),
 					new TransformedSlider.Data("Cross-section prominence", 0, value => value, (_, transformed) => ((int) Math.Round(transformed * 100)).ToString() + '%', new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),
 					new Loader.Data(promisedVolume, new ActionToggle.Data("Volume", false, volumeMesh.gameObject.SetActive))

@@ -43,13 +43,13 @@ namespace Objects.Sources.Progressive {
 		private Tck tractogram;
 		private ThreadedLattice grid;
 		private new ThreadedRenderer renderer;
+		private CrossSection cuts;
 		private CrossSectionExtrema prominentCuts;
 		private Tract core;
 		private Summary summary;
 
 		private TractogramRenderer wireRenderer;
 		private TractogramRenderer outlineRenderer;
-		private WalkRenderer radiusRenderer;
 
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
@@ -66,7 +66,7 @@ namespace Objects.Sources.Progressive {
 		private PromiseCollector<Hull> promisedVolume;
 		private PromiseCollector<Tuple<Vector3, Vector3, Walk>> promisedBottleneck;
 		private PromiseCollector<Pair<Tuple<Vector3, Vector3, Walk>>> promisedEndpoints;
-		private PromiseCollector<Triple<Tuple<Vector3, Vector3, Model>>> promisedDiameters;
+		private PromiseCollector<Triple<Tuple<Vector3, Vector3, Topology>>> promisedDiameters;
 
 		private Files.Exporter exportMap;
 		private Files.Exporter exportCore;
@@ -83,6 +83,9 @@ namespace Objects.Sources.Progressive {
 		private Map map;
 		private Dictionary<Cell, Vector> measurement;
 
+		private const int TUBE_VERTICES = 16;
+		private const float TUBE_RADIUS = 0.5f;
+
 		protected override void New(string path) {
 			voxels = new ConcurrentPipe<Tuple<Cell, Tract>>();
 			measurements = new ConcurrentBag<Dictionary<Cell, Vector>>();
@@ -91,16 +94,12 @@ namespace Objects.Sources.Progressive {
 			summary = new Summary();
 
 			wireRenderer = new WireframeRenderer();
-			outlineRenderer = new TubeRenderer(16, 0.5f, (_, normal, _) => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y)));
-			radiusRenderer = new TubeRenderer(16, 0.5f, Color.white);
-			// endpointRenderer = new TubeRenderer(16, 0.5f, (_, normal, _) => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y)));
+			outlineRenderer = new TubeRenderer(TUBE_VERTICES, TUBE_RADIUS, (_, normal, _) => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y)));
 
 			promisedCore = new PromiseCollector<Tract>();
 			promisedCut = new PromiseCollector<Model>();
 			promisedVolume = new PromiseCollector<Hull>();
-			promisedBottleneck = new PromiseCollector<Tuple<Vector3, Vector3, Walk>>();
-			promisedEndpoints = new PromiseCollector<Pair<Tuple<Vector3, Vector3, Walk>>>();
-			promisedDiameters = new PromiseCollector<Triple<Tuple<Vector3, Vector3, Model>>>();
+			promisedDiameters = new PromiseCollector<Triple<Tuple<Vector3, Vector3, Topology>>>();
 
 			exportMap = new Files.Exporter("Save as NIFTI", "nii", Nifti);
 			exportCore = new Files.Exporter("Save as TCK", "tck", () => new SimpleTractogram(new[] {core}));
@@ -109,7 +108,7 @@ namespace Objects.Sources.Progressive {
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Density()}), new Grayscale());
 			
-			loading = new Any(new Boolean[] {maps, promisedCore, promisedCut, promisedVolume});
+			loading = new Any(new Boolean[] {maps, promisedCore, promisedCut, promisedVolume, promisedDiameters});
 			loading.Change += state => Loading(!state);
 
 			UpdateSamples();
@@ -151,16 +150,14 @@ namespace Objects.Sources.Progressive {
 				volumeMesh.mesh = hull.Mesh();
 				summary.Volume(hull);
 			}
-			if (promisedBottleneck.TryTake(out var circumference)) {
-				minimumRadius.transform.position = circumference.Item1;
-				minimumRadius.transform.rotation = Quaternion.LookRotation(circumference.Item2);
-				minimumRadius.mesh = radiusRenderer.Render(circumference.Item3).Mesh();
-			}
-			if (promisedEndpoints.TryTake(out var ends)) {
-				startRadius.transform.position = ends.Item1.Item1;
-				startRadius.mesh = radiusRenderer.Render(ends.Item1.Item3).Mesh();
-				endRadius.transform.position = ends.Item2.Item1;
-				endRadius.mesh = radiusRenderer.Render(ends.Item2.Item3).Mesh();
+			if (promisedDiameters.TryTake(out var diameters)) {
+				minimumRadius.transform.position = diameters.Item1.Item1;
+				minimumRadius.transform.rotation = Quaternion.LookRotation(diameters.Item1.Item2);
+				minimumRadius.mesh = diameters.Item1.Item3.Mesh();
+				startRadius.transform.position = diameters.Item2.Item1;
+				startRadius.mesh = diameters.Item2.Item3.Mesh();
+				endRadius.transform.position = diameters.Item3.Item1;
+				endRadius.mesh = diameters.Item3.Item3.Mesh();
 			}
 		}
 		private void UpdateTracts() {
@@ -169,21 +166,19 @@ namespace Objects.Sources.Progressive {
 		private void UpdateSamples() {
 			var sampler = new Resample(tractogram, samples);
 			var core = new Core(sampler);
-			var cut = new CrossSection(sampler, core);
-			var volume = new Volume(sampler, cut);
-			var bottleneck = new Bottleneck(cut);
-			var endpoints = new Endpoints(cut);
-
-			prominentCuts = new CrossSectionExtrema(cut, prominence);
+			
+			cuts = new CrossSection(sampler, core);
+			prominentCuts = new CrossSectionExtrema(cuts, prominence);
+			
+			var volume = new Volume(sampler, cuts);
 
 			promisedCore.Add(core);
 			promisedVolume.Add(volume);
-			promisedBottleneck.Add(bottleneck);
-			promisedEndpoints.Add(endpoints);
 			core.Request(summary.Core);
-			cut.Request(summary.CrossSections);
+			cuts.Request(summary.CrossSections);
 			// TODO: Some thing to add endpoint radius to the summary
 			// cut.Request(cuts => core.Request(tract => summary.CrossSectionsVolume(tract, cuts)));
+			UpdateDiameterEvaluation();
 			UpdateCutEvaluation();
 		}
 		private void UpdateSamples(int samples) {
@@ -192,6 +187,11 @@ namespace Objects.Sources.Progressive {
 		}
 		private void UpdateSamples(float samples) {
 			UpdateSamples((int) Math.Round(samples));
+		}
+		private void UpdateDiameterEvaluation() {
+			var bottleneck = new Bottleneck(cuts);
+			var endpoints = new Endpoints(cuts);
+			promisedDiameters.Add(new DiameterEvaluation(bottleneck, endpoints, color => new TubeRenderer(TUBE_VERTICES, TUBE_RADIUS, color), evaluation.Coloring));
 		}
 		private void UpdateCutProminence(float prominence) {
 			this.prominence = prominence;
@@ -233,6 +233,7 @@ namespace Objects.Sources.Progressive {
 		private void UpdateMapEvaluation() {
 			new VoxelSurface(grid.Cells, grid.Size, grid.Resolution).Request(surface => summary.SurfaceVoxels = surface);
 			new VoxelVolume(grid.Cells, grid.Resolution).Request(volume => summary.VolumeVoxels = volume);
+			UpdateDiameterEvaluation();
 			UpdateCutEvaluation();
 		}
 

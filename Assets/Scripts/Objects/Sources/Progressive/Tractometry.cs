@@ -64,8 +64,6 @@ namespace Objects.Sources.Progressive {
 		private PromiseCollector<Tract> promisedCore;
 		private PromiseCollector<Model> promisedCut;
 		private PromiseCollector<Hull> promisedVolume;
-		private PromiseCollector<Tuple<Vector3, Vector3, Walk>> promisedBottleneck;
-		private PromiseCollector<Pair<Tuple<Vector3, Vector3, Walk>>> promisedEndpoints;
 		private PromiseCollector<Triple<Tuple<Vector3, Vector3, Topology>>> promisedDiameters;
 
 		private Files.Exporter exportMap;
@@ -255,8 +253,8 @@ namespace Objects.Sources.Progressive {
 						spanMesh.gameObject.SetActive(state);
 						spanOutlineMesh.gameObject.SetActive(state);
 					})),
-					new Loader.Data(promisedBottleneck, new ActionToggle.Data("Minimum diameter", false, minimumRadius.gameObject.SetActive)),
-					new Loader.Data(promisedEndpoints, new ActionToggle.Data("Endpoint diameter", false, state => {
+					new Loader.Data(promisedDiameters, new ActionToggle.Data("Minimum diameter", false, minimumRadius.gameObject.SetActive)),
+					new Loader.Data(promisedDiameters, new ActionToggle.Data("Endpoint diameter", false, state => {
 						startRadius.gameObject.SetActive(state);
 						endRadius.gameObject.SetActive(state);
 					})),

@@ -9,7 +9,7 @@ namespace Files.Publication {
 		public T[] Values {get;}
 		public int Measurements {get;}
 		public Index3 Composition {get;}
-		public Vector3 Offset {get;}
+		public Affine Transformation {get;}
 		public Vector3 Size {get;}
 		
 		void Publication.Write(string path) {
@@ -82,17 +82,30 @@ namespace Files.Publication {
 		}
 		private byte[] Affine() {
 			var affine = new byte[48];
-			affine = Fill(affine, Float(Size.x));
-			affine = Fill(affine, Float(Size.z), 24);
-			affine = Fill(affine, Float(Size.y), 36);
-			// affine = Fill(affine, Float(Size.y), 20);
-			// affine = Fill(affine, Float(Size.z), 40);
+			// affine = Fill(affine, Float(Size.x));
+			// affine = Fill(affine, Float(Size.z), 24);
+			// affine = Fill(affine, Float(Size.y), 36);
+			// // affine = Fill(affine, Float(Size.y), 20);
+			// // affine = Fill(affine, Float(Size.z), 40);
+			// // affine = Fill(affine, Float(Offset.x), 12);
+			// // affine = Fill(affine, Float(Offset.y), 28);
+			// // affine = Fill(affine, Float(Offset.z), 44);
 			// affine = Fill(affine, Float(Offset.x), 12);
-			// affine = Fill(affine, Float(Offset.y), 28);
-			// affine = Fill(affine, Float(Offset.z), 44);
-			affine = Fill(affine, Float(Offset.x), 12);
-			affine = Fill(affine, Float(Offset.z), 28);
-			affine = Fill(affine, Float(Offset.y), 44);
+			// affine = Fill(affine, Float(Offset.z), 28);
+			// affine = Fill(affine, Float(Offset.y), 44);
+			var matrix = Transformation.Matrix();
+			affine = Fill(affine, Float(matrix[0][0]));
+			affine = Fill(affine, Float(matrix[0][1]), 4);
+			affine = Fill(affine, Float(matrix[0][2]), 8);
+			affine = Fill(affine, Float(matrix[0][3]), 12);
+			affine = Fill(affine, Float(matrix[1][0]), 16);
+			affine = Fill(affine, Float(matrix[1][1]), 20);
+			affine = Fill(affine, Float(matrix[1][2]), 24);
+			affine = Fill(affine, Float(matrix[1][3]), 28);
+			affine = Fill(affine, Float(matrix[2][0]), 32);
+			affine = Fill(affine, Float(matrix[2][1]), 36);
+			affine = Fill(affine, Float(matrix[2][2]), 40);
+			affine = Fill(affine, Float(matrix[2][3]), 44);
 			return affine;
 		}
 		

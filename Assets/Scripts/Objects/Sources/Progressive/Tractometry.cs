@@ -286,7 +286,7 @@ namespace Objects.Sources.Progressive {
 		
 		private Nii<float> Nifti() {
 			// TODO: This uses only the grid's properties, so the grid should probably know by itself how to perform this formatting
-			return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, grid.Boundaries.Min + new Vector3(grid.Resolution / 2, grid.Resolution / 2, grid.Resolution / 2), new Vector3(grid.Resolution, grid.Resolution, grid.Resolution));
+			return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, new Affine(new Vector3(grid.Resolution, grid.Resolution, grid.Resolution), new Vector3(grid.Resolution / 2, grid.Resolution / 2, grid.Resolution / 2) + grid.Boundaries.Min, true), new Vector3(grid.Resolution, grid.Resolution, grid.Resolution));
 		}
 		private T[] ToArray<T>(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, T> values, T fill) {
 			var result = new T[cells.Count];

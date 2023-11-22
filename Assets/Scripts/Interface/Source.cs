@@ -11,7 +11,10 @@ namespace Interface {
 		public Theming styles;
 
 		private bool loaded;
-		
+
+		private void Start() {
+			UpdateLayout();
+		}
 		private void Update() {
 			loading.SetActive(!loaded);
 		}

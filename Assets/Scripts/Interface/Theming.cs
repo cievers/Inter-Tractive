@@ -15,6 +15,7 @@ namespace Interface {
 		public Slider slider;
 		public TransformedSlider transformedSlider;
 		public SmoothStepper stepper;
+		public Dropdown dropdown;
 		public Control.Evaluation evaluation;
 		public Exporter exporter;
 
@@ -35,14 +36,17 @@ namespace Interface {
 				case ActionToggle.Data toggleData:
 					toggle.Construct(parent, toggleData);
 					break;
-				case TransformedSlider.Data sliderData:
-					transformedSlider.Construct(parent, sliderData);
+				case TransformedSlider.Data sliderData1:
+					transformedSlider.Construct(parent, sliderData1);
 					break;
-				case Slider.Data sliderData:
-					slider.Construct(parent, sliderData);
+				case Slider.Data sliderData2:
+					slider.Construct(parent, sliderData2);
 					break;
 				case Stepper.Data stepperData:
 					stepper.Construct(parent, stepperData);
+					break;
+				case Control.Data.Coloring dropdownColoring:
+					dropdown.Construct(parent, dropdownColoring);
 					break;
 				case Control.Evaluation.Data evaluationData:
 					evaluation.Construct(parent, evaluationData);

@@ -20,9 +20,9 @@ namespace Maps.Grids {
 			Lattice = new Lattice(anchor, size, resolution);
 			Cells = new Cuboid?[size.x * size.y * size.z];
 
-			Debug.Log("Set step size for grid to " + resolution);
-			Debug.Log("And initialized a grid with size " + Lattice.Size);
-			Debug.Log("And offset " + Lattice.Anchor);
+			// Debug.Log("Set step size for grid to " + resolution);
+			// Debug.Log("And initialized a grid with size " + Lattice.Size);
+			// Debug.Log("And offset " + Lattice.Anchor);
 		}
 		
 		public Index3 Anchor => Lattice.Anchor;

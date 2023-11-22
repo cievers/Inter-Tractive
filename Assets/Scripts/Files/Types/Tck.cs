@@ -95,8 +95,6 @@ namespace Files.Types {
 			}
 
 			if (filestream.Position != filestream.Length) {
-				Debug.Log(filestream.Position);
-				Debug.Log(filestream.Length);
 				throw new FileLoadException("Something went wrong during reading. End of file has not been reached.");
 			}
 
@@ -113,8 +111,6 @@ namespace Files.Types {
 			var metadataLine = LoadMetaLine(reader);
 
 			while (metadataLine != "END") {
-				Debug.Log("Reading metadata: "+metadataLine);
-				
 				var split = metadataLine.Split(':', StringSplitOptions.RemoveEmptyEntries);
 				meta.Add(split[0].Trim(), split[1].Trim());
 				

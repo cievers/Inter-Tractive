@@ -14,8 +14,6 @@ using UnityEngine;
 
 namespace Objects.Sources {
 	public class TractometryTree : Voxels {
-		private const byte COLORIZE_TRANSPARENCY = 200;
-		
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
 
@@ -42,10 +40,9 @@ namespace Objects.Sources {
 		}
 
 		private void UpdateTracts() {
-			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
+			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram).Mesh();
 		}
 		private void UpdateScale(float resolution) {
-			Debug.Log("Stepping to resolution "+resolution);
 			depth = (int) Math.Round(resolution);
 			UpdateVoxels();
 		}

@@ -2,8 +2,10 @@
 using System.Linq;
 using Geometry;
 using Geometry.Generators;
+using Geometry.Topology;
 using Geometry.Tracts;
 using Objects.Concurrent;
+using UnityEngine;
 
 namespace Objects.Sources.Progressive {
 	public class Volume : Promise<Hull> {
@@ -38,12 +40,30 @@ namespace Objects.Sources.Progressive {
 		
 		protected override void Compute() {
 			var result = new List<Hull>();
-			result.Add(cuts[0].Surface(false));
+			result.Add(Cap(cuts[0], tractogram.Slice(0), Side.Negative));
 			for (var i = 1; i < cuts.Count; i++) {
 				result.Add(new ConvexWrap(cuts[i-1], cuts[i]).Hull());
 			}
-			result.Add(cuts[^1].Surface());
+			result.Add(Cap(cuts[^1], tractogram.Slice(^1), Side.Positive));
 			Complete(Hull.Join(result));
+		}
+		private static Hull Cap(ConvexPolygon cut, IEnumerable<Vector3> points, Side side) {
+			var hull = new ConvexPolyhedron(points.Where(point => cut.Side(point) == side).Concat(cut.Points).ToList()).Hull();
+			
+			var set = new HashSet<Vector3>(cut.Points);
+			var result = new List<int>();
+			for (var i = 0; i < hull.Indices.Length; i += 3) {
+				if (!(
+					set.Contains(hull.Vertices[hull.Indices[i]]) && 
+					set.Contains(hull.Vertices[hull.Indices[i+1]]) && 
+					set.Contains(hull.Vertices[hull.Indices[i+2]])
+				)) {
+					result.Add(i);
+					result.Add(i+1);
+					result.Add(i+2);
+				}
+			}
+			return new Hull(hull.Vertices, hull.Normals, result.ToArray());
 		}
 	}
 }

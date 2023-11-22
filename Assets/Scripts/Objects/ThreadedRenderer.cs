@@ -6,6 +6,7 @@ using Evaluation;
 using Evaluation.Coloring;
 using Evaluation.Geometric;
 using Geometry;
+using Geometry.Topology;
 using Geometry.Tracts;
 using Maps.Cells;
 using Maps.Grids;

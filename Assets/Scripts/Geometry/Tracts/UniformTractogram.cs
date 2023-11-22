@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -8,6 +9,9 @@ namespace Geometry.Tracts {
 
 		public UniformTractogram(IEnumerable<Tract> lines) : base(lines) {}
 		public IEnumerable<Vector3> Slice(int index) {
+			return Tracts.Select(tract => tract.Points[index]);
+		}
+		public IEnumerable<Vector3> Slice(Index index) {
 			return Tracts.Select(tract => tract.Points[index]);
 		}
 		public IEnumerable<IEnumerable<Vector3>> Slices() {

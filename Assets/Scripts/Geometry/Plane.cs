@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Geometry.Tracts;
 using UnityEngine;
@@ -24,6 +25,23 @@ namespace Geometry {
 		}
 		public static IEnumerable<Vector3> Projections(IEnumerable<Vector3> points, Vector3 origin, Vector3 normal) {
 			return points.Select(point => Projection(point, origin, normal));
+		}
+		public static Vector3? Intersection(Line line, Vector3 origin, Vector3 normal) {
+			// origin & normal define the plane
+			// origin Is a point on the plane
+			// normal Is a normal vector defining the plane direction (does not need to be normalized)
+			var u = line.Direction;
+			var dot = Vector3.Dot(normal, u);
+
+			if (Mathf.Abs(dot) > 0) {
+				// If the line is not parallel to the plane
+				// The factor is a multiplication of u representing where the intersection is
+				var v = line.Origin - origin;
+				return line.Origin + u * (-Vector3.Dot(normal, v) / dot);
+			}
+
+			// The line is parallel to plane
+			return null;
 		}
 		public static Vector3? Intersection(Segment segment, Vector3 origin, Vector3 normal) {
 			// origin & normal define the plane
@@ -84,6 +102,18 @@ namespace Geometry {
 		}
 		public static IEnumerable<Vector3> Intersections(Tractogram tractogram, Vector3 origin, Vector3 normal) {
 			return tractogram.Tracts.SelectMany(tract => Intersections(tract, origin, normal));
+		}
+
+		public static Vector3 Any(Vector3 origin, Vector3 normal) {
+			var projections = Projections(new[] {Vector3.zero, Vector3.right, Vector3.up, Vector3.forward}, origin, normal).Select(projection => projection - origin).ToArray();
+			var magnitudes = projections.Select(projection => projection.magnitude).ToArray();
+			var maximum = magnitudes.Max();
+			for (var i = 0; i < projections.Length; i++) {
+				if (magnitudes[i] == maximum) {
+					return projections[i];
+				}
+			}
+			throw new ArithmeticException("One of the selected projections should have the maximum magnitude");
 		}
 
 		public static Mesh Mesh(Vector3 origin, Vector3 normal, float size) {

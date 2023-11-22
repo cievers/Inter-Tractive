@@ -84,32 +84,8 @@ namespace Camera {
 			if (white == black) {
 				return new Color32((byte) (white.r * 255), (byte) (white.g * 255), (byte) (white.b * 255), 255);
 			}
-			// white.r = r * a + 1 * (1-a)
-			// black.r = r * a + 0 * (1-a)
-			
-			// white.r = r * a + (1-a)
-			// black.r = r * a
-			
-			// white.r = r * a + (1-a)
-			// r = black.r/a
-			
-			// white.r = black.r/a * a + (1-a)
-			// white.r = black.r + (1-a)
-			// white.r - black.r = 1-a
-			// white.r - black.r - 1 = -a
-			// -white.r + black.r + 1 = a
 
 			var alphas = new double[] {-white.r + black.r + 1, -white.g + black.g + 1, -white.b + black.b + 1};
-			
-			// Debug.Log("Deciphering an in-between blended color");
-			// Debug.Log(white);
-			// Debug.Log(black);
-			// Debug.Log(alphas[0]);
-			// Debug.Log(alphas[1]);
-			// Debug.Log(alphas[2]);
-			// Debug.Log(alpha);
-			// Debug.Log(new Color((float) (black.r/alpha), (float) (black.r/alpha),(float) (black.r/alpha), (float) alpha));
-			// Debug.Log(new Color32((byte) (255*black.r/alpha), (byte) (255*black.r/alpha), (byte) (255*black.r/alpha), (byte) (255*alpha)));
 			
 			return new Color32(
 				(byte) (255*black.r/alphas[0]), 

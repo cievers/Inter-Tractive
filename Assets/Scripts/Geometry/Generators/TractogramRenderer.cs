@@ -1,8 +1,7 @@
 ﻿using Geometry.Tracts;
-using UnityEngine;
 
 namespace Geometry.Generators {
-	public interface TractogramRenderer {
-		public Mesh Render(Tractogram tractogram);
+	public interface TractogramRenderer : TractRenderer {
+		public Topology.Topology Render(Tractogram tractogram);
 	}
 }

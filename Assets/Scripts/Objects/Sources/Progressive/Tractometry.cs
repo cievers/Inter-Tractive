@@ -11,39 +11,52 @@ using Files;
 using Files.Types;
 using Geometry;
 using Geometry.Generators;
+using Geometry.Topology;
 using Geometry.Tracts;
 using Interface.Content;
 using Interface.Control;
 using Logic.Eventful;
 using Maps.Cells;
 using Maps.Grids;
+using Objects.Collection;
 using Objects.Concurrent;
 using UnityEngine;
-
+using UnityEngine.Serialization;
 using Boolean = Logic.Eventful.Boolean;
 using Exporter = Interface.Control.Exporter;
 
 namespace Objects.Sources.Progressive {
 	public class Tractometry : Voxels {
-		public MeshFilter tractMesh;
 		public MeshFilter tractogramMesh;
 		public MeshFilter gridMesh;
+		public MeshFilter coreMesh;
+		public MeshFilter coreOutlineMesh;
 		public MeshFilter spanMesh;
+		public MeshFilter spanOutlineMesh;
 		public MeshFilter cutMesh;
 		public MeshFilter volumeMesh;
+		public MeshFilter minimumRadius;
+		public MeshFilter startRadius;
+		public MeshFilter endRadius;
 		public GameObject dot;
 
 		private Tck tractogram;
 		private ThreadedLattice grid;
 		private new ThreadedRenderer renderer;
+		private CrossSection cuts;
 		private CrossSectionExtrema prominentCuts;
 		private Tract core;
 		private Summary summary;
+
+		private TractogramRenderer wireRenderer;
+		private TractogramRenderer outlineRenderer;
 
 		private ConcurrentPipe<Tuple<Cell, Tract>> voxels;
 		private ConcurrentBag<Dictionary<Cell, Vector>> measurements;
 		private ConcurrentBag<Dictionary<Cell, Color32>> colors;
 		private ConcurrentPipe<Model> maps;
+		private ConcurrentPipe<float> voxelSurfaces;
+		private ConcurrentPipe<float> voxelVolumes;
 
 		private Thread quantizeThread;
 		private Thread renderThread;
@@ -51,6 +64,7 @@ namespace Objects.Sources.Progressive {
 		private PromiseCollector<Tract> promisedCore;
 		private PromiseCollector<Model> promisedCut;
 		private PromiseCollector<Hull> promisedVolume;
+		private PromiseCollector<Triple<Tuple<Vector3, Vector3, Topology>>> promisedDiameters;
 
 		private Files.Exporter exportMap;
 		private Files.Exporter exportCore;
@@ -67,6 +81,9 @@ namespace Objects.Sources.Progressive {
 		private Map map;
 		private Dictionary<Cell, Vector> measurement;
 
+		private const int TUBE_VERTICES = 16;
+		private const float TUBE_RADIUS = 0.5f;
+
 		protected override void New(string path) {
 			voxels = new ConcurrentPipe<Tuple<Cell, Tract>>();
 			measurements = new ConcurrentBag<Dictionary<Cell, Vector>>();
@@ -74,9 +91,13 @@ namespace Objects.Sources.Progressive {
 			maps = new ConcurrentPipe<Model>();
 			summary = new Summary();
 
+			wireRenderer = new WireframeRenderer();
+			outlineRenderer = new TubeRenderer(TUBE_VERTICES, TUBE_RADIUS, (_, normal, _) => new Color(Math.Abs(normal.x), Math.Abs(normal.z), Math.Abs(normal.y)));
+
 			promisedCore = new PromiseCollector<Tract>();
 			promisedCut = new PromiseCollector<Model>();
 			promisedVolume = new PromiseCollector<Hull>();
+			promisedDiameters = new PromiseCollector<Triple<Tuple<Vector3, Vector3, Topology>>>();
 
 			exportMap = new Files.Exporter("Save as NIFTI", "nii", Nifti);
 			exportCore = new Files.Exporter("Save as TCK", "tck", () => new SimpleTractogram(new[] {core}));
@@ -85,7 +106,7 @@ namespace Objects.Sources.Progressive {
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Density()}), new Grayscale());
 			
-			loading = new Any(new Boolean[] {maps, promisedCore, promisedCut, promisedVolume});
+			loading = new Any(new Boolean[] {maps, promisedCore, promisedCut, promisedVolume, promisedDiameters});
 			loading.Change += state => Loading(!state);
 
 			UpdateSamples();
@@ -104,37 +125,58 @@ namespace Objects.Sources.Progressive {
 			}
 			if (maps.TryTake(out var result)) {
 				gridMesh.mesh = result.Mesh();
+				
+				// A bit of a hack checking for this here, as these evaluations also make some sense before the entire map is done
+				if (maps.IsCompleted) {
+					UpdateMapEvaluation();
+				}
 			}
 
 			if (promisedCore.TryTake(out var tract)) {
 				core = tract;
-				var wires = new WireframeRenderer();
-				tractMesh.mesh = wires.Render(tract);
-				spanMesh.mesh = wires.Render(new ArrayTract(new[] {tract.Points[0], tract.Points[^1]}));
+				var span = new ArrayTract(new[] {tract.Points[0], tract.Points[^1]});
+				
+				coreMesh.mesh = wireRenderer.Render(tract).Mesh();
+				spanMesh.mesh = wireRenderer.Render(span).Mesh();
+				coreOutlineMesh.mesh = outlineRenderer.Render(tract).Mesh();
+				spanOutlineMesh.mesh = outlineRenderer.Render(span).Mesh();
 			}
 			if (promisedCut.TryTake(out var cuts)) {
 				cutMesh.mesh = cuts.Mesh();
 			}
 			if (promisedVolume.TryTake(out var hull)) {
 				volumeMesh.mesh = hull.Mesh();
+				summary.Volume(hull);
+			}
+			if (promisedDiameters.TryTake(out var diameters)) {
+				minimumRadius.transform.position = diameters.Item1.Item1;
+				minimumRadius.transform.rotation = Quaternion.LookRotation(diameters.Item1.Item2);
+				minimumRadius.mesh = diameters.Item1.Item3.Mesh();
+				startRadius.transform.position = diameters.Item2.Item1;
+				startRadius.mesh = diameters.Item2.Item3.Mesh();
+				endRadius.transform.position = diameters.Item3.Item1;
+				endRadius.mesh = diameters.Item3.Item3.Mesh();
 			}
 		}
 		private void UpdateTracts() {
-			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
+			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram).Mesh();
 		}
 		private void UpdateSamples() {
 			var sampler = new Resample(tractogram, samples);
 			var core = new Core(sampler);
-			var cut = new CrossSection(sampler, core);
-			var volume = new Volume(sampler, cut);
-
-			prominentCuts = new CrossSectionExtrema(cut, prominence);
+			
+			cuts = new CrossSection(sampler, core);
+			prominentCuts = new CrossSectionExtrema(cuts, prominence);
+			
+			var volume = new Volume(sampler, cuts);
 
 			promisedCore.Add(core);
 			promisedVolume.Add(volume);
 			core.Request(summary.Core);
-			cut.Request(summary.CrossSections);
+			cuts.Request(summary.CrossSections);
+			// TODO: Some thing to add endpoint radius to the summary
 			// cut.Request(cuts => core.Request(tract => summary.CrossSectionsVolume(tract, cuts)));
+			UpdateDiameterEvaluation();
 			UpdateCutEvaluation();
 		}
 		private void UpdateSamples(int samples) {
@@ -144,13 +186,18 @@ namespace Objects.Sources.Progressive {
 		private void UpdateSamples(float samples) {
 			UpdateSamples((int) Math.Round(samples));
 		}
+		private void UpdateDiameterEvaluation() {
+			var bottleneck = new Bottleneck(cuts);
+			var endpoints = new Endpoints(cuts);
+			promisedDiameters.Add(new DiameterEvaluation(bottleneck, endpoints, color => new TubeRenderer(TUBE_VERTICES, TUBE_RADIUS, color), evaluation.Coloring));
+		}
 		private void UpdateCutProminence(float prominence) {
 			this.prominence = prominence;
 			prominentCuts.UpdateProminence(prominence);
 			UpdateCutEvaluation();
 		}
 		private void UpdateCutEvaluation() {
-			promisedCut.Add(new CrossSectionEvaluation(prominentCuts));
+			promisedCut.Add(new CrossSectionEvaluation(prominentCuts, evaluation.Coloring));
 		}
 		private void UpdateEvaluation(TractEvaluation evaluation) {
 			this.evaluation = evaluation;
@@ -169,7 +216,6 @@ namespace Objects.Sources.Progressive {
 			UpdateBatch((int) Math.Round(batch));
 		}
 		private void UpdateMap() {
-			Loading(false); // Should this be here now that loading is done by an aggregate of threaded things?
 			voxels.Restart();
 			maps.Restart();
 			grid = new ThreadedLattice(tractogram, resolution, voxels);
@@ -182,6 +228,12 @@ namespace Objects.Sources.Progressive {
 			quantizeThread.Start();
 			renderThread.Start();
 		}
+		private void UpdateMapEvaluation() {
+			new VoxelSurface(grid.Cells, grid.Size, grid.Resolution).Request(surface => summary.SurfaceVoxels = surface);
+			new VoxelVolume(grid.Cells, grid.Resolution).Request(volume => summary.VolumeVoxels = volume);
+			UpdateDiameterEvaluation();
+			UpdateCutEvaluation();
+		}
 
 		public override Map Map() {
 			return map;
@@ -193,8 +245,19 @@ namespace Objects.Sources.Progressive {
 				new Divider.Data(),
 				new Folder.Data("Global measuring", new List<Interface.Component> {
 					new TransformedSlider.Exponential("Resample count", 2, 5, 1, 8, (_, transformed) => ((int) Math.Round(transformed)).ToString(), new ValueChangeBuffer<float>(0.1f, UpdateSamples).Request),
-					new Loader.Data(promisedCore, new ActionToggle.Data("Mean", true, tractMesh.gameObject.SetActive)),
-					new Loader.Data(promisedCore, new ActionToggle.Data("Span", false, spanMesh.gameObject.SetActive)),
+					new Loader.Data(promisedCore, new ActionToggle.Data("Mean", true, state => {
+							coreMesh.gameObject.SetActive(state);
+							coreOutlineMesh.gameObject.SetActive(state);
+					})),
+					new Loader.Data(promisedCore, new ActionToggle.Data("Span", false, state => {
+						spanMesh.gameObject.SetActive(state);
+						spanOutlineMesh.gameObject.SetActive(state);
+					})),
+					new Loader.Data(promisedDiameters, new ActionToggle.Data("Minimum diameter", false, minimumRadius.gameObject.SetActive)),
+					new Loader.Data(promisedDiameters, new ActionToggle.Data("Endpoint diameter", false, state => {
+						startRadius.gameObject.SetActive(state);
+						endRadius.gameObject.SetActive(state);
+					})),
 					new Loader.Data(promisedCut, new ActionToggle.Data("Cross-section", false, cutMesh.gameObject.SetActive)),
 					new TransformedSlider.Data("Cross-section prominence", 0, value => value, (_, transformed) => ((int) Math.Round(transformed * 100)).ToString() + '%', new ValueChangeBuffer<float>(0.1f, UpdateCutProminence).Request),
 					new Loader.Data(promisedVolume, new ActionToggle.Data("Volume", false, volumeMesh.gameObject.SetActive))
@@ -202,12 +265,12 @@ namespace Objects.Sources.Progressive {
 				new Divider.Data(),
 				new Folder.Data("Local measuring", new List<Interface.Component> {
 					new Loader.Data(maps, new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive)),
-					new Interface.Control.Evaluation.Data(UpdateEvaluation)
-				}),
-				new Divider.Data(),
-				new Folder.Data("Rendering", new List<Interface.Component> {
 					new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
 					new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, (_, transformed) => ((int) Math.Round(transformed)).ToString(), UpdateBatch),
+				}),
+				new Divider.Data(),
+				new Folder.Data("Evaluation", new List<Interface.Component> {
+					new Interface.Control.Evaluation.Data(UpdateEvaluation)
 				}),
 				new Divider.Data(),
 				new Folder.Data("Exporting", new List<Interface.Component> {
@@ -223,7 +286,7 @@ namespace Objects.Sources.Progressive {
 		
 		private Nii<float> Nifti() {
 			// TODO: This uses only the grid's properties, so the grid should probably know by itself how to perform this formatting
-			return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, grid.Boundaries.Min + new Vector3(grid.Resolution / 2, grid.Resolution / 2, grid.Resolution / 2), new Vector3(grid.Resolution, grid.Resolution, grid.Resolution));
+			return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, new Affine(new Vector3(grid.Resolution, grid.Resolution, grid.Resolution), new Vector3(grid.Resolution / 2, grid.Resolution / 2, grid.Resolution / 2) + grid.Boundaries.Min, true), new Vector3(grid.Resolution, grid.Resolution, grid.Resolution));
 		}
 		private T[] ToArray<T>(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, T> values, T fill) {
 			var result = new T[cells.Count];

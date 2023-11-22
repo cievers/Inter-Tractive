@@ -669,6 +669,8 @@ MonoBehaviour:
   types:
   - extension: tck
     template: {fileID: 6787547898181110352, guid: 80283614397615845affdf61588042ca, type: 3}
+  - extension: nii
+    template: {fileID: -2517563387708760775, guid: a222b104f85a42d4eae1962cbaf46428, type: 3}
 --- !u!1 &6365828035049130204
 GameObject:
   m_ObjectHideFlags: 0

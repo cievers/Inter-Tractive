@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Geometry.Topology;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -97,6 +98,13 @@ namespace Geometry.Generators {
 				return result;
 			}
 		}
+		public float Diameter => Skewer.Size.magnitude;
+		public Edge Skewer => Points
+			.SelectMany(u => Points.Select(v => new Edge(u, v)))
+			.ToHashSet()
+			.ToDictionary(s=> s, s => s.Size.magnitude)
+			.Aggregate((x, y) => x.Value > y.Value ? x : y)
+			.Key;
 
 		public ConvexPolyhedron(List<Vector3> points) {
 			Points = new List<Vector3>();

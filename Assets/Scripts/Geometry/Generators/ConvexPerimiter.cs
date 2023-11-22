@@ -31,6 +31,13 @@ namespace Geometry.Generators {
 				return result;
 			}
 		}
+		public float Diameter => Points.Aggregate(0f, (current, u) => Points.Select(v => (u - v).magnitude).Prepend(current).Max());
+		public Edge Skewer => Points
+			.SelectMany(u => Points.Select(v => new Edge(u, v)))
+			.ToHashSet()
+			.ToDictionary(s=> s, s => s.Size.magnitude)
+			.Aggregate((x, y) => x.Value > y.Value ? x : y)
+			.Key;
 
 		public ConvexPerimeter(List<Vector2> points) {
 			Points = Compute(points);
@@ -95,13 +102,6 @@ namespace Geometry.Generators {
 		// 			b.Add(point);
 		// 		}
 		// 	}
-		// 	// foreach (var split in new[] {a, b}) {
-		// 	// 	Debug.Log("A part of the polygon!");
-		// 	// 	foreach (var point in split) {
-		// 	// 		Debug.Log(point);
-		// 	// 	}
-		// 	// }
-		// 	Debug.Log(b.Count);
 		// 	return b.Count == 0 ? new[] {this} : new ConvexPerimeter[] {new(a, true), new(b, true)};
 		// }
 		public ConvexPerimeter[] Split(Planar.Line line) {

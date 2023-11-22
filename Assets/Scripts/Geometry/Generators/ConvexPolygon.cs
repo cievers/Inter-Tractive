@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Geometry.Topology;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -10,6 +11,15 @@ namespace Geometry.Generators {
 		public IEnumerable<Triangle> Faces => throw new NotImplementedException();
 		public IEnumerable<int> Indices => Triangulate(true, false);
 		public IEnumerable<Vector3> Normals => Enumerable.Repeat(normal.normalized, Points.Count());
+		public Vector3 Normal => normal;
+		public float Diameter => Points.Aggregate(0f, (current, u) => Points.Select(v => (u - v).magnitude).Prepend(current).Max());
+		public Edge Skewer => Points
+			.SelectMany(u => Points.Select(v => new Edge(u, v)))
+			.ToHashSet()
+			.ToDictionary(s=> s, s => s.Size.magnitude)
+			.Aggregate((x, y) => x.Value > y.Value ? x : y)
+			.Key;
+		
 
 		private readonly Vector3 origin;
 		private readonly Vector3 normal;

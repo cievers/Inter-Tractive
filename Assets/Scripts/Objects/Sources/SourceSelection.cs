@@ -8,7 +8,7 @@ namespace Objects.Sources {
 			Browse();
 		}
 		private void Browse() {
-			var selection = StandaloneFileBrowser.OpenFilePanel("Tract files", "", "tck", false);
+			var selection = StandaloneFileBrowser.OpenFilePanel("Tract & volume files", "", new []{new ExtensionFilter("Tractography", "tck", "nii")}, false);
 			switch (selection.Length) {
 				case 1:
 					Load(selection[0]);

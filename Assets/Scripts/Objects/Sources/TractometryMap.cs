@@ -31,7 +31,7 @@ namespace Objects.Sources {
 		}
 
 		private void UpdateTracts() {
-			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram);
+			tractogramMesh.mesh = new WireframeRenderer().Render(tractogram).Mesh();
 		}
 		private void UpdateVoxels(float resolution) {
 			var grid = new IntersectionLattice(tractogram, resolution);

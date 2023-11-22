@@ -104,7 +104,7 @@ namespace Objects.Sources.Progressive {
 			exportSummary = new Files.Exporter("Save numeric summary", "json", summary.Json);
 
 			tractogram = Tck.Load(path);
-			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Density()}), new Grayscale());
+			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Grayscale());
 			
 			loading = new Any(new Boolean[] {maps, promisedCore, promisedCut, promisedVolume, promisedDiameters});
 			loading.Change += state => Loading(!state);

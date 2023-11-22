@@ -63,11 +63,11 @@ namespace Interface.Control {
 				// {"RGB", new Rgb()}
 			};
 			public readonly Dictionary<string, Func<TractMetric>> measurements = new() {
-				{"Density", () => new Density()}, 
 				{"Length", () => new Length()}, 
 				{"Span", () => new Span()},
 				{"Curl", () => new Curl()},
-				{"Roughness", () => new Roughness()}
+				{"Roughness", () => new Roughness()},
+				{"Density", () => new Density()}
 			};
 
 			public Data(Action<TractEvaluation> update) {

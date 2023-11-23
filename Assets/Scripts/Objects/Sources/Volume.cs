@@ -54,7 +54,6 @@ namespace Objects.Sources {
 					.ToDictionary(pair => (Cell) pair.Key, pair => pair.Value), 
 				cells, 
 				volume.Composition, 
-				new AxisOrder(Axis.X, Axis.Y, Axis.Z),
 				new Boundaries(
 					volume.Offset - pivot,
 					volume.Offset + new Vector3(volume.Composition.x * volume.Unit.x, volume.Composition.y * volume.Unit.y, volume.Composition.z * volume.Unit.z) - pivot

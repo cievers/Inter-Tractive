@@ -48,8 +48,8 @@ namespace Objects.Sources {
 			var colors = coloring.Color(measurements);
 			gridMesh.mesh = grid.Render(colors);
 			
-			Configure(grid.Cells, colors, grid.Size, new AxisOrder(Axis.X, Axis.Y, Axis.Z), grid.Boundaries);
-			map = new Map(colors, grid.Cells, grid.Size, new AxisOrder(Axis.X, Axis.Y, Axis.Z), grid.Boundaries);
+			Configure(grid.Cells, colors, grid.Size, grid.Boundaries);
+			map = new Map(colors, grid.Cells, grid.Size, grid.Boundaries);
 		}
 		
 		public override Map Map() {

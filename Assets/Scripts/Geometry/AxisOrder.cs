@@ -37,7 +37,7 @@ namespace Geometry {
 			return axis switch {
 				Axis.X => w + v * composition.x + u * composition.x * composition.y,
 				Axis.Y => u + w * composition.x + v * composition.x * composition.y,
-				Axis.Z => u + v * composition.x + w * composition.x * composition.y,
+				Axis.Z => v + u * composition.x + w * composition.x * composition.y,
 				_ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "There is no fourth dimension here")
 			};
 		}

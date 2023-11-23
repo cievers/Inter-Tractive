@@ -86,10 +86,10 @@ namespace Maps {
 			return Math.Min((int) (axis.Select(composition) * t), axis.Select(composition) - 1);
 		}
 		public Texture2D Sample() {
-			var width = axis.Previous().Select(composition);
-			var height = axis.Next().Select(composition);
-			// var width = order.Previous(axis).Select(composition);
-			// var height = order.Next(axis).Select(composition);
+			// var width = axis.Previous().Select(composition);
+			// var height = axis.Next().Select(composition);
+			var width = order.Previous(axis).Select(composition);
+			var height = order.Next(axis).Select(composition);
 			currentW = Plane();
 
 			// Debug.Log("Sampling a slice");
@@ -102,8 +102,8 @@ namespace Maps {
 
 			for (var u = 0; u < width; u++) {
 				for (var v = 0; v < height; v++) {
-					texture.SetPixels32(axis.Select(new Index3(u, u, v)), axis.Select(new Index3(v, v, u)), 1, 1, new[] {colors[axis.Compose(composition, u, v, currentW)]});
-					// texture.SetPixels32(u, v, 1, 1, new[] {colors[order.Compose(axis, composition, u, v, currentW)]});
+					// texture.SetPixels32(axis.Select(new Index3(u, u, v)), axis.Select(new Index3(v, v, u)), 1, 1, new[] {colors[axis.Compose(composition, u, v, currentW)]});
+					texture.SetPixels32(axis.Select(new Index3(u, u, v)), axis.Select(new Index3(v, v, u)), 1, 1, new[] {colors[order.Compose(axis, composition, u, v, currentW)]});
 				}
 			}
 			texture.Apply();

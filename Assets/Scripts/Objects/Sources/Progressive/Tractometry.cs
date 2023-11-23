@@ -121,7 +121,7 @@ namespace Objects.Sources.Progressive {
 			}
 			if (colors.TryTake(out var colored)) {
 				map = new Map(colored, grid.Cells, grid.Size, grid.Boundaries);
-				Configure(grid.Cells, colored, grid.Size, grid.Boundaries);
+				Configure(grid.Cells, colored, grid.Size, new AxisOrder(Axis.X, Axis.Y, Axis.Z), grid.Boundaries);
 			}
 			if (maps.TryTake(out var result)) {
 				gridMesh.mesh = result.Mesh();

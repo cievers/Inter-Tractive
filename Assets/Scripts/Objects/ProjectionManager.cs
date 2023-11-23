@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Geometry;
 using Interface;
 using Maps;
 using UnityEngine;
@@ -29,7 +30,7 @@ namespace Objects {
 			
 			// TODO: Unify with the later updating of a map to slice through
 			var colorGrid = Enumeration.ToArray(map.Cells, map.Colors, new Color32(0, 0, 0, 0));
-			slice.Initialize(colorGrid, map.Composition, map.Boundaries);
+			slice.Initialize(colorGrid, map.Composition, new AxisOrder(Axis.X, Axis.Y, Axis.Z), map.Boundaries);
 		}
 		public void Remove(Objects.Sources.Source source) {
 			if (slices.ContainsKey(source)) {

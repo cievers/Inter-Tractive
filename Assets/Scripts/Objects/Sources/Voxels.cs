@@ -38,10 +38,10 @@ namespace Objects.Sources {
 			Focused?.Invoke(focus);
 		}
 		
-		public delegate void SourceConfiguredEvent(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries);
+		public delegate void SourceConfiguredEvent(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, AxisOrder order, Boundaries boundaries);
 		public event SourceConfiguredEvent Configured;
-		public void Configure(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries) {
-			Configured?.Invoke(cells, values, resolution, boundaries);
+		public void Configure(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, AxisOrder order, Boundaries boundaries) {
+			Configured?.Invoke(cells, values, resolution, order, boundaries);
 		}
 	}
 }

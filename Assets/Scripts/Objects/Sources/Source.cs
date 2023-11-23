@@ -36,7 +36,7 @@ namespace Objects.Sources {
 			instance = templates[this.path.Extension()].Construct(path);
 			instance.Focused += focus => Focused?.Invoke(focus);
 			instance.Loaded += Load;
-			instance.Configured += (cells, values, resolution, boundaries) => Configured?.Invoke(cells, values, resolution, boundaries);
+			instance.Configured += (cells, values, resolution, order, boundaries) => Configured?.Invoke(cells, values, resolution, order, boundaries);
 
 			panel.UpdateTitle(this.path.Prominence());
 			panel.UpdateControls(instance.Controls());
@@ -66,7 +66,7 @@ namespace Objects.Sources {
 			instance.Focus();
 		}
 		
-		public delegate void SourceConfiguredEvent(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries);
+		public delegate void SourceConfiguredEvent(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, AxisOrder order, Boundaries boundaries);
 		public event SourceConfiguredEvent Configured;
 
 		public delegate void SourceSlicedEvent(Source source, Map map);

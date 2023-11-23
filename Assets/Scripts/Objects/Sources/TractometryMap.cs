@@ -4,6 +4,7 @@ using Camera;
 using Evaluation.Coloring;
 using Evaluation.Geometric;
 using Files.Types;
+using Geometry;
 using Geometry.Generators;
 using Geometry.Tracts;
 using Interface.Control;
@@ -47,7 +48,7 @@ namespace Objects.Sources {
 			var colors = coloring.Color(measurements);
 			gridMesh.mesh = grid.Render(colors);
 			
-			Configure(grid.Cells, colors, grid.Size, grid.Boundaries);
+			Configure(grid.Cells, colors, grid.Size, new AxisOrder(Axis.X, Axis.Y, Axis.Z), grid.Boundaries);
 			map = new Map(colors, grid.Cells, grid.Size, grid.Boundaries);
 		}
 		

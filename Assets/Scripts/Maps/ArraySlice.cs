@@ -18,6 +18,7 @@ namespace Maps {
 		
 		private Color32[] colors;
 		private Index3 composition;
+		private AxisOrder order;
 		private Boundaries boundaries;
 		private bool loaded;
 
@@ -64,12 +65,13 @@ namespace Maps {
 			transform.localScale = boundaries.Size;
 		}
 		
-		public void Initialize(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, Boundaries boundaries) {
-			Initialize(Enumeration.ToArray(cells, values, new Color32(0, 0, 0, 0)), resolution, boundaries);
+		public void Initialize(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, Color32> values, Index3 resolution, AxisOrder order, Boundaries boundaries) {
+			Initialize(Enumeration.ToArray(cells, values, new Color32(0, 0, 0, 0)), resolution, order, boundaries);
 		}
-		public void Initialize(Color32[] colors, Index3 composition, Boundaries boundaries) {
+		public void Initialize(Color32[] colors, Index3 composition, AxisOrder order, Boundaries boundaries) {
 			this.colors = colors;
 			this.composition = composition;
+			this.order = order;
 			this.boundaries = boundaries;
 			
 			UpdateTexture();
@@ -86,13 +88,22 @@ namespace Maps {
 		public Texture2D Sample() {
 			var width = axis.Previous().Select(composition);
 			var height = axis.Next().Select(composition);
+			// var width = order.Previous(axis).Select(composition);
+			// var height = order.Next(axis).Select(composition);
 			currentW = Plane();
-			
-			var texture = new Texture2D(width, height) {filterMode = FilterMode.Point};
+
+			// Debug.Log("Sampling a slice");
+			// Debug.Log(axis.Previous().Select(composition));
+			// Debug.Log(order.Previous(axis).Select(composition));
+			// Debug.Log(axis.Next().Select(composition));
+			// Debug.Log(order.Next(axis).Select(composition));
+
+			var texture = new Texture2D(axis.Select(new Index3(width, width, height)), axis.Select(new Index3(height, height, width))) {filterMode = FilterMode.Point};
 
 			for (var u = 0; u < width; u++) {
 				for (var v = 0; v < height; v++) {
-					texture.SetPixels32(u, v, 1, 1, new[] {colors[axis.Compose(composition, u, v, currentW)]});
+					texture.SetPixels32(axis.Select(new Index3(u, u, v)), axis.Select(new Index3(v, v, u)), 1, 1, new[] {colors[axis.Compose(composition, u, v, currentW)]});
+					// texture.SetPixels32(u, v, 1, 1, new[] {colors[order.Compose(axis, composition, u, v, currentW)]});
 				}
 			}
 			texture.Apply();

@@ -34,10 +34,10 @@ namespace Geometry {
 		}
 		public int Compose(Axis axis, Index3 composition, int u, int v, int w) {
 			// Assume u is in the Axis.Previous() axis, v in the Axis.Next() axis, and w on this axis
-			return axis switch {
-				Axis.X => w + v * composition.x + u * composition.x * composition.y,
-				Axis.Y => u + w * composition.x + v * composition.x * composition.y,
-				Axis.Z => v + u * composition.x + w * composition.x * composition.y,
+			return Index(axis) switch {
+				0 => w + u * composition.x + v * composition.x * composition.y,
+				1 => v + w * composition.x + u * composition.x * composition.y,
+				2 => u + v * composition.x + w * composition.x * composition.y,
 				_ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "There is no fourth dimension here")
 			};
 		}

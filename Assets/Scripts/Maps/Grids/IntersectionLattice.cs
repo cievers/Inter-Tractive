@@ -26,7 +26,7 @@ namespace Maps.Grids {
 		}
 		
 		public Index3 Anchor => Lattice.Anchor;
-		public Index3 Size => Lattice.Size;
+		public Index3 Size => Lattice.Composition;
 		public Boundaries Boundaries => new((Vector3) Anchor * CellSize, (Vector3) (Anchor + Size) * CellSize);
 		
 		

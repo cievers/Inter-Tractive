@@ -4,12 +4,12 @@ using Geometry;
 using UnityEngine;
 
 namespace Files.Types {
-	public record Nii<T>(T[] Values, Index3 Composition, Affine Transformation, Vector3 Size, int Measurements=1) : Publication.Nii<T> {
+	public record Nii<T>(T[] Values, Index3 Composition, Affine Transformation, Vector3 Unit, int Measurements=1) : Publication.Nii<T> {
 		public T[] Values {get;} = Values;
 		public int Measurements {get;} = Measurements;
 		public Index3 Composition {get;} = Composition;
 		public Affine Transformation {get;} = Transformation;
-		public Vector3 Size {get;} = Size;
+		public Vector3 Unit {get;} = Unit;
 
 		private static readonly int FLOAT_SIZE = 4;
 		private static readonly byte[] READ_BUFFER = new byte[352];

@@ -29,7 +29,7 @@ namespace Objects {
 			
 			// TODO: Unify with the later updating of a map to slice through
 			var colorGrid = Enumeration.ToArray(map.Cells, map.Colors, new Color32(0, 0, 0, 0));
-			slice.Initialize(colorGrid, map.Size, map.Boundaries);
+			slice.Initialize(colorGrid, map.Composition, map.Boundaries);
 		}
 		public void Remove(Objects.Sources.Source source) {
 			if (slices.ContainsKey(source)) {

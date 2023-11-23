@@ -17,7 +17,7 @@ namespace Geometry.Generators {
 		
 		public Topology.Topology Render(Nii<float> volume, Coloring coloring) {
 			var map = new Dictionary<Cuboid, Vector>();
-			var pivot = volume.Size / 2;
+			var pivot = volume.Unit / 2;
 
 			for (var x = 0; x < volume.Composition.x; x++) {
 				for (var y = 0; y < volume.Composition.y; y++) {
@@ -26,7 +26,7 @@ namespace Geometry.Generators {
 
 						if (value > threshold) {
 							var anchor = volume.Transformation.Transform(new Vector3(x, y, z));
-							var voxel = new Cuboid(new Vector3(anchor.x, anchor.z, anchor.y) - pivot, volume.Size);
+							var voxel = new Cuboid(new Vector3(anchor.x, anchor.z, anchor.y) - pivot, volume.Unit);
 							map[voxel] = new Vector(value);
 						}
 					}

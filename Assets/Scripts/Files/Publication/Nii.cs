@@ -10,7 +10,7 @@ namespace Files.Publication {
 		public int Measurements {get;}
 		public Index3 Composition {get;}
 		public Affine Transformation {get;}
-		public Vector3 Size {get;}
+		public Vector3 Unit {get;}
 		
 		void Publication.Write(string path) {
 			Write(path, Header().Concat(Padding()).Concat(Body()).ToArray());

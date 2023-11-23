@@ -31,7 +31,7 @@ namespace Objects.Sources {
 		private void UpdateMap() {
 			var cells = new Cuboid?[volume.Values.Length];
 			var voxels = new Dictionary<Cuboid, Vector>();
-			var pivot = volume.Size / 2;
+			var pivot = volume.Unit / 2;
 
 			for (var x = 0; x < volume.Composition.x; x++) {
 				for (var y = 0; y < volume.Composition.y; y++) {
@@ -40,7 +40,7 @@ namespace Objects.Sources {
 
 						if (value > threshold) {
 							var anchor = volume.Transformation.Transform(new Vector3(x, y, z));
-							var voxel = new Cuboid(new Vector3(anchor.x, anchor.z, anchor.y) - pivot, volume.Size);
+							var voxel = new Cuboid(new Vector3(anchor.x, anchor.z, anchor.y) - pivot, volume.Unit);
 							voxels[voxel] = new Vector(value);
 							cells[x + y * volume.Composition.x + z * volume.Composition.x * volume.Composition.y] = voxel;
 						}

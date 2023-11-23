@@ -25,8 +25,8 @@ namespace Geometry.Generators {
 						var value = volume.Values[x + y * volume.Composition.x + z * volume.Composition.x * volume.Composition.y];
 
 						if (value > threshold) {
-							var anchor = volume.Transformation.Transform(new Vector3(x, y, z));
-							var voxel = new Cuboid(new Vector3(anchor.x, anchor.z, anchor.y) - pivot, volume.Unit);
+							var anchor = new Vector3(x * volume.Unit.x, y * volume.Unit.y, z * volume.Unit.z);
+							var voxel = new Cuboid(anchor - pivot + volume.Offset, volume.Unit);
 							map[voxel] = new Vector(value);
 						}
 					}

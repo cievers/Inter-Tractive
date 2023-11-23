@@ -39,17 +39,14 @@ namespace Objects.Sources {
 						var value = volume.Values[x + y * volume.Composition.x + z * volume.Composition.x * volume.Composition.y];
 
 						if (value > threshold) {
-							var anchor = volume.Transformation.Transform(new Vector3(x, y, z));
-							var voxel = new Cuboid(new Vector3(anchor.x, anchor.z, anchor.y) - pivot, volume.Unit);
+							var anchor = new Vector3(x * volume.Unit.x, y * volume.Unit.y, z * volume.Unit.z);
+							var voxel = new Cuboid(anchor - pivot + volume.Offset, volume.Unit);
 							voxels[voxel] = new Vector(value);
 							cells[x + y * volume.Composition.x + z * volume.Composition.x * volume.Composition.y] = voxel;
 						}
 					}
 				}
 			}
-
-			var boundaryAnchor = volume.Transformation.Transform(Vector3.zero);
-			var boundaryExtent = volume.Transformation.Transform(volume.Composition);
 
 			map = new Map(
 				coloring
@@ -59,8 +56,8 @@ namespace Objects.Sources {
 				volume.Composition, 
 				new AxisOrder(Axis.X, Axis.Y, Axis.Z),
 				new Boundaries(
-					new Vector3(boundaryAnchor.x, boundaryAnchor.z, boundaryAnchor.y) - pivot,
-					new Vector3(boundaryExtent.x, boundaryExtent.z, boundaryExtent.y) - pivot
+					volume.Offset - pivot,
+					volume.Offset + new Vector3(volume.Composition.x * volume.Unit.x, volume.Composition.y * volume.Unit.y, volume.Composition.z * volume.Unit.z) - pivot
 				)
 			);
 

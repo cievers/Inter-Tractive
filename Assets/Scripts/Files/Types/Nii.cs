@@ -4,11 +4,11 @@ using Geometry;
 using UnityEngine;
 
 namespace Files.Types {
-	public record Nii<T>(T[] Values, Index3 Composition, Affine Transformation, Vector3 Unit, int Measurements=1) : Publication.Nii<T> {
+	public record Nii<T>(T[] Values, Index3 Composition, Vector3 Offset, Vector3 Unit, int Measurements=1) : Publication.Nii<T> {
 		public T[] Values {get;} = Values;
 		public int Measurements {get;} = Measurements;
 		public Index3 Composition {get;} = Composition;
-		public Affine Transformation {get;} = Transformation;
+		public Vector3 Offset {get;} = Offset;
 		public Vector3 Unit {get;} = Unit;
 
 		private static readonly int FLOAT_SIZE = 4;
@@ -27,17 +27,19 @@ namespace Files.Types {
 			// Bytes 108-111 are float 352
 			// Bytes 112-115 are float 1
 			// Bytes 116-119 are float 0
+			// Affine transformation has a 0 rotation matrix, except the diagonal is 1
 			
 			// Ignore pixel dimensions in bytes 76-107
 			// Ignore pixel dimension units in byte 123
 			// Ignore quaternion transformation in bytes 256-279
+			// Ignore transformation part of affine transformation in bytes 280-291, 296-307, 312-323
 			
 			// A whole mess of transformation options
 			
 			var header = filestream.Read(READ_BUFFER, 0, 352);
-			var composition = new Index3(LoadShort(42), LoadShort(44), LoadShort(46));
-			var transformation = LoadAffine(280);
-			var size = transformation.Transform(Vector3.one) - transformation.Offset(); // Seems hacky as this would also include rotation and things like shear
+			var composition = new Index3(LoadShort(42), LoadShort(46), LoadShort(44));
+			var offset = new Vector3(LoadFloat(280+12), LoadFloat(280+44), LoadFloat(280+28));
+			var size = new Vector3(LoadFloat(280), LoadFloat(280 + 40), LoadFloat(280 + 20));
 			var body = new float[composition.x * composition.y * composition.z];
 			var read = 0;
 			int batch;
@@ -45,13 +47,23 @@ namespace Files.Types {
 			do {
 				batch = filestream.Read(READ_BUFFER, 0, READ_BUFFER.Length);
 				for (var processed = 0; processed < batch / FLOAT_SIZE; processed++) {
-					// Debug.Log("Reading value "+read+": "+LoadFloat(processed * FLOAT_SIZE));
-					body[read] = LoadFloat(processed * FLOAT_SIZE);
-					read++;
+					body[read++] = LoadFloat(processed * FLOAT_SIZE);
 				}
 			} while (batch > 0);
 			
-			return new Nii<float>(body, composition, transformation, size);
+			var transposed = new float[composition.x * composition.y * composition.z];
+			var swapped = 0;
+			for (var y = 0; y < composition.y; y++) {
+				for (var z = 0; z < composition.z; z++) {
+					for (var x = 0; x < composition.x; x++) {
+						// Both ways around it works, though one of them might be preferable when integrating with buffered loading
+						// transposed[swapped++] = body[x + y * composition.x + z * composition.x * composition.y];
+						transposed[x + y * composition.x + z * composition.x * composition.y] = body[swapped++];
+					}
+				}
+			}
+			
+			return new Nii<float>(transposed, composition, offset, size);
 		}
 		private static short LoadShort(int offset) {
 			return BitConverter.ToInt16(READ_BUFFER, offset);
@@ -65,9 +77,6 @@ namespace Files.Types {
 				result[i] = LoadFloat(offset + i * FLOAT_SIZE);
 			}
 			return result;
-		}
-		private static Affine LoadAffine(int offset) {
-			return new Affine(LoadFloats(offset, 4), LoadFloats(offset + 16, 4), LoadFloats(offset + 32, 4));
 		}
 	}
 }

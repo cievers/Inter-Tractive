@@ -6,10 +6,10 @@ namespace Evaluation.Geometric {
 		private readonly Span span = new();
 		
 		public override int Dimensions => 1;
-		public override string[] Units => new[] {"mm"};
+		public override string[] Units => new[] {""};
 		
 		public override float Measure(Tract tract) {
-			return length.Measure(tract) / span.Measure(tract);
+			return length.Measure(tract) / span.Measure(tract) - 1;
 		}
 	}
 }

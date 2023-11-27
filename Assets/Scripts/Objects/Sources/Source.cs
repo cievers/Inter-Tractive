@@ -18,8 +18,9 @@ namespace Objects.Sources {
 			public Voxels template;
 		}
 
-		private ProminentPath path;
 		private readonly Dictionary<string, Voxels> templates = new();
+		private bool closed;
+		private ProminentPath path;
 		private Voxels instance;
 		
 		protected void LoadTemplates() {
@@ -79,8 +80,15 @@ namespace Objects.Sources {
 		public event SourceClosedEvent Closed;
 		protected void Close() {
 			Destroy(instance.gameObject);
+			Abort();
+		}
+		protected void Abort() {
 			Destroy(gameObject);
+			closed = true;
 			Closed?.Invoke(this);
+		}
+		public bool Open() {
+			return !closed;
 		}
 
 		public delegate void SourceLoadedEvent(bool loaded);

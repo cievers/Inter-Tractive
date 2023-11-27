@@ -1957,6 +1957,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Slider
       objectReference: {fileID: 0}
+    - target: {fileID: 7087137915700532806, guid: 4551cb720c7c21540a640a8f21d07c1f, type: 3}
+      propertyPath: m_Value
+      value: 0.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: 4551cb720c7c21540a640a8f21d07c1f, type: 3}

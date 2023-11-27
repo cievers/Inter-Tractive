@@ -28,6 +28,9 @@ namespace Objects.Sources {
 			UpdateMap();
 			Focus(new Focus(map.Boundaries.Center, map.Boundaries.Size.magnitude / 2 * 1.5f));
 		}
+		private void Start() {
+			Loading(true);
+		}
 		private void UpdateMap() {
 			var cells = new Cuboid?[volume.Values.Length];
 			var voxels = new Dictionary<Cuboid, Vector>();

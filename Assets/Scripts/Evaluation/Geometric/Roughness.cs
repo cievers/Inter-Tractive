@@ -11,7 +11,8 @@ namespace Evaluation.Geometric {
 			var segments = tract.Segments.ToArray();
 			var sum = 0f;
 			for (var i = 1; i < segments.Length; i++) {
-				sum += 1 - Math.Abs(Vector3.Dot(segments[i - 1].Size.normalized, segments[i].Size.normalized));
+				// sum += 1 - Math.Abs(Vector3.Dot(segments[i - 1].Size.normalized, segments[i].Size.normalized));
+				sum += (2 - (1 + Vector3.Dot(segments[i - 1].Size.normalized, segments[i].Size.normalized))) / 2;
 			}
 			return sum / (segments.Length - 1);
 		}

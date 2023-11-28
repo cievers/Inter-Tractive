@@ -17,8 +17,8 @@ namespace Maps.Grids {
 		private Lattice Lattice {get;}
 		public float Resolution {get;}
 		public Cuboid?[] Cells {get;}
-		public Index3 Size => Lattice.Size;
-		public Boundaries Boundaries => new((Vector3) Lattice.Anchor * Resolution, (Vector3) (Lattice.Anchor + Lattice.Size) * Resolution);
+		public Index3 Size => Lattice.Composition;
+		public Boundaries Boundaries => new((Vector3) Lattice.Anchor * Resolution, (Vector3) (Lattice.Anchor + Lattice.Composition) * Resolution);
 
 		public ThreadedLattice(Tractogram tractogram, float resolution, ConcurrentPipe<Tuple<Cell, Tract>> bag) {
 			var anchor = new Index3(tractogram.Boundaries.Min, resolution);
@@ -38,10 +38,10 @@ namespace Maps.Grids {
 			return new Index3(vector, Resolution) - Lattice.Anchor;
 		}
 		private Cuboid? Get(Index3 index) {
-			return Cells[index.x + index.y * Lattice.Size.x + index.z * Lattice.Size.x * Lattice.Size.y];
+			return Cells[index.x + index.y * Lattice.Composition.x + index.z * Lattice.Composition.x * Lattice.Composition.y];
 		}
 		private void Set(Index3 index, Cuboid cell) {
-			Cells[index.x + index.y * Lattice.Size.x + index.z * Lattice.Size.x * Lattice.Size.y] = cell;
+			Cells[index.x + index.y * Lattice.Composition.x + index.z * Lattice.Composition.x * Lattice.Composition.y] = cell;
 		}
 		public Cuboid Quantize(Vector3 vector) {
 			return Quantize(Index(vector));

@@ -4,6 +4,7 @@ using Camera;
 using Evaluation.Coloring;
 using Evaluation.Geometric;
 using Files.Types;
+using Geometry;
 using Geometry.Generators;
 using Geometry.Tracts;
 using Interface.Control;

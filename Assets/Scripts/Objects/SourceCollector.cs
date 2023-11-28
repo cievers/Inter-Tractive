@@ -17,12 +17,14 @@ namespace Objects {
 			try {
 				var source = Instantiate(template, transform);
 
-				Collect(source);
-				Interact(source);
+				if (source.Open()) {
+					Collect(source);
+					Interact(source);
 				
-				source.Focused += camera.Target;
-				if (sources.Count == 1) {
-					source.Focus();
+					source.Focused += camera.Target;
+					if (sources.Count == 1) {
+						source.Focus();
+					}
 				}
 			} catch (UnityException) {
 				

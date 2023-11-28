@@ -104,7 +104,7 @@ namespace Objects.Sources.Progressive {
 			exportSummary = new Files.Exporter("Save numeric summary", "json", summary.Json);
 
 			tractogram = Tck.Load(path);
-			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Density()}), new Grayscale());
+			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Grayscale());
 			
 			loading = new Any(new Boolean[] {maps, promisedCore, promisedCut, promisedVolume, promisedDiameters});
 			loading.Change += state => Loading(!state);
@@ -286,7 +286,7 @@ namespace Objects.Sources.Progressive {
 		
 		private Nii<float> Nifti() {
 			// TODO: This uses only the grid's properties, so the grid should probably know by itself how to perform this formatting
-			return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, new Affine(new Vector3(grid.Resolution, grid.Resolution, grid.Resolution), new Vector3(grid.Resolution / 2, grid.Resolution / 2, grid.Resolution / 2) + grid.Boundaries.Min, true), new Vector3(grid.Resolution, grid.Resolution, grid.Resolution));
+			return new Nii<float>(ToArray(grid.Cells, measurement, 0), grid.Size, new Vector3(grid.Resolution / 2, grid.Resolution / 2, grid.Resolution / 2) + grid.Boundaries.Min, new Vector3(grid.Resolution, grid.Resolution, grid.Resolution));
 		}
 		private T[] ToArray<T>(IReadOnlyList<Cuboid?> cells, IReadOnlyDictionary<Cell, T> values, T fill) {
 			var result = new T[cells.Count];

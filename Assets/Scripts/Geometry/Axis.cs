@@ -11,7 +11,7 @@ namespace Geometry {
 			return axis switch {
 				Axis.X => Axis.Z,
 				Axis.Y => Axis.X,
-				Axis.Z => Axis.X,
+				Axis.Z => Axis.Y,
 				_ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "There is no fourth dimension here")
 			};
 		}
@@ -19,7 +19,7 @@ namespace Geometry {
 			return axis switch {
 				Axis.X => Axis.Y,
 				Axis.Y => Axis.Z,
-				Axis.Z => Axis.Y,
+				Axis.Z => Axis.X,
 				_ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "There is no fourth dimension here")
 			};
 		}
@@ -60,7 +60,7 @@ namespace Geometry {
 			return axis switch {
 				Axis.X => w + v * size.x + u * size.x * size.y,
 				Axis.Y => u + w * size.x + v * size.x * size.y,
-				Axis.Z => u + v * size.x + w * size.x * size.y,
+				Axis.Z => v + u * size.x + w * size.x * size.y,
 				_ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "There is no fourth dimension here")
 			};
 		}

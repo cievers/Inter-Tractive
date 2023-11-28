@@ -17,6 +17,17 @@ namespace Geometry.Planar {
 				_ => Geometry.Side.Contained
 			};
 		}
+		public Vector2? Intersection(Line line) {
+			var denominator = line.Direction.x * Direction.x - line.Direction.y * Direction.y;
+			if (denominator == 0) {
+				return null;
+			}
+			var a = Origin.y - line.Origin.y;
+			var b = Origin.x - line.Origin.x;
+			var c = (line.Direction.x * a - line.Direction.y * b) / denominator;
+			
+			return new Vector2(Origin.x + c * Direction.x, Origin.y + c * Direction.y);
+		}
 		public Vector2? Intersection(Segment segment) {
 			// If the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
 			var denominator = 

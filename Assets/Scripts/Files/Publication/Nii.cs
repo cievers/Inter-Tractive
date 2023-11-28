@@ -9,8 +9,8 @@ namespace Files.Publication {
 		public T[] Values {get;}
 		public int Measurements {get;}
 		public Index3 Composition {get;}
-		public Affine Transformation {get;}
-		public Vector3 Size {get;}
+		public Vector3 Offset {get;}
+		public Vector3 Unit {get;}
 		
 		void Publication.Write(string path) {
 			Write(path, Header().Concat(Padding()).Concat(Body()).ToArray());
@@ -38,8 +38,8 @@ namespace Files.Publication {
 			var dimensions = new byte[16];
 			dimensions = Fill(dimensions, Short(3));
 			dimensions = Fill(dimensions, Short(Composition.x), 2);
-			dimensions = Fill(dimensions, Short(Composition.y), 4);
-			dimensions = Fill(dimensions, Short(Composition.z), 6);
+			dimensions = Fill(dimensions, Short(Composition.z), 4);
+			dimensions = Fill(dimensions, Short(Composition.y), 6);
 			dimensions = Fill(dimensions, Short(Measurements), 8);
 			dimensions = Fill(dimensions, Short(1), 10);
 			dimensions = Fill(dimensions, Short(1), 12);
@@ -82,30 +82,14 @@ namespace Files.Publication {
 		}
 		private byte[] Affine() {
 			var affine = new byte[48];
-			// affine = Fill(affine, Float(Size.x));
-			// affine = Fill(affine, Float(Size.z), 24);
-			// affine = Fill(affine, Float(Size.y), 36);
-			// // affine = Fill(affine, Float(Size.y), 20);
-			// // affine = Fill(affine, Float(Size.z), 40);
-			// // affine = Fill(affine, Float(Offset.x), 12);
-			// // affine = Fill(affine, Float(Offset.y), 28);
-			// // affine = Fill(affine, Float(Offset.z), 44);
-			// affine = Fill(affine, Float(Offset.x), 12);
-			// affine = Fill(affine, Float(Offset.z), 28);
-			// affine = Fill(affine, Float(Offset.y), 44);
-			var matrix = Transformation.Matrix();
-			affine = Fill(affine, Float(matrix[0][0]));
-			affine = Fill(affine, Float(matrix[0][1]), 4);
-			affine = Fill(affine, Float(matrix[0][2]), 8);
-			affine = Fill(affine, Float(matrix[0][3]), 12);
-			affine = Fill(affine, Float(matrix[1][0]), 16);
-			affine = Fill(affine, Float(matrix[1][1]), 20);
-			affine = Fill(affine, Float(matrix[1][2]), 24);
-			affine = Fill(affine, Float(matrix[1][3]), 28);
-			affine = Fill(affine, Float(matrix[2][0]), 32);
-			affine = Fill(affine, Float(matrix[2][1]), 36);
-			affine = Fill(affine, Float(matrix[2][2]), 40);
-			affine = Fill(affine, Float(matrix[2][3]), 44);
+			affine = Fill(affine, Float(Unit.x));
+			// affine = Fill(affine, Float(Unit.z), 24);
+			// affine = Fill(affine, Float(Unit.y), 36);
+			affine = Fill(affine, Float(Unit.z), 20);
+			affine = Fill(affine, Float(Unit.y), 40);
+			affine = Fill(affine, Float(Offset.x), 12);
+			affine = Fill(affine, Float(Offset.z), 28);
+			affine = Fill(affine, Float(Offset.y), 44);
 			return affine;
 		}
 		
@@ -114,17 +98,27 @@ namespace Files.Publication {
 		}
 
 		private byte[] Body() {
+			var written = 0;
+			// This whole transposition of the Y and Z axis individually for each data type is a mess
 			if (typeof(T) == typeof(int)) {
 				var body = new byte[Values.Length * 4];
-				for (var i = 0; i < Values.Length; i++) {
-					body = Fill(body, Int((int) Convert.ChangeType(Values[i], typeof(int))), i * 4); // This is ugly, constrain T and use overloads to resolve this somehow
+				for (var y = 0; y < Composition.y; y++) {
+					for (var z = 0; z < Composition.z; z++) {
+						for (var x = 0; x < Composition.x; x++) {
+							body = Fill(body, Int((int) Convert.ChangeType(Values[x + y * Composition.x + z * Composition.x * Composition.y], typeof(int))), written++ * 4); // This is ugly, constrain T and use overloads to resolve this somehow
+						}
+					}
 				}
 				return body;
 			}
 			if (typeof(T) == typeof(float)) {
 				var body = new byte[Values.Length * 4];
-				for (var i = 0; i < Values.Length; i++) {
-					body = Fill(body, Float((float) Convert.ChangeType(Values[i], typeof(float))), i * 4); // This is ugly, constrain T and use overloads to resolve this somehow
+				for (var y = 0; y < Composition.y; y++) {
+					for (var z = 0; z < Composition.z; z++) {
+						for (var x = 0; x < Composition.x; x++) {
+							body = Fill(body, Float((float) Convert.ChangeType(Values[x + y * Composition.x + z * Composition.x * Composition.y], typeof(float))), written++ * 4); // This is ugly, constrain T and use overloads to resolve this somehow
+						}
+					}
 				}
 				return body;
 			}

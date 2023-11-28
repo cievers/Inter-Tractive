@@ -31,13 +31,13 @@ namespace Maps.Grids {
 		}
 		public IntersectionTree(Lattice lattice, Dictionary<Index3, IEnumerable<Tract>> cells) {
 			Lattice = lattice;
-			Cells = new Cuboid?[lattice.Size.x * lattice.Size.y * lattice.Size.z];
-			CellSize = lattice.Cell.x; // TODO: This is a horrible assumption. Somehow unify that this thing uses universal cell size in all dimensions, and Lattices can deal with size differences
+			Cells = new Cuboid?[lattice.Composition.x * lattice.Composition.y * lattice.Composition.z];
+			CellSize = lattice.Unit.x; // TODO: This is a horrible assumption. Somehow unify that this thing uses universal cell size in all dimensions, and Lattices can deal with size differences
 			quantization = cells;
 		}
 		
 		public Index3 Anchor => Lattice.Anchor;
-		public Index3 Size => Lattice.Size;
+		public Index3 Size => Lattice.Composition;
 		public Boundaries Boundaries => new((Vector3) Anchor * CellSize + Lattice.Origin, (Vector3) (Anchor + Size) * CellSize + Lattice.Origin);
 
 		public Dictionary<Index3, IEnumerable<Tract>> Quantization => quantization;

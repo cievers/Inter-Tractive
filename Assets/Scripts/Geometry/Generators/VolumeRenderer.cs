@@ -1,7 +1,8 @@
-﻿using Files.Publication;
+﻿using Evaluation.Coloring;
+using Files.Publication;
 
 namespace Geometry.Generators {
 	public interface VolumeRenderer {
-		public Topology.Topology Render(Nii<float> volume);
+		public Topology.Topology Render(Nii<float> volume, Coloring coloring);
 	}
 }

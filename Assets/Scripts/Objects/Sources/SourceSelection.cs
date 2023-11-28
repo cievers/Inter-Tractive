@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using SFB;
+using UnityEngine;
 
 namespace Objects.Sources {
 	public class SourceSelection : Source {
@@ -9,7 +10,11 @@ namespace Objects.Sources {
 		}
 		private void Browse() {
 			var selection = StandaloneFileBrowser.OpenFilePanel("Tract & volume files", "", new []{new ExtensionFilter("Tractography", "tck", "nii")}, false);
+
 			switch (selection.Length) {
+				case 0:
+					Abort();
+					break;
 				case 1:
 					Load(selection[0]);
 					break;

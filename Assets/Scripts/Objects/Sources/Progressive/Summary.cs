@@ -36,7 +36,7 @@ namespace Objects.Sources.Progressive {
 			var array = cuts as ConvexPolygon[] ?? cuts.ToArray();
 			CrossSectionAreas = array.Select(cut => cut.Area()).ToArray();
 			CrossSectionPerimeters = array.Select(cut => cut.Perimeter()).ToArray();
-			CrossSectionPerimeters = array.Select(cut => cut.Skewer.Size.magnitude).ToArray();
+			CrossSectionDiameters = array.Select(cut => cut.Skewer.Size.magnitude).ToArray();
 		}
 		// public void CrossSectionsVolume(Tract core, IEnumerable<ConvexPolygon> cuts) {
 		// 	var length = new Length().Measure(core);

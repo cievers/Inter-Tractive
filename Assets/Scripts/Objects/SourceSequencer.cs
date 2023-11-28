@@ -92,7 +92,6 @@ namespace Objects {
 		private void Start() {
 			sequence = System.IO.Directory.EnumerateFiles(INPUT, "*.tck", SearchOption.AllDirectories).ToArray();
 			tasks = new Func<SourceAutomation, Automation, bool>[] {
-				TaskAutomationListing,
 				TaskPerspective,
 				TaskNifti,
 				TaskSummary,

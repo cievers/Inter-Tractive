@@ -84,6 +84,7 @@ namespace Objects {
 		private int j = 0;
 		private Func<SourceAutomation, Automation, bool>[] tasks;
 
+		private int delay;
 		private bool waiting = true;
 		private bool signal = false;
 		private SourceAutomation signalSource;
@@ -101,6 +102,7 @@ namespace Objects {
 				TaskCapture,
 				TaskBundleCoreVisuals,
 				TaskBundlePerimeterVisuals,
+				TaskDelay,
 				TaskCapture,
 				TaskBundlePerimeterVisuals,
 				TaskBundleThicknessVisuals,
@@ -116,6 +118,12 @@ namespace Objects {
 			Source(sequence[i]);
 		}
 		private void Update() {
+			if (delay > 0) {
+				delay--;
+				if (delay == 0) {
+					signal = true;
+				}
+			}
 			if (signal) {
 				signal = false;
 				Task(signalSource, signalAutomation);
@@ -205,8 +213,17 @@ namespace Objects {
 		private void TaskPerspectiveApplication(Tuple<Vector3, float, Quaternion> perspective, Focus focus) {
 			camera.View(focus.Origin + perspective.Item1 * (perspective.Item2 * 1.5f), perspective.Item3);
 		}
+		private bool TaskDelay(SourceAutomation source, Automation automation) {
+			delay = 10;
+			signalSource = source;
+			signalAutomation = automation;
+			return true;
+		}
 		private bool TaskCapture(SourceAutomation source, Automation automation) {
 			source.Write(capture.Publication(), "png");
+			return false;
+		}
+		private bool TaskViridis(SourceAutomation source, Automation automation) {
 			return false;
 		}
 		private bool TaskToggleAllVisuals(SourceAutomation source, Automation automation) {

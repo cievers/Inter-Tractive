@@ -39,7 +39,7 @@ namespace Interface.Control {
 			);
 		}
 
-		public record Data : Component {
+		public record Data : Component, Paradigm.Value<TractEvaluation> {
 			public readonly Action<TractEvaluation> update;
 			public readonly Dictionary<string, Func<TractMetric>> measurements = new() {
 				{"Length", () => new Length()}, 
@@ -56,6 +56,9 @@ namespace Interface.Control {
 				{"Hue", new HueSaturation()},
 				// {"RGB", new Rgb()}
 			};
+
+			public string Name => "Evaluation";
+			public Action<TractEvaluation> Action => update;
 
 			public Data(Action<TractEvaluation> update) {
 				this.update = update;

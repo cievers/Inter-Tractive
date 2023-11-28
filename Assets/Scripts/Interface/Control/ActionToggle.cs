@@ -39,10 +39,12 @@ namespace Interface.Control {
 			displayFalse.SetActive(!state);
 		}
 		
-		public record Data(string Name, bool State, Action<bool> Action) : Component, Paradigm.Value<bool> {
+		public record Data(string Name, bool State, Action<bool> Action) : Component, Paradigm.Action, Paradigm.Value<bool> {
+			private Action action1;
 			public string Name {get;} = Name;
 			public bool State {get;} = State;
 			public Action<bool> Action {get;} = Action;
+			Action Paradigm.Action.Action => () => Action.Invoke(!State);
 		}
 	}
 }

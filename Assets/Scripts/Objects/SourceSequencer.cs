@@ -112,10 +112,6 @@ namespace Objects {
 				TaskBundleVolumeVisuals,
 				TaskBundleMapVisuals,
 				TaskCapture,
-				TaskBundleMapVisuals,
-				TaskLowResolution,
-				TaskCapture,
-				TaskLowResolution,
 				TaskCompletion
 			};
 			Source(sequence[i]);

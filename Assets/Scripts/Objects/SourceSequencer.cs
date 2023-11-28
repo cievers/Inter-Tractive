@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Camera;
+using Evaluation;
+using Evaluation.Coloring.Gradients;
+using Evaluation.Geometric;
 using Interface.Automation;
 using Interface.Paradigm;
 using Objects.Sources;
@@ -97,8 +100,10 @@ namespace Objects {
 				TaskNifti,
 				TaskSummary,
 				TaskCore,
+				TaskViridis,
 				TaskResetDefaultVisuals,
 				TaskBundleCoreVisuals,
+				TaskDelay,
 				TaskCapture,
 				TaskBundleCoreVisuals,
 				TaskBundlePerimeterVisuals,
@@ -112,6 +117,18 @@ namespace Objects {
 				TaskCapture,
 				TaskBundleVolumeVisuals,
 				TaskBundleMapVisuals,
+				TaskCapture,
+				TaskSpan,
+				TaskNifti,
+				TaskCapture,
+				TaskCurl,
+				TaskNifti,
+				TaskCapture,
+				TaskRoughness,
+				TaskNifti,
+				TaskCapture,
+				TaskDensity,
+				TaskNifti,
 				TaskCapture,
 				TaskCompletion
 			};
@@ -214,16 +231,13 @@ namespace Objects {
 			camera.View(focus.Origin + perspective.Item1 * (perspective.Item2 * 1.5f), perspective.Item3);
 		}
 		private bool TaskDelay(SourceAutomation source, Automation automation) {
-			delay = 10;
+			delay = 5;
 			signalSource = source;
 			signalAutomation = automation;
 			return true;
 		}
 		private bool TaskCapture(SourceAutomation source, Automation automation) {
 			source.Write(capture.Publication(), "png");
-			return false;
-		}
-		private bool TaskViridis(SourceAutomation source, Automation automation) {
 			return false;
 		}
 		private bool TaskToggleAllVisuals(SourceAutomation source, Automation automation) {
@@ -284,6 +298,26 @@ namespace Objects {
 		private bool TaskCore(SourceAutomation source, Automation automation) {
 			automation.Action("Exporting/Core tract").Automate();
 			return false;
+		}
+		private bool TaskViridis(SourceAutomation source, Automation automation) {
+			automation.Value<TractEvaluation>("Evaluation/Evaluation").Automate(new TractEvaluation(new Length(), new Viridis()));
+			return true;
+		}
+		private bool TaskSpan(SourceAutomation source, Automation automation) {
+			automation.Value<TractEvaluation>("Evaluation/Evaluation").Automate(new TractEvaluation(new Span(), new Viridis()));
+			return true;
+		}
+		private bool TaskCurl(SourceAutomation source, Automation automation) {
+			automation.Value<TractEvaluation>("Evaluation/Evaluation").Automate(new TractEvaluation(new Curl(), new Viridis()));
+			return true;
+		}
+		private bool TaskRoughness(SourceAutomation source, Automation automation) {
+			automation.Value<TractEvaluation>("Evaluation/Evaluation").Automate(new TractEvaluation(new Roughness(), new Viridis()));
+			return true;
+		}
+		private bool TaskDensity(SourceAutomation source, Automation automation) {
+			automation.Value<TractEvaluation>("Evaluation/Evaluation").Automate(new TractEvaluation(new Density(), new Viridis()));
+			return true;
 		}
 		private bool TaskCompletion(SourceAutomation source, Automation automation) {
 			source.AutomateClose();

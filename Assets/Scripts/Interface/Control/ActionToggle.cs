@@ -43,7 +43,12 @@ namespace Interface.Control {
 			public string Name {get;} = Name;
 			public bool State {get;} = State;
 			public Action<bool> Action {get;} = Action;
-			Action Paradigm.Action.Action => () => Action.Invoke(!State);
+			
+			private bool current = State;
+			Action Paradigm.Action.Action => () => {
+				current = !current;
+				Action.Invoke(current);
+			};
 		}
 	}
 }

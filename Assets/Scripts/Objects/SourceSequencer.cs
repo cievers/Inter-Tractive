@@ -92,14 +92,30 @@ namespace Objects {
 		private void Start() {
 			sequence = System.IO.Directory.EnumerateFiles(INPUT, "*.tck", SearchOption.AllDirectories).ToArray();
 			tasks = new Func<SourceAutomation, Automation, bool>[] {
-				// TaskAutomationListing,
-				// TaskView,
+				TaskAutomationListing,
 				TaskPerspective,
-				// TaskFocusListing,
+				TaskNifti,
+				TaskSummary,
+				TaskCore,
+				TaskResetDefaultVisuals,
+				TaskBundleCoreVisuals,
+				TaskCapture,
+				TaskBundleCoreVisuals,
+				TaskBundlePerimeterVisuals,
+				TaskCapture,
+				TaskBundlePerimeterVisuals,
+				TaskBundleThicknessVisuals,
+				TaskCapture,
+				TaskBundleThicknessVisuals,
+				TaskBundleVolumeVisuals,
+				TaskCapture,
+				TaskBundleVolumeVisuals,
+				TaskBundleMapVisuals,
+				TaskCapture,
+				TaskBundleMapVisuals,
+				TaskLowResolution,
 				TaskCapture,
 				TaskLowResolution,
-				// TaskNifti,
-				TaskCapture,
 				TaskCompletion
 			};
 			Source(sequence[i]);
@@ -198,12 +214,63 @@ namespace Objects {
 			source.Write(capture.Publication(), "png");
 			return false;
 		}
+		private bool TaskToggleAllVisuals(SourceAutomation source, Automation automation) {
+			automation.Action("Tracts").Automate();
+			automation.Action("Global measuring/Mean").Automate();
+			automation.Action("Global measuring/Span").Automate();
+			automation.Action("Global measuring/Minimum diameter").Automate();
+			automation.Action("Global measuring/Endpoint diameter").Automate();
+			automation.Action("Global measuring/Cross-section").Automate();
+			automation.Action("Global measuring/Volume").Automate();
+			automation.Action("Local measuring/Map").Automate();
+			return false;
+		}
+		private bool TaskResetDefaultVisuals(SourceAutomation source, Automation automation) {
+			automation.Action("Tracts").Automate();
+			automation.Action("Global measuring/Mean").Automate();
+			automation.Action("Local measuring/Map").Automate();
+			return false;
+		}
+		private bool TaskBundleCoreVisuals(SourceAutomation source, Automation automation) {
+			automation.Action("Tracts").Automate();
+			automation.Action("Global measuring/Mean").Automate();
+			automation.Action("Global measuring/Minimum diameter").Automate();
+			return false;
+		}
+		private bool TaskBundlePerimeterVisuals(SourceAutomation source, Automation automation) {
+			automation.Action("Tracts").Automate();
+			automation.Action("Global measuring/Span").Automate();
+			automation.Action("Global measuring/Endpoint diameter").Automate();
+			return false;
+		}
+		private bool TaskBundleThicknessVisuals(SourceAutomation source, Automation automation) {
+			automation.Action("Global measuring/Mean").Automate();
+			automation.Action("Global measuring/Cross-section").Automate();
+			return false;
+		}
+		private bool TaskBundleVolumeVisuals(SourceAutomation source, Automation automation) {
+			automation.Action("Tracts").Automate();
+			automation.Action("Global measuring/Volume").Automate();
+			return false;
+		}
+		private bool TaskBundleMapVisuals(SourceAutomation source, Automation automation) {
+			automation.Action("Local measuring/Map").Automate();
+			return false;
+		}
 		private bool TaskLowResolution(SourceAutomation source, Automation automation) {
 			automation.Range("Local measuring/Resolution").Simulate(0.75f);
 			return true;
 		}
 		private bool TaskNifti(SourceAutomation source, Automation automation) {
 			automation.Action("Exporting/Map").Automate();
+			return false;
+		}
+		private bool TaskSummary(SourceAutomation source, Automation automation) {
+			automation.Action("Exporting/Numerical summary").Automate();
+			return false;
+		}
+		private bool TaskCore(SourceAutomation source, Automation automation) {
+			automation.Action("Exporting/Core tract").Automate();
 			return false;
 		}
 		private bool TaskCompletion(SourceAutomation source, Automation automation) {

@@ -135,7 +135,9 @@ namespace Maps.Grids {
 						if (!intersected) {
 							// Somehow this segment does not intersect any face towards its endpoint
 							// This likely occurs because of floating point errors, where the segment just intersected with an entering face, but barely misses intersecting with an exiting face
-							throw new ArithmeticException("Segment " + pair.Segment + " did not intersect with any neighbouring cells towards the goal");
+							// throw new ArithmeticException("Segment " + pair.Segment + " did not intersect with any neighbouring cells towards the goal");
+							Debug.LogError("An error occurred finding corresponding voxels for a line segment from "+pair.Segment.Start+" to "+pair.Segment.End+", and this tract might thus be missing representation in some voxels");
+							break;
 						}
 						// TODO: It should be possible to place a bound on the number of steps through knowing the cell size and maximum separation of points in a tract
 						// if (steps >= limit) {
@@ -144,7 +146,7 @@ namespace Maps.Grids {
 					}
 				} catch (ArithmeticException error) {
 					Debug.Log("An error occurred finding corresponding voxels for a line segment from "+pair.Segment.Start+" to "+pair.Segment.End+", and this tract might thus be missing representation in some voxels");
-					Debug.Log(error);
+					Debug.LogError(error);
 					throw;
 				}
 			}

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,8 +12,10 @@ namespace Geometry {
 		public Vector3 Size => Max - Min;
 
 		public Boundaries(Vector3 min, Vector3 max) {
-			Min = min;
-			Max = max;
+			// Min = min;
+			// Max = max;
+			Min = new Vector3(Math.Min(min.x, max.x), Math.Min(min.y, max.y), Math.Min(min.z, max.z));
+			Max = new Vector3(Math.Max(min.x, max.x), Math.Max(min.y, max.y), Math.Max(min.z, max.z));
 		}
 		
 		public static Boundaries Join(params Boundaries[] geometry) => Join((IEnumerable<Boundaries>)geometry);

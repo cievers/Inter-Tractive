@@ -75,7 +75,7 @@ namespace Objects.Sources.Progressive {
 		private int samples = 32;
 		private float prominence = 0;
 		private float resolution = 1;
-		private int batch = 4096;
+		private int batch = 16384;
 		private TractEvaluation evaluation;
 		
 		private Map map;
@@ -267,7 +267,7 @@ namespace Objects.Sources.Progressive {
 				new Folder.Data("Local measuring", new List<Interface.Component> {
 					new Loader.Data(maps, new ActionToggle.Data("Map", true, gridMesh.gameObject.SetActive)),
 					new TransformedSlider.Exponential("Resolution", 10, 0, -1, 1, new ValueChangeBuffer<float>(0.1f, UpdateResolution).Request),
-					new TransformedSlider.Exponential("Batch size", 2, 12, 1, 20, (_, transformed) => ((int) Math.Round(transformed)).ToString(), UpdateBatch),
+					new TransformedSlider.Exponential("Batch size", 2, 14, 1, 20, (_, transformed) => ((int) Math.Round(transformed)).ToString(), UpdateBatch),
 				}),
 				new Divider.Data(),
 				new Folder.Data("Evaluation", new List<Interface.Component> {

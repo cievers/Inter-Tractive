@@ -125,6 +125,7 @@ namespace Objects.Sources.Progressive {
 			}
 			if (maps.TryTake(out var result)) {
 				gridMesh.mesh = result.Mesh();
+				Resources.UnloadUnusedAssets();
 				
 				// A bit of a hack checking for this here, as these evaluations also make some sense before the entire map is done
 				if (maps.IsCompleted) {

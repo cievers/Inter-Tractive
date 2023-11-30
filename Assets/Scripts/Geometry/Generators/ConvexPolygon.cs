@@ -27,7 +27,8 @@ namespace Geometry.Generators {
 		public ConvexPolygon(List<Vector3> points, Vector3 origin, Vector3 normal) {
 			var rotation = Quaternion.FromToRotation(normal, Vector3.forward);
 			var mapping = points
-				.ToDictionary(point => rotation * Plane.Projection(point, origin, normal), point => point)
+				.GroupBy(point => rotation * Plane.Projection(point, origin, normal))
+				.ToDictionary(group => group.Key, group => group.First())
 				.ToDictionary(projection => new Vector2(projection.Key.x, projection.Key.y), point => point.Value);
 			var perimeter = new ConvexPerimeter(mapping.Keys.ToList());
 			this.origin = origin;

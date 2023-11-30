@@ -65,6 +65,8 @@ namespace Objects.Sources.Progressive {
 		private PromiseCollector<Model> promisedCut;
 		private PromiseCollector<Hull> promisedVolume;
 		private PromiseCollector<Triple<Tuple<Vector3, Vector3, Topology>>> promisedDiameters;
+		private PromiseCollector<float> promisedVoxelSurface;
+		private PromiseCollector<float> promisedVoxelVolume;
 
 		private Files.Exporter exportMap;
 		private Files.Exporter exportCore;
@@ -98,6 +100,8 @@ namespace Objects.Sources.Progressive {
 			promisedCut = new PromiseCollector<Model>();
 			promisedVolume = new PromiseCollector<Hull>();
 			promisedDiameters = new PromiseCollector<Triple<Tuple<Vector3, Vector3, Topology>>>();
+			promisedVoxelSurface = new PromiseCollector<float>();
+			promisedVoxelVolume = new PromiseCollector<float>();
 
 			exportMap = new Files.Exporter("Save as NIFTI", "nii", Nifti);
 			exportCore = new Files.Exporter("Save as TCK", "tck", () => new SimpleTractogram(new[] {core}));
@@ -106,7 +110,7 @@ namespace Objects.Sources.Progressive {
 			tractogram = Tck.Load(path);
 			evaluation = new TractEvaluation(new CompoundMetric(new TractMetric[] {new Length()}), new Grayscale());
 			
-			loading = new Any(new Boolean[] {maps, promisedCore, promisedCut, promisedVolume, promisedDiameters});
+			loading = new Any(new Boolean[] {maps, promisedCore, promisedCut, promisedVolume, promisedDiameters, promisedVoxelSurface, promisedVoxelVolume});
 			loading.Change += state => Loading(!state);
 
 			UpdateSamples();
@@ -156,6 +160,13 @@ namespace Objects.Sources.Progressive {
 				startRadius.mesh = diameters.Item2.Item3.Mesh();
 				endRadius.transform.position = diameters.Item3.Item1;
 				endRadius.mesh = diameters.Item3.Item3.Mesh();
+			}
+
+			if (promisedVoxelSurface.TryTake(out var surface)) {
+				summary.SurfaceVoxels = surface;
+			}
+			if (promisedVoxelVolume.TryTake(out var volume)) {
+				summary.VolumeVoxels = volume;
 			}
 		}
 		private void UpdateTracts() {
@@ -229,8 +240,8 @@ namespace Objects.Sources.Progressive {
 			renderThread.Start();
 		}
 		private void UpdateMapEvaluation() {
-			new VoxelSurface(grid.Cells, grid.Size, grid.Resolution).Request(surface => summary.SurfaceVoxels = surface);
-			new VoxelVolume(grid.Cells, grid.Resolution).Request(volume => summary.VolumeVoxels = volume);
+			promisedVoxelSurface.Add(new VoxelSurface(grid.Cells, grid.Size, grid.Resolution));
+			promisedVoxelVolume.Add(new VoxelVolume(grid.Cells, grid.Resolution));
 			UpdateDiameterEvaluation();
 			UpdateCutEvaluation();
 		}

@@ -129,11 +129,7 @@ namespace Objects.Sources.Progressive {
 			}
 			if (maps.TryTake(out var result)) {
 				gridMesh.mesh = result.Mesh();
-				
-				// A bit of a hack checking for this here, as these evaluations also make some sense before the entire map is done
-				if (maps.IsCompleted) {
-					UpdateMapEvaluation();
-				}
+				UpdateMapEvaluation();
 			}
 
 			if (promisedCore.TryTake(out var tract)) {
@@ -214,6 +210,8 @@ namespace Objects.Sources.Progressive {
 			this.evaluation = evaluation;
 			// UpdateMap();
 			renderer.Evaluate(evaluation);
+			UpdateDiameterEvaluation();
+			UpdateCutEvaluation();
 		}
 		private void UpdateResolution(float resolution) {
 			this.resolution = resolution;
@@ -242,8 +240,6 @@ namespace Objects.Sources.Progressive {
 		private void UpdateMapEvaluation() {
 			promisedVoxelSurface.Add(new VoxelSurface(grid.Cells, grid.Size, grid.Resolution));
 			promisedVoxelVolume.Add(new VoxelVolume(grid.Cells, grid.Resolution));
-			UpdateDiameterEvaluation();
-			UpdateCutEvaluation();
 		}
 
 		public override Map Map() {

@@ -88,6 +88,7 @@ namespace Objects {
 		private Func<SourceAutomation, Automation, bool>[] tasks;
 
 		private int delay;
+		private KeyCode button;
 		private bool waiting = true;
 		private bool signal = false;
 		private SourceAutomation signalSource;
@@ -96,45 +97,51 @@ namespace Objects {
 		private void Start() {
 			sequence = System.IO.Directory.EnumerateFiles(INPUT, "*.tck", SearchOption.AllDirectories).ToArray();
 			tasks = new Func<SourceAutomation, Automation, bool>[] {
+				// TaskPerspective,
+				// TaskNifti,
+				// TaskSummary,
+				// TaskCore,
+				// TaskViridis,
+				// TaskResetDefaultVisuals,
+				// TaskBundleCoreVisuals,
+				// TaskDelay,
+				// TaskCapture,
+				// TaskBundleCoreVisuals,
+				// TaskBundlePerimeterVisuals,
+				// TaskDelay,
+				// TaskCapture,
+				// TaskBundlePerimeterVisuals,
+				// TaskBundleThicknessVisuals,
+				// TaskCapture,
+				// TaskBundleThicknessVisuals,
+				// TaskBundleVolumeVisuals,
+				// TaskCapture,
+				// TaskBundleVolumeVisuals,
+				// TaskBundleMapVisuals,
+				// TaskCapture,
+				// TaskSpan,
+				// TaskNifti,
+				// TaskCapture,
+				// TaskCurl,
+				// TaskNifti,
+				// TaskCapture,
+				// TaskRoughness,
+				// TaskNifti,
+				// TaskCapture,
+				// TaskDensity,
+				// TaskNifti,
+				// TaskCapture,
 				TaskPerspective,
-				TaskNifti,
-				TaskSummary,
-				TaskCore,
 				TaskViridis,
-				TaskResetDefaultVisuals,
-				TaskBundleCoreVisuals,
-				TaskDelay,
-				TaskCapture,
-				TaskBundleCoreVisuals,
-				TaskBundlePerimeterVisuals,
-				TaskDelay,
-				TaskCapture,
-				TaskBundlePerimeterVisuals,
-				TaskBundleThicknessVisuals,
-				TaskCapture,
-				TaskBundleThicknessVisuals,
-				TaskBundleVolumeVisuals,
-				TaskCapture,
-				TaskBundleVolumeVisuals,
-				TaskBundleMapVisuals,
-				TaskCapture,
-				TaskSpan,
-				TaskNifti,
-				TaskCapture,
-				TaskCurl,
-				TaskNifti,
-				TaskCapture,
-				TaskRoughness,
-				TaskNifti,
-				TaskCapture,
-				TaskDensity,
-				TaskNifti,
-				TaskCapture,
+				TaskConfirmEnter,
 				TaskCompletion
 			};
 			Source(sequence[i]);
 		}
 		private void Update() {
+			if (waiting && Input.GetKey(button)) {
+				signal = true;
+			}
 			if (delay > 0) {
 				delay--;
 				if (delay == 0) {
@@ -234,6 +241,18 @@ namespace Objects {
 			delay = 5;
 			signalSource = source;
 			signalAutomation = automation;
+			return true;
+		}
+		private bool TaskConfirmEnter(SourceAutomation source, Automation automation) {
+			button = KeyCode.Return;
+			signalSource = source;
+			signalAutomation = automation;
+			return true;
+		}
+		private bool TaskConfirmClosing(SourceAutomation source, Automation automation) {
+			signalSource = source;
+			signalAutomation = automation;
+			source.Closed += _ => signal = true;
 			return true;
 		}
 		private bool TaskCapture(SourceAutomation source, Automation automation) {

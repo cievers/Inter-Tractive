@@ -133,8 +133,10 @@ namespace Objects {
 				// TaskCapture,
 				TaskPerspective,
 				TaskViridis,
-				TaskResolutionDouble,
+				// TaskResolutionDouble,
 				// TaskResolutionHalf,
+				TaskSamplesHalf,
+				// TaskSamplesDouble,
 				TaskConfirmEnter,
 				TaskCompletion
 			};
@@ -314,6 +316,18 @@ namespace Objects {
 		}
 		private bool TaskResolutionDouble(SourceAutomation source, Automation automation) {
 			automation.Range("Local measuring/Resolution").Automate(2);
+			return true;
+		}
+		private bool TaskSamplesHalf(SourceAutomation source, Automation automation) {
+			automation.Range("Global measuring/Resample count").Automate(8);
+			return true;
+		}
+		private bool TaskSamplesDefault(SourceAutomation source, Automation automation) {
+			automation.Range("Local measuring/Resolution").Automate(32);
+			return true;
+		}
+		private bool TaskSamplesDouble(SourceAutomation source, Automation automation) {
+			automation.Range("Local measuring/Resolution").Automate(64);
 			return true;
 		}
 		private bool TaskNifti(SourceAutomation source, Automation automation) {

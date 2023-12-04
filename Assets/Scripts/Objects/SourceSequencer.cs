@@ -97,6 +97,7 @@ namespace Objects {
 		private void Start() {
 			sequence = System.IO.Directory.EnumerateFiles(INPUT, "*.tck", SearchOption.AllDirectories).ToArray();
 			tasks = new Func<SourceAutomation, Automation, bool>[] {
+				// ---- Tasks for capturing all visualizations ----
 				// TaskPerspective,
 				// TaskNifti,
 				// TaskSummary,
@@ -131,68 +132,82 @@ namespace Objects {
 				// TaskDensity,
 				// TaskNifti,
 				// TaskCapture,
+				// ---- Tasks for parameter variance ----
+				// TaskPerspective,
+				// TaskViridis,
+				//
+				// TaskResetDefaultVisuals,
+				//
+				// TaskBundleCoreTractsVisual,
+				// TaskDelay,
+				// TaskCapture,
+				// TaskBundleCoreTractsVisual,
+				// TaskBundleThicknessVisuals,
+				// TaskCapture,
+				// TaskBundleThicknessVisuals,
+				// TaskBundleVolumeVisuals,
+				// TaskCapture,
+				// TaskBundleVolumeVisuals,
+				//
+				// TaskSamplesHalf,
+				// TaskBundleCoreTractsVisual,
+				// TaskDelay,
+				// TaskCapture,
+				// TaskBundleCoreTractsVisual,
+				// TaskBundleThicknessVisuals,
+				// TaskCapture,
+				// TaskBundleThicknessVisuals,
+				// TaskBundleVolumeVisuals,
+				// TaskCapture,
+				// TaskBundleVolumeVisuals,
+				//
+				// TaskSamplesDouble,
+				// TaskBundleCoreTractsVisual,
+				// TaskDelay,
+				// TaskCapture,
+				// TaskBundleCoreTractsVisual,
+				// TaskBundleThicknessVisuals,
+				// TaskCapture,
+				// TaskBundleThicknessVisuals,
+				// TaskBundleVolumeVisuals,
+				// TaskCapture,
+				// TaskBundleVolumeVisuals,
+				//
+				// TaskBundleCoreIndividualVisual,
+				// TaskDelay,
+				// TaskSamplesDefault,
+				//
+				// TaskBundleMapVisuals,
+				// TaskCapture,
+				// TaskBundleMapVisuals,
+				// TaskConfirmEnter,
+				// TaskCapture,
+				//
+				// TaskResolutionDouble,
+				// TaskBundleMapVisuals,
+				// TaskCapture,
+				// TaskBundleMapVisuals,
+				// TaskConfirmEnter,
+				// TaskCapture,
+				//
+				// TaskResolutionHalf,
+				// TaskBundleMapVisuals,
+				// TaskCapture,
+				// TaskBundleMapVisuals,
+				// TaskConfirmEnter,
+				// TaskCapture,
+				// ---- Tasks for cross-section prominence ----
+				TaskSamplesDouble,
 				TaskPerspective,
 				TaskViridis,
-				
 				TaskResetDefaultVisuals,
-				
-				TaskBundleCoreTractsVisual,
+				TaskBundleThicknessVisuals,
+				TaskCapture,
+				TaskProminencePartial,
 				TaskDelay,
 				TaskCapture,
-				TaskBundleCoreTractsVisual,
-				TaskBundleThicknessVisuals,
-				TaskCapture,
-				TaskBundleThicknessVisuals,
-				TaskBundleVolumeVisuals,
-				TaskCapture,
-				TaskBundleVolumeVisuals,
-				
-				TaskSamplesHalf,
-				TaskBundleCoreTractsVisual,
+				TaskProminenceFull,
 				TaskDelay,
-				TaskCapture,
-				TaskBundleCoreTractsVisual,
-				TaskBundleThicknessVisuals,
-				TaskCapture,
-				TaskBundleThicknessVisuals,
-				TaskBundleVolumeVisuals,
-				TaskCapture,
-				TaskBundleVolumeVisuals,
-				
-				TaskSamplesDouble,
-				TaskBundleCoreTractsVisual,
-				TaskDelay,
-				TaskCapture,
-				TaskBundleCoreTractsVisual,
-				TaskBundleThicknessVisuals,
-				TaskCapture,
-				TaskBundleThicknessVisuals,
-				TaskBundleVolumeVisuals,
-				TaskCapture,
-				TaskBundleVolumeVisuals,
-				
-				TaskBundleCoreIndividualVisual,
-				TaskDelay,
-				TaskSamplesDefault,
-				
-				TaskBundleMapVisuals,
-				TaskCapture,
-				TaskBundleMapVisuals,
-				TaskConfirmEnter,
-				TaskCapture,
-				
-				TaskResolutionDouble,
-				TaskBundleMapVisuals,
-				TaskCapture,
-				TaskBundleMapVisuals,
-				TaskConfirmEnter,
-				TaskCapture,
-				
-				TaskResolutionHalf,
-				TaskBundleMapVisuals,
-				TaskCapture,
-				TaskBundleMapVisuals,
-				TaskConfirmEnter,
 				TaskCapture,
 				
 				TaskCompletion
@@ -394,6 +409,18 @@ namespace Objects {
 		}
 		private bool TaskSamplesDouble(SourceAutomation source, Automation automation) {
 			automation.Range("Global measuring/Resample count").Automate(64);
+			return true;
+		}
+		private bool TaskProminenceNone(SourceAutomation source, Automation automation) {
+			automation.Range("Global measuring/Cross-section prominence").Automate(0);
+			return true;
+		}
+		private bool TaskProminencePartial(SourceAutomation source, Automation automation) {
+			automation.Range("Global measuring/Cross-section prominence").Automate(0.1f);
+			return true;
+		}
+		private bool TaskProminenceFull(SourceAutomation source, Automation automation) {
+			automation.Range("Global measuring/Cross-section prominence").Automate(1);
 			return true;
 		}
 		private bool TaskNifti(SourceAutomation source, Automation automation) {

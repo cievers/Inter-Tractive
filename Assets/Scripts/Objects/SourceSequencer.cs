@@ -133,11 +133,68 @@ namespace Objects {
 				// TaskCapture,
 				TaskPerspective,
 				TaskViridis,
-				// TaskResolutionDouble,
-				// TaskResolutionHalf,
+				
+				TaskResetDefaultVisuals,
+				
+				TaskBundleCoreTractsVisual,
+				TaskDelay,
+				TaskCapture,
+				TaskBundleCoreTractsVisual,
+				TaskBundleThicknessVisuals,
+				TaskCapture,
+				TaskBundleThicknessVisuals,
+				TaskBundleVolumeVisuals,
+				TaskCapture,
+				TaskBundleVolumeVisuals,
+				
 				TaskSamplesHalf,
-				// TaskSamplesDouble,
+				TaskBundleCoreTractsVisual,
+				TaskDelay,
+				TaskCapture,
+				TaskBundleCoreTractsVisual,
+				TaskBundleThicknessVisuals,
+				TaskCapture,
+				TaskBundleThicknessVisuals,
+				TaskBundleVolumeVisuals,
+				TaskCapture,
+				TaskBundleVolumeVisuals,
+				
+				TaskSamplesDouble,
+				TaskBundleCoreTractsVisual,
+				TaskDelay,
+				TaskCapture,
+				TaskBundleCoreTractsVisual,
+				TaskBundleThicknessVisuals,
+				TaskCapture,
+				TaskBundleThicknessVisuals,
+				TaskBundleVolumeVisuals,
+				TaskCapture,
+				TaskBundleVolumeVisuals,
+				
+				TaskBundleCoreIndividualVisual,
+				TaskDelay,
+				TaskSamplesDefault,
+				
+				TaskBundleMapVisuals,
+				TaskCapture,
+				TaskBundleMapVisuals,
 				TaskConfirmEnter,
+				TaskCapture,
+				
+				TaskResolutionDouble,
+				TaskBundleMapVisuals,
+				TaskCapture,
+				TaskBundleMapVisuals,
+				TaskConfirmEnter,
+				TaskCapture,
+				
+				TaskResolutionHalf,
+				TaskBundleMapVisuals,
+				TaskCapture,
+				TaskBundleMapVisuals,
+				TaskConfirmEnter,
+				TaskCapture,
+				
 				TaskCompletion
 			};
 			Source(sequence[i]);
@@ -280,6 +337,15 @@ namespace Objects {
 			automation.Action("Local measuring/Map").Automate();
 			return false;
 		}
+		private bool TaskBundleCoreIndividualVisual(SourceAutomation source, Automation automation) {
+			automation.Action("Global measuring/Mean").Automate();
+			return false;
+		}
+		private bool TaskBundleCoreTractsVisual(SourceAutomation source, Automation automation) {
+			automation.Action("Tracts").Automate();
+			automation.Action("Global measuring/Mean").Automate();
+			return false;
+		}
 		private bool TaskBundleCoreVisuals(SourceAutomation source, Automation automation) {
 			automation.Action("Tracts").Automate();
 			automation.Action("Global measuring/Mean").Automate();
@@ -323,11 +389,11 @@ namespace Objects {
 			return true;
 		}
 		private bool TaskSamplesDefault(SourceAutomation source, Automation automation) {
-			automation.Range("Local measuring/Resolution").Automate(32);
+			automation.Range("Global measuring/Resample count").Automate(32);
 			return true;
 		}
 		private bool TaskSamplesDouble(SourceAutomation source, Automation automation) {
-			automation.Range("Local measuring/Resolution").Automate(64);
+			automation.Range("Global measuring/Resample count").Automate(64);
 			return true;
 		}
 		private bool TaskNifti(SourceAutomation source, Automation automation) {

@@ -197,18 +197,20 @@ namespace Objects {
 				// TaskConfirmEnter,
 				// TaskCapture,
 				// ---- Tasks for cross-section prominence ----
-				TaskSamplesDouble,
+				// TaskSamplesDouble,
+				// TaskPerspective,
+				// TaskViridis,
+				// TaskResetDefaultVisuals,
+				// TaskBundleThicknessVisuals,
+				// TaskCapture,
+				// TaskProminencePartial,
+				// TaskDelay,
+				// TaskCapture,
+				// TaskProminenceFull,
+				// TaskDelay,
+				// TaskCapture,
+				// ---- Tasks for aligning with MRtrix ----
 				TaskPerspective,
-				TaskViridis,
-				TaskResetDefaultVisuals,
-				TaskBundleThicknessVisuals,
-				TaskCapture,
-				TaskProminencePartial,
-				TaskDelay,
-				TaskCapture,
-				TaskProminenceFull,
-				TaskDelay,
-				TaskCapture,
 				
 				TaskCompletion
 			};
